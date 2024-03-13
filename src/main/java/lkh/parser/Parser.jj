@@ -1,0 +1,93 @@
+PARSER_BEGIN(Parser)
+
+package lkh.parser;
+
+public class Parser {}
+
+PARSER_END(Parser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  < IMPLIES : "implies" >
+  | < OR : "or" >
+  | < AND : "and" >
+  | < NOT : "not" >
+  | < KH : "kh" >
+  | < PROP : ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
+}
+
+TreeNode Expression() :
+{ TreeNode t; }
+{
+    t=Implies() <EOF>
+    { return t; }
+}
+
+TreeNode Implies() :
+{ TreeNode left, right; }
+{
+    left=Disyunction()
+    (
+        <IMPLIES> right=Implies()
+        { left = new TreeNode(TokenType.IMPLIES, "implies", left, right); }
+    )?
+    { return left; }
+}
+
+TreeNode Disyunction() :
+{ TreeNode left, right; }
+{
+    left=Conjunction()
+
+    (<OR> right=Conjunction()
+    { left = new TreeNode(TokenType.OR, "or", left, right); }
+    )*
+
+    {return left;}
+}
+
+TreeNode Conjunction() :
+{ TreeNode left, right; }
+{
+    left=Not()
+
+    (<AND> right=Not()
+    { left = new TreeNode(TokenType.AND, "and", left, right); }
+    )*
+
+    {return left;}
+}
+
+TreeNode Not() :
+{ TreeNode t; }
+{
+    <NOT> t=Atom()
+    { return new TreeNode(TokenType.NOT, "not", null, t); }
+
+    | t=Atom()
+    { return t; }
+}
+
+TreeNode Atom() :
+{
+    Token t;
+    TreeNode left, right;
+}
+{
+    t=<PROP>
+    { return new TreeNode(TokenType.PROP, t.image); }
+
+    | "(" left=Implies() ")"
+    { return left; }
+
+    | <KH> "(" left=Implies() "," right=Implies() ")"
+    { return new TreeNode(TokenType.KH, "kh", left, right); }
+}
