@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class HashMapLTS implements LTS {
   private final HashMap<State, Set<Transition>> map = new HashMap<>();
@@ -28,6 +30,34 @@ public class HashMapLTS implements LTS {
     addState(toState);
 
     return map.get(fromState).add(new Transition(action, toState));
+  }
+
+  @Override
+  public Set<State> getStates() {
+    return map.keySet();
+  }
+
+  @Override
+  public Set<State> destinations(State from, Action action) {
+    if (!containsState(from))
+      throw new IllegalArgumentException("lts doesn't contain the given state");
+
+    return map.get(from).stream()
+        .filter(t -> t.action.equals(action))   // find collection of transitions
+        .map(Transition::getState)              // get collection of states
+        .collect(Collectors.toSet());
+  }
+
+  @Override
+  public Set<State> evaluate(Collection<Proposition> propositions) {
+    return getStates().stream()
+        .filter(s -> s.satisfiesAll(propositions))
+        .collect(Collectors.toSet());
+  }
+
+  @Override
+  public boolean containsState(State state) {
+    return getStates().contains(state);
   }
 
   @Data
