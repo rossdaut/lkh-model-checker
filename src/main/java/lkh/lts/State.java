@@ -10,6 +10,5 @@ import java.util.HashSet;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class State {
-  int id;
-  HashSet<String> propositions;
+  HashSet<Proposition> propositions;
 }
