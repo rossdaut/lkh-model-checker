@@ -100,8 +100,8 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
   }
 
   private boolean addTransitionAux(State source, State target, Symbol symbol) {
-    if (!containsState(source)) throw new IllegalArgumentException("source not in states set");
-    if (!containsState(target)) throw new IllegalArgumentException("target not in states set");
+    addState(source);
+    addState(target);
 
     return transitionsMap
             .get(source)

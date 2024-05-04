@@ -14,16 +14,12 @@ public abstract class AbstractAutomaton<State, Symbol> {
   protected final Set<Symbol> alphabet = new HashSet<>();
 
   public void setInitialState(State initialState) {
-    if (!containsState(initialState))
-      throw new IllegalArgumentException("ïnitialState not in states set");
-
+    addState(initialState);
     this.initialState = initialState;
   }
 
   public boolean addFinalState(State state) {
-    if (!containsState(initialState))
-      throw new IllegalArgumentException("ïnitialState not in states set");
-
+    addState(state);
     return finalStates.add(state);
   }
 
