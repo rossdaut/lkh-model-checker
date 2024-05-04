@@ -14,21 +14,12 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
   public boolean addTransition(State source, State target, Symbol symbol) {
     if (symbol == null) throw new NullPointerException("symbol can't be null");
 
+    alphabet.add(symbol);
     return addTransitionAux(source, target, symbol);
   }
 
   public boolean addEmptyTransition(State source, State target) {
     return addTransitionAux(source, target, null);
-  }
-
-  public boolean removeTransition(State source, State target, Symbol symbol) {
-    if (symbol == null) throw new NullPointerException("symbol can't be null");
-
-    return removeTransitionAux(source, target, symbol);
-  }
-
-  public boolean removeEmptyTransition(State source, State target) {
-    return removeTransitionAux(source, target, null);
   }
 
   @Override
@@ -116,15 +107,5 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
             .get(source)
             .getOrDefault(symbol, new HashSet<>())
             .add(target);
-  }
-
-  private boolean removeTransitionAux(State source, State target, Symbol symbol) {
-    var sourceMap = transitionsMap.get(source);
-    if (sourceMap == null) return false;
-
-    var targetSet = sourceMap.get(symbol);
-    if (targetSet == null) return false;
-
-    return targetSet.remove(target);
   }
 }

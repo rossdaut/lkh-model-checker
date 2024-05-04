@@ -11,18 +11,17 @@ public class DeterministicAutomaton<State, Symbol> extends NonDeterministicAutom
         throw new UnsupportedOperationException("Cannot add an empty transition to a FDA");
     }
 
-    public boolean removeTransition(State source, Symbol symbol) {
-        Map<Symbol, Set<State>> sourceMap = transitionsMap.get(source);
-        if (sourceMap == null) return false;
-
-        sourceMap.remove(symbol);
-        return true;
-    }
-
     @Override
     public boolean addTransition(State source, State target, Symbol symbol) {
         removeTransition(source, symbol);
         return super.addTransition(source, target, symbol);
     }
 
+    private boolean removeTransition(State source, Symbol symbol) {
+        Map<Symbol, Set<State>> sourceMap = transitionsMap.get(source);
+        if (sourceMap == null) return false;
+
+        sourceMap.remove(symbol);
+        return true;
+    }
 }

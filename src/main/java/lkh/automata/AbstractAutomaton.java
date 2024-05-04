@@ -2,13 +2,16 @@ package lkh.automata;
 
 import lombok.Getter;
 
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractAutomaton<State, Symbol> {
 
   @Getter
-  private State initialState;
-  private Set<State> finalStates;
+  protected State initialState;
+  protected final Set<State> finalStates = new HashSet<>();
+  protected final Set<Symbol> alphabet = new HashSet<>();
 
   public void setInitialState(State initialState) {
     if (!containsState(initialState))
