@@ -1,10 +1,9 @@
 package lkh.automata;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<State, Symbol> {
-  private final Map<State, Map<Symbol, Set<State>>> transitionsMap = new HashMap<>();
+  protected final Map<State, Map<Symbol, Set<State>>> transitionsMap = new HashMap<>();
 
   @Override
   public boolean addState(State state) {
@@ -13,24 +12,23 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
 
   @Override
   public boolean addTransition(State source, State target, Symbol symbol) {
-    if (!containsState(source)) throw new IllegalArgumentException("source not in states set");
-    if (!containsState(target)) throw new IllegalArgumentException("target not in states set");
     if (symbol == null) throw new NullPointerException("symbol can't be null");
 
-    return transitionsMap
-        .get(source)
-        .getOrDefault(symbol, new HashSet<>())
-        .add(target);
+    return addTransitionAux(source, target, symbol);
   }
 
   public boolean addEmptyTransition(State source, State target) {
-    if (!containsState(source)) throw new IllegalArgumentException("source not in states set");
-    if (!containsState(target)) throw new IllegalArgumentException("target not in states set");
+    return addTransitionAux(source, target, null);
+  }
 
-    return transitionsMap
-        .get(source)
-        .getOrDefault(null, new HashSet<>())
-        .add(target);
+  public boolean removeTransition(State source, State target, Symbol symbol) {
+    if (symbol == null) throw new NullPointerException("symbol can't be null");
+
+    return removeTransitionAux(source, target, symbol);
+  }
+
+  public boolean removeEmptyTransition(State source, State target) {
+    return removeTransitionAux(source, target, null);
   }
 
   @Override
@@ -110,5 +108,23 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
     return result;
   }
 
+  private boolean addTransitionAux(State source, State target, Symbol symbol) {
+    if (!containsState(source)) throw new IllegalArgumentException("source not in states set");
+    if (!containsState(target)) throw new IllegalArgumentException("target not in states set");
 
+    return transitionsMap
+            .get(source)
+            .getOrDefault(symbol, new HashSet<>())
+            .add(target);
+  }
+
+  private boolean removeTransitionAux(State source, State target, Symbol symbol) {
+    var sourceMap = transitionsMap.get(source);
+    if (sourceMap == null) return false;
+
+    var targetSet = sourceMap.get(symbol);
+    if (targetSet == null) return false;
+
+    return targetSet.remove(target);
+  }
 }

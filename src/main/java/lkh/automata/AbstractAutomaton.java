@@ -28,7 +28,7 @@ public abstract class AbstractAutomaton<State, Symbol> {
 
   public abstract boolean addTransition(State source, State target, Symbol symbol);
 
-
+  public abstract boolean removeTransition(State source, State target, Symbol symbol);
 
   public abstract Set<State> getStates();
 
