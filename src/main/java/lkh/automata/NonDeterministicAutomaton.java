@@ -109,13 +109,25 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
     return result;
   }
 
+  public boolean evaluate(List<Symbol> string) {
+    Set<State> currentStates = lambdaClosure(initialState);
+
+    for (Symbol symbol : string) {
+      currentStates = lambdaClosure(move(currentStates, symbol));
+      if (currentStates.isEmpty()) return false;
+    }
+
+    currentStates.retainAll(finalStates);
+    return !currentStates.isEmpty();
+  }
+
   private boolean addTransitionAux(State source, State target, Symbol symbol) {
     addState(source);
     addState(target);
 
     return transitionsMap
-            .get(source)
-            .getOrDefault(symbol, new HashSet<>())
-            .add(target);
+        .get(source)
+        .getOrDefault(symbol, new HashSet<>())
+        .add(target);
   }
 }
