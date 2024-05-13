@@ -6,6 +6,15 @@ import java.util.Map;
 import java.util.Set;
 
 public class AutomatonOperations {
+  /**
+   * Determinizes a NFA.
+   * The resulting DFA has states of type Integer. The content of the states of the input automaton is not preserved.
+   * The symbols will remain the same type.
+   * @param automaton a NFA
+   * @return a DFA accepting the same language as the input NFA
+   * @param <State> the type of State of the input NFA
+   * @param <Symbol> the type of Symbol
+   */
   public static <State, Symbol> DeterministicAutomaton<Integer, Symbol> determinize(NonDeterministicAutomaton<State, Symbol> automaton) {
     DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
     Set<Set<State>> unvisitedStates = new HashSet<>();

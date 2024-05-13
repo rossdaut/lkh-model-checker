@@ -91,6 +91,14 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
   }
 */
 
+  /**
+   * Return the set of states reached by consuming the symbol from any of the given states.
+   * Does not consider empty transitions.
+   * Does not include the source states, except for the ones that have a loop.
+   * @param states the set of source states
+   * @param symbol the symbol to consume
+   * @return the set of target states
+   */
   public Set<State> move(Set<State> states, Symbol symbol) {
     Set<State> result = new HashSet<>();
     for (State state : states) {
