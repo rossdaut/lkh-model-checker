@@ -125,9 +125,11 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
     addState(source);
     addState(target);
 
+    transitionsMap.get(source).putIfAbsent(symbol, new HashSet<>());
+
     return transitionsMap
         .get(source)
-        .getOrDefault(symbol, new HashSet<>())
+        .get(symbol)
         .add(target);
   }
 }

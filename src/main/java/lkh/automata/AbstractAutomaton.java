@@ -11,6 +11,7 @@ public abstract class AbstractAutomaton<State, Symbol> {
   @Getter
   protected State initialState;
   protected final Set<State> finalStates = new HashSet<>();
+  @Getter
   protected final Set<Symbol> alphabet = new HashSet<>();
 
   public void setInitialState(State initialState) {
