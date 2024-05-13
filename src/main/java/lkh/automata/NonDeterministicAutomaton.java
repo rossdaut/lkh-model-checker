@@ -33,9 +33,11 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
   }
 
   public Set<State> delta(State source, Symbol symbol) {
+    if (!containsState(source)) throw new IllegalArgumentException("source state not in states set");
+
     return transitionsMap
         .get(source)
-        .get(symbol);
+        .getOrDefault(symbol, new HashSet<>());
   }
 
   /**
