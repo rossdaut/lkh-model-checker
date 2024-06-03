@@ -1,0 +1,81 @@
+PARSER_BEGIN(Parser)
+
+package lkh.dot.parser;
+
+public class Parser {
+  public NonDeterministicAutomaton<String, String> nfa;
+}
+
+PARSER_END(Parser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  < GRAPH : "graph" >
+  | < DIGRAPH : "digraph" >
+  | < RARROW : "->" >
+  | < LABEL : "label" >
+  | < ID : (["a"-"z","A"-"Z","_","0"-"9"])+ >
+}
+
+NonDeterministicAutomaton<String, String> Graph() :
+{ nfa = new NonDeterministicAutomaton<>(); }
+{
+  <GRAPH> <ID> "{" stmtList(nfa) "}" <EOF>
+  { return nfa; }
+}
+
+void stmtList() :
+{}
+{
+  stmt() (";" stmtList())*
+}
+
+void stmt() :
+{}
+{
+  nodeStmt() | edgeStmt()
+}
+
+void nodeStmt() :
+{ String l; Token id; }
+{
+  id=<ID>
+  { nfa.addState(id.image); }
+}
+
+String label() :
+{}
+{
+  "[" <LABEL> "=" id=<ID> "]"
+  { return id.image; }
+}
+
+void edgeStmt() :
+{
+  String l = null;
+  String left, right;
+}
+{
+  left=nodeId() <RARROW> right=nodeId() (l=label())?
+  {
+    if (l == null)
+      nfa.addEmptyTransition(left, right);
+    else
+      nfa.addTransition(left, right, l);
+  }
+}
+
+String nodeId() :
+{ String id; }
+{
+  id=<ID>
+  { return id.image; }
+}
