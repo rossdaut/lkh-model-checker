@@ -30,14 +30,14 @@ TOKEN :
 NonDeterministicAutomaton<String, String> Graph() :
 { nfa = new NonDeterministicAutomaton<>(); }
 {
-  <GRAPH> <ID> "{" stmtList() <EOF>
+  <DIGRAPH> <ID> "{" stmtList() "}" <EOF>
   { return nfa; }
 }
 
 void stmtList() :
 {}
 {
-  stmt() (";" stmtList())* "}"
+  stmt() (";" stmt())*
 }
 
 void stmt() :
@@ -67,6 +67,6 @@ void rEdgeStmt(Token lid, Token rid) :
 String label() :
 { Token id; }
 {
-  "[" <LABEL> "=" id=<ID> "]"
+  "[" <LABEL> "=" "\""id=<ID>"\"" "]"
   { return id.image; }
 }

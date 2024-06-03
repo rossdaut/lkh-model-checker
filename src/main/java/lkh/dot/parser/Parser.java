@@ -8,10 +8,11 @@ public class Parser implements ParserConstants {
   public static NonDeterministicAutomaton<String, String> nfa;
 
   static final public NonDeterministicAutomaton<String, String> Graph() throws ParseException {nfa = new NonDeterministicAutomaton<>();
-    jj_consume_token(GRAPH);
+    jj_consume_token(DIGRAPH);
     jj_consume_token(ID);
     jj_consume_token(10);
     stmtList();
+    jj_consume_token(11);
     jj_consume_token(0);
 {if ("" != null) return nfa;}
     throw new Error("Missing return statement in function");
@@ -22,7 +23,7 @@ public class Parser implements ParserConstants {
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 11:{
+      case 12:{
         ;
         break;
         }
@@ -30,10 +31,9 @@ public class Parser implements ParserConstants {
         jj_la1[0] = jj_gen;
         break label_1;
       }
-      jj_consume_token(11);
-      stmtList();
+      jj_consume_token(12);
+      stmt();
     }
-    jj_consume_token(12);
 }
 
   static final public void stmt() throws ParseException {Token id;
@@ -52,7 +52,7 @@ public class Parser implements ParserConstants {
       }
     default:
       jj_la1[1] = jj_gen;
-      nfa.addState(lid.image);
+nfa.addState(lid.image);
     }
 }
 
@@ -60,12 +60,12 @@ public class Parser implements ParserConstants {
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case 13:{
       l = label();
-      nfa.addTransition(lid.image, rid.image, l);
+nfa.addTransition(lid.image, rid.image, l);
       break;
       }
     default:
       jj_la1[2] = jj_gen;
-      nfa.addEmptyTransition(lid.image, rid.image);
+nfa.addEmptyTransition(lid.image, rid.image);
     }
 }
 
@@ -73,8 +73,10 @@ public class Parser implements ParserConstants {
     jj_consume_token(13);
     jj_consume_token(LABEL);
     jj_consume_token(14);
+    jj_consume_token(15);
     id = jj_consume_token(ID);
     jj_consume_token(15);
+    jj_consume_token(16);
 {if ("" != null) return id.image;}
     throw new Error("Missing return statement in function");
 }
@@ -95,7 +97,7 @@ public class Parser implements ParserConstants {
 	   jj_la1_init_0();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x800,0x80,0x2000,};
+	   jj_la1_0 = new int[] {0x1000,0x80,0x2000,};
 	}
 
   /** Constructor with InputStream. */
@@ -241,7 +243,7 @@ public class Parser implements ParserConstants {
   /** Generate ParseException. */
   static public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[16];
+	 boolean[] la1tokens = new boolean[17];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -255,7 +257,7 @@ public class Parser implements ParserConstants {
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 16; i++) {
+	 for (int i = 0; i < 17; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;
