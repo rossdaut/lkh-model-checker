@@ -22,6 +22,7 @@ TOKEN :
 {
   < GRAPH : "graph" >
   | < DIGRAPH : "digraph" >
+  | < INIT : "init_" >
   | < RARROW : "->" >
   | < LABEL : "label" >
   | < ID : (["a"-"z","A"-"Z","_","0"-"9"])+ >
@@ -30,7 +31,7 @@ TOKEN :
 NonDeterministicAutomaton<String, String> Graph() :
 { nfa = new NonDeterministicAutomaton<>(); }
 {
-  <DIGRAPH> <ID> "{" stmtList() "}" <EOF>
+  <DIGRAPH> (<ID>)? "{" stmtList() "}" <EOF>
   { return nfa; }
 }
 
@@ -43,14 +44,24 @@ void stmtList() :
 void stmt() :
 { Token id; }
 {
-  // nodeStmt() | edgeStmt()
-  id=<ID> rStmt(id)
+  <INIT> initStmt()
+  | id=<ID> rStmt(id)
+}
+
+void initStmt() :
+{ Token id; }
+{
+  "[shape=\"point\"]"
+  | "->" id=<ID>
+  { nfa.setInitialState(id.image); }
 }
 
 void rStmt(Token lid) :
 { Token rid; }
 {
-  <RARROW> rid=<ID> rEdgeStmt(lid, rid)
+  "[shape=\"doublecircle\"]"
+  { nfa.addFinalState(lid.image); }
+  | <RARROW> rid=<ID> rEdgeStmt(lid, rid)
   |
   { nfa.addState(lid.image); }
 }

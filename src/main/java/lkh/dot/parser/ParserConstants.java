@@ -15,11 +15,13 @@ public interface ParserConstants {
   /** RegularExpression Id. */
   int DIGRAPH = 6;
   /** RegularExpression Id. */
-  int RARROW = 7;
+  int INIT = 7;
   /** RegularExpression Id. */
-  int LABEL = 8;
+  int RARROW = 8;
   /** RegularExpression Id. */
-  int ID = 9;
+  int LABEL = 9;
+  /** RegularExpression Id. */
+  int ID = 10;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -33,12 +35,15 @@ public interface ParserConstants {
     "\"\\r\"",
     "\"graph\"",
     "\"digraph\"",
+    "\"init_\"",
     "\"->\"",
     "\"label\"",
     "<ID>",
     "\"{\"",
     "\"}\"",
     "\";\"",
+    "\"[shape=\\\"point\\\"]\"",
+    "\"[shape=\\\"doublecircle\\\"]\"",
     "\"[\"",
     "\"=\"",
     "\"\\\"\"",
