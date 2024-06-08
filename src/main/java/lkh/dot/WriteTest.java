@@ -2,7 +2,7 @@ package lkh.dot;
 
 import lkh.automata.NonDeterministicAutomaton;
 
-public class Main {
+public class WriteTest {
   public static void main(String[] args) {
     NonDeterministicAutomaton<Integer, Character> a = new NonDeterministicAutomaton<>();
 
@@ -18,6 +18,6 @@ public class Main {
     System.out.println(a.getStates());
     System.out.println(a.delta(0, 'b'));
 
-    DotWriter.writeNFA(a, "g.dot");
+    DotWriter.writeNFA(a, "test.dot");
   }
 }
