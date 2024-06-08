@@ -23,7 +23,7 @@ public class NonDeterministicAutomatonTest {
   static void setUp() {
     try {
       String resourcesPath = "src/test/resources";
-      nfa = DotReader.readNFA(resourcesPath + "/nfatest.dot");
+      nfa = DotReader.readNFA(resourcesPath + "/nfa.dot");
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }
