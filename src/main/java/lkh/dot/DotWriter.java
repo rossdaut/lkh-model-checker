@@ -17,11 +17,16 @@ public class DotWriter {
 
     writer.println("digraph {");
 
+    writer.println("init_ [shape=\"point\"];");
+    writer.printf("init_ -> %s;\n", automaton.getInitialState());
+    for (State state : automaton.getFinalStates()) {
+      writer.printf("%s [shape=\"doublecircle\"];\n", state);
+    }
+
     Queue<State> queue = new LinkedList<>();
     queue.add(automaton.getInitialState());
 
     Set<State> visited = new HashSet<>();
-    //ArrayList<State> indexMap = new ArrayList<>(automaton.getStates());
     State currentState;
 
     while (!queue.isEmpty()) {
