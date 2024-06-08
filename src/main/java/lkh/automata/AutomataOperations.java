@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class AutomatonOperations {
+public class AutomataOperations {
   /**
    * Determinizes a NFA.
    * The resulting DFA has states of type Integer. The content of the states of the input automaton is not preserved.
