@@ -18,9 +18,9 @@ public class Parser implements ParserConstants {
       jj_la1[0] = jj_gen;
       ;
     }
-    jj_consume_token(11);
-    stmtList();
     jj_consume_token(12);
+    stmtList();
+    jj_consume_token(13);
     jj_consume_token(0);
 {if ("" != null) return nfa;}
     throw new Error("Missing return statement in function");
@@ -31,7 +31,7 @@ public class Parser implements ParserConstants {
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 13:{
+      case 14:{
         ;
         break;
         }
@@ -39,7 +39,7 @@ public class Parser implements ParserConstants {
         jj_la1[1] = jj_gen;
         break label_1;
       }
-      jj_consume_token(13);
+      jj_consume_token(14);
       stmt();
     }
 }
@@ -65,8 +65,12 @@ public class Parser implements ParserConstants {
 
   static final public void initStmt() throws ParseException {Token id;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case 14:{
-      jj_consume_token(14);
+    case 15:{
+      jj_consume_token(15);
+      jj_consume_token(SHAPE);
+      jj_consume_token(16);
+      jj_consume_token(17);
+      jj_consume_token(18);
       break;
       }
     case RARROW:{
@@ -86,6 +90,10 @@ nfa.setInitialState(id.image);
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case 15:{
       jj_consume_token(15);
+      jj_consume_token(SHAPE);
+      jj_consume_token(16);
+      jj_consume_token(19);
+      jj_consume_token(18);
 nfa.addFinalState(lid.image);
       break;
       }
@@ -103,7 +111,7 @@ nfa.addState(lid.image);
 
   static final public void rEdgeStmt(Token lid, Token rid) throws ParseException {String l;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case 16:{
+    case 15:{
       l = label();
 nfa.addTransition(lid.image, rid.image, l);
       break;
@@ -115,13 +123,13 @@ nfa.addEmptyTransition(lid.image, rid.image);
 }
 
   static final public String label() throws ParseException {Token id;
-    jj_consume_token(16);
+    jj_consume_token(15);
     jj_consume_token(LABEL);
-    jj_consume_token(17);
-    jj_consume_token(18);
+    jj_consume_token(16);
+    jj_consume_token(20);
     id = jj_consume_token(ID);
+    jj_consume_token(20);
     jj_consume_token(18);
-    jj_consume_token(19);
 {if ("" != null) return id.image;}
     throw new Error("Missing return statement in function");
 }
@@ -142,7 +150,7 @@ nfa.addEmptyTransition(lid.image, rid.image);
 	   jj_la1_init_0();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x400,0x2000,0x480,0x4100,0x8100,0x10000,};
+	   jj_la1_0 = new int[] {0x800,0x4000,0x880,0x8100,0x8100,0x8000,};
 	}
 
   /** Constructor with InputStream. */
@@ -288,7 +296,7 @@ nfa.addEmptyTransition(lid.image, rid.image);
   /** Generate ParseException. */
   static public ParseException generateParseException() {
 	 jj_expentries.clear();
-	 boolean[] la1tokens = new boolean[20];
+	 boolean[] la1tokens = new boolean[21];
 	 if (jj_kind >= 0) {
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
@@ -302,7 +310,7 @@ nfa.addEmptyTransition(lid.image, rid.image);
 		 }
 	   }
 	 }
-	 for (int i = 0; i < 20; i++) {
+	 for (int i = 0; i < 21; i++) {
 	   if (la1tokens[i]) {
 		 jj_expentry = new int[1];
 		 jj_expentry[0] = i;

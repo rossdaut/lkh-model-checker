@@ -25,6 +25,7 @@ TOKEN :
   | < INIT : "init_" >
   | < RARROW : "->" >
   | < LABEL : "label" >
+  | < SHAPE : "shape" >
   | < ID : (["a"-"z","A"-"Z","_","0"-"9"])+ >
 }
 
@@ -51,7 +52,7 @@ void stmt() :
 void initStmt() :
 { Token id; }
 {
-  "[shape=\"point\"]"
+  "[" <SHAPE> "=" "\"point\"" "]"
   | "->" id=<ID>
   { nfa.setInitialState(id.image); }
 }
@@ -59,7 +60,7 @@ void initStmt() :
 void rStmt(Token lid) :
 { Token rid; }
 {
-  "[shape=\"doublecircle\"]"
+  "[" <SHAPE> "=" "\"doublecircle\"" "]"
   { nfa.addFinalState(lid.image); }
   | <RARROW> rid=<ID> rEdgeStmt(lid, rid)
   |

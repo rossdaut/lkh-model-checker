@@ -21,7 +21,9 @@ public interface ParserConstants {
   /** RegularExpression Id. */
   int LABEL = 9;
   /** RegularExpression Id. */
-  int ID = 10;
+  int SHAPE = 10;
+  /** RegularExpression Id. */
+  int ID = 11;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -38,16 +40,17 @@ public interface ParserConstants {
     "\"init_\"",
     "\"->\"",
     "\"label\"",
+    "\"shape\"",
     "<ID>",
     "\"{\"",
     "\"}\"",
     "\";\"",
-    "\"[shape=\\\"point\\\"]\"",
-    "\"[shape=\\\"doublecircle\\\"]\"",
     "\"[\"",
     "\"=\"",
-    "\"\\\"\"",
+    "\"\\\"point\\\"\"",
     "\"]\"",
+    "\"\\\"doublecircle\\\"\"",
+    "\"\\\"\"",
   };
 
 }
