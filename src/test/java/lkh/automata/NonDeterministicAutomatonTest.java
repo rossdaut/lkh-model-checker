@@ -112,7 +112,6 @@ public class NonDeterministicAutomatonTest {
         Arguments.of(Set.of("q1", "q3"), Set.of("q1", "q3")),
         Arguments.of(Set.of("q2"), Set.of("q2", "q5", "q0", "q3")),
         Arguments.of(Set.of("q5", "q4"), Set.of("q5", "q4", "q0", "q3"))
-
     );
   }
 
@@ -140,7 +139,6 @@ public class NonDeterministicAutomatonTest {
         Arguments.of(List.of("a", "b", "a", "c"), false),
         Arguments.of(List.of("a", "c", "b", "c"), false),
         Arguments.of(List.of("b", "b", "a", "c", "a", "c", "b"), true)
-
     );
   }
 }
