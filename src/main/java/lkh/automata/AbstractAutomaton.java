@@ -10,6 +10,7 @@ public abstract class AbstractAutomaton<State, Symbol> {
 
   @Getter
   protected State initialState;
+  @Getter
   protected final Set<State> finalStates = new HashSet<>();
   @Getter
   protected final Set<Symbol> alphabet = new HashSet<>();
