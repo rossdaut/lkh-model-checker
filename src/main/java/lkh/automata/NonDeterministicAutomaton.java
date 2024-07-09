@@ -1,7 +1,10 @@
 package lkh.automata;
 
+import lombok.EqualsAndHashCode;
+
 import java.util.*;
 
+@EqualsAndHashCode(callSuper = false)
 public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<State, Symbol> {
   protected final Map<State, Map<Symbol, Set<State>>> transitionsMap = new HashMap<>();
 

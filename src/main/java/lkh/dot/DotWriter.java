@@ -4,7 +4,6 @@ import lkh.automata.NonDeterministicAutomaton;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.*;
 
 public class DotWriter {
   public static <State, Symbol> void writeNFA(NonDeterministicAutomaton<State, Symbol> automaton, String filename) {
@@ -23,34 +22,25 @@ public class DotWriter {
       writer.printf("%s [shape=\"doublecircle\"];\n", state);
     }
 
-    Queue<State> queue = new LinkedList<>();
-    queue.add(automaton.getInitialState());
-
-    Set<State> visited = new HashSet<>();
-    State currentState;
-
-    while (!queue.isEmpty()) {
-      currentState = queue.poll();
-      if (visited.contains(currentState)) continue;
-      visited.add(currentState);
-
+    for (State source : automaton.getStates()) {
       for (Symbol symbol : automaton.getAlphabet()) {
-        for (State target : automaton.delta(currentState, symbol)) {
+        for (State target : automaton.delta(source, symbol)) {
           writer.printf("%s -> %s [label=\"%s\"];\n",
-              currentState,
+              source,
               target,
-              symbol.toString());
+              symbol.toString()
+          );
         }
       }
-      for (State target : automaton.emptyDelta(currentState)) {
+      for (State target : automaton.emptyDelta(source)) {
         writer.printf("%s -> %s\n",
-            currentState,
-            target);
+                source,
+                target
+        );
       }
-
-      writer.println("}");
-
-      writer.close();
     }
+    writer.println("}");
+
+    writer.close();
   }
 }

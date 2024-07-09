@@ -33,6 +33,11 @@ public class AutomataOperations {
 
       for (Symbol symbol : automaton.alphabet) {
         m = automaton.lambdaClosure(automaton.move(s, symbol));
+        // comment the following for complete automaton
+        if (m.isEmpty()) {
+          continue;
+        }
+
         if (!indexMap.containsKey(m)) {
           unvisitedStates.add(m);
           indexMap.put(m, lastIndex++);
