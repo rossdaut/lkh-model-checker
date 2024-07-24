@@ -3,7 +3,6 @@ package lkh.automata;
 import lombok.Getter;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractAutomaton<State, Symbol> {
@@ -32,4 +31,6 @@ public abstract class AbstractAutomaton<State, Symbol> {
   public abstract Set<State> getStates();
 
   public abstract boolean containsState(State state);
+
+  public abstract void complete(State state);
 }
