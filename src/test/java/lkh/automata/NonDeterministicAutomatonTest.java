@@ -18,11 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NonDeterministicAutomatonTest {
   private static NonDeterministicAutomaton<String, String> nfa;
+  private static String resourcesPath;
 
   @BeforeAll
   static void setUp() {
     try {
-      String resourcesPath = "src/test/resources";
+      resourcesPath = "src/test/resources";
       nfa = DotReader.readNFA(resourcesPath + "/nfa.dot");
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
@@ -78,6 +79,34 @@ public class NonDeterministicAutomatonTest {
   @MethodSource("provideArgsForEvaluate")
   public void testEvaluate(List<String> string, boolean isAccepted) {
     assertEquals(isAccepted, nfa.evaluate(string));
+  }
+
+  @Test
+  public void testNFAComplete() {
+    NonDeterministicAutomaton<String, String> nfa, nfac;
+    nfa = readNFA("nfa.dot");
+    nfac = readNFA("nfac.dot");
+
+    nfa.complete("error");
+    assertEquals(nfa, nfac);
+  }
+
+  @Test
+  public void testDFAComplete() {
+    NonDeterministicAutomaton<String, String> dfa, dfac;
+    dfa = readNFA("dfa.dot");
+    dfac = readNFA("dfac.dot");
+
+    dfa.complete("error");
+    assertEquals(dfa, dfac);
+  }
+
+  private NonDeterministicAutomaton<String, String> readNFA(String path) {
+    try {
+      return DotReader.readNFA(resourcesPath + "/" + path);
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private static Stream<Arguments> provideArgsForLambdaClosure() {
