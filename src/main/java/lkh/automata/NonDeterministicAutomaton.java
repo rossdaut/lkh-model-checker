@@ -2,6 +2,7 @@ package lkh.automata;
 
 import lkh.utils.Pair;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.*;
 
@@ -12,16 +13,30 @@ import java.util.*;
  * @param <Symbol> the type of the symbols
  */
 @EqualsAndHashCode(callSuper = false)
-public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<State, Symbol> {
+public class NonDeterministicAutomaton<State, Symbol> {
   // Map of transitions
   protected final Map<State, Map<Symbol, Set<State>>> transitionsMap = new HashMap<>();
+  @Getter
+  protected State initialState;
+  @Getter
+  protected final Set<State> finalStates = new HashSet<>();
+  @Getter
+  protected final Set<Symbol> alphabet = new HashSet<>();
 
+  public void setInitialState(State initialState) {
+    addState(initialState);
+    this.initialState = initialState;
+  }
+
+  public boolean addFinalState(State state) {
+    addState(state);
+    return finalStates.add(state);
+  }
   /**
    * Add a state to the automaton
    * @param state the state to add
    * @return true if the state was not already in the automaton
    */
-  @Override
   public boolean addState(State state) {
     if (state == null) throw new NullPointerException("null state");
     return transitionsMap.putIfAbsent(state, new HashMap<>()) == null;
@@ -35,7 +50,6 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
    * @param symbol the symbol of the transition
    * @return true if the transition was not already in the automaton
    */
-  @Override
   public boolean addTransition(State source, State target, Symbol symbol) {
     if (symbol == null) throw new NullPointerException("symbol can't be null");
 
@@ -51,7 +65,6 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
    * @param error a non-null object that will act as the 'error' state
    * @throws IllegalArgumentException if the given error state is part of the automaton
    */
-  @Override
   public void complete(State error) {
     if (error == null) throw new NullPointerException("null state");
     if (transitionsMap.containsKey(error))
@@ -88,7 +101,6 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
    * Get the set of states of the automaton
    * @return the set of states
    */
-  @Override
   public Set<State> getStates() {
     return transitionsMap.keySet();
   }
@@ -98,7 +110,6 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
    * @param state the state to check
    * @return true if the state is in the automaton
    */
-  @Override
   public boolean containsState(State state) {
     return transitionsMap.containsKey(state);
   }
@@ -177,30 +188,6 @@ public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<
       result.addAll(delta(state, symbol));
     }
     return result;
-  }
-
-  /**
-   * Clone the automaton
-   * @return a new automaton with the same states, transitions, and alphabet
-   */
-  public NonDeterministicAutomaton<State, Symbol> clone() {
-    NonDeterministicAutomaton<State, Symbol> cloned = new NonDeterministicAutomaton<>();
-
-    cloned.initialState = initialState;
-    cloned.finalStates.addAll(finalStates);
-    cloned.alphabet.addAll(alphabet);
-
-    for (Map.Entry<State, Map<Symbol, Set<State>>> entry : transitionsMap.entrySet()) {
-      State source = entry.getKey();
-      for (Map.Entry<Symbol, Set<State>> innerEntry : entry.getValue().entrySet()) {
-        Symbol symbol = innerEntry.getKey();
-        for (State target : innerEntry.getValue()) {
-          cloned.addTransition(source, target, symbol);
-        }
-      }
-    }
-
-    return cloned;
   }
 
   /**
