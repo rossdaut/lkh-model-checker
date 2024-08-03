@@ -2,7 +2,6 @@ package lkh.automata;
 
 import lkh.utils.Pair;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 import java.util.*;
 
@@ -12,36 +11,7 @@ import java.util.*;
  * @param <State> the type of the states
  * @param <Symbol> the type of the symbols
  */
-@EqualsAndHashCode(callSuper = false)
-public class NonDeterministicAutomaton<State, Symbol> {
-  // Map of transitions
-  protected final Map<State, Map<Symbol, Set<State>>> transitionsMap = new HashMap<>();
-  @Getter
-  protected State initialState;
-  @Getter
-  protected final Set<State> finalStates = new HashSet<>();
-  @Getter
-  protected final Set<Symbol> alphabet = new HashSet<>();
-
-  public void setInitialState(State initialState) {
-    addState(initialState);
-    this.initialState = initialState;
-  }
-
-  public boolean addFinalState(State state) {
-    addState(state);
-    return finalStates.add(state);
-  }
-  /**
-   * Add a state to the automaton
-   * @param state the state to add
-   * @return true if the state was not already in the automaton
-   */
-  public boolean addState(State state) {
-    if (state == null) throw new NullPointerException("null state");
-    return transitionsMap.putIfAbsent(state, new HashMap<>()) == null;
-  }
-
+public class NonDeterministicAutomaton<State, Symbol> extends AbstractAutomaton<State, Symbol>{
   /**
    * Add a transition to the automaton
    * Symbol can't be null and will be added to the alphabet
@@ -50,41 +20,12 @@ public class NonDeterministicAutomaton<State, Symbol> {
    * @param symbol the symbol of the transition
    * @return true if the transition was not already in the automaton
    */
+  @Override
   public boolean addTransition(State source, State target, Symbol symbol) {
     if (symbol == null) throw new NullPointerException("symbol can't be null");
 
     alphabet.add(symbol);
-    return addTransitionAux(source, target, symbol);
-  }
-
-  /**
-   * Complete the automaton
-   * For each state and for each symbol, if there isn't an outgoing transition from state through symbol,
-   * add one with 'error' as the target.
-   * 'error' will be defined such that when an evaluation falls there, it will be non-successful
-   * @param error a non-null object that will act as the 'error' state
-   * @throws IllegalArgumentException if the given error state is part of the automaton
-   */
-  public void complete(State error) {
-    if (error == null) throw new NullPointerException("null state");
-    if (transitionsMap.containsKey(error))
-      throw new IllegalArgumentException("error state should not already be in the automaton");
-
-    Set<Pair<State, Symbol>> pairsToAdd = new HashSet<>();
-
-    addState(error);
-
-    for (State state : getStates()) {
-      for (Symbol symbol : getAlphabet()) {
-        if (delta(state, symbol).isEmpty()) {
-          pairsToAdd.add(new Pair<>(state, symbol));
-        }
-      }
-    }
-
-    for (Pair<State, Symbol> pair : pairsToAdd) {
-      addTransition(pair.key(), error, pair.value());
-    }
+    return super.addTransition(source, target, symbol);
   }
 
   /**
@@ -94,24 +35,7 @@ public class NonDeterministicAutomaton<State, Symbol> {
    * @return true if the empty transition was not already in the automaton
    */
   public boolean addEmptyTransition(State source, State target) {
-    return addTransitionAux(source, target, null);
-  }
-
-  /**
-   * Get the set of states of the automaton
-   * @return the set of states
-   */
-  public Set<State> getStates() {
-    return transitionsMap.keySet();
-  }
-
-  /**
-   * Check if the automaton contains a state
-   * @param state the state to check
-   * @return true if the state is in the automaton
-   */
-  public boolean containsState(State state) {
-    return transitionsMap.containsKey(state);
+    return super.addTransition(source, target, null);
   }
 
   /**
@@ -124,8 +48,8 @@ public class NonDeterministicAutomaton<State, Symbol> {
     if (!containsState(source)) throw new IllegalArgumentException("source state not in states set");
 
     return transitionsMap
-        .get(source)
-        .getOrDefault(symbol, new HashSet<>());
+            .get(source)
+            .getOrDefault(symbol, new HashSet<>());
   }
 
   /**
@@ -209,21 +133,62 @@ public class NonDeterministicAutomaton<State, Symbol> {
   }
 
   /**
-   * Add a transition to the automaton
-   * @param source the source state
-   * @param target the target state
-   * @param symbol the symbol of the transition
-   * @return true if the transition was not already in the automaton
+   * Complete the automaton
+   * For each state and for each symbol, if there isn't an outgoing transition from state through symbol,
+   * add one with 'error' as the target.
+   * 'error' will be defined such that when an evaluation falls there, it will be non-successful
+   * @param error a non-null object that will act as the 'error' state
+   * @throws IllegalArgumentException if the given error state is part of the automaton
    */
-  private boolean addTransitionAux(State source, State target, Symbol symbol) {
-    addState(source);
-    addState(target);
+  @Override
+  public void complete(State error) {
+    if (error == null) throw new NullPointerException("null state");
+    if (transitionsMap.containsKey(error))
+      throw new IllegalArgumentException("error state should not already be in the automaton");
 
-    transitionsMap.get(source).putIfAbsent(symbol, new HashSet<>());
+    Set<Pair<State, Symbol>> pairsToAdd = new HashSet<>();
 
-    return transitionsMap
-        .get(source)
-        .get(symbol)
-        .add(target);
+    addState(error);
+
+    for (State state : getStates()) {
+      for (Symbol symbol : getAlphabet()) {
+        if (delta(state, symbol).isEmpty()) {
+          pairsToAdd.add(new Pair<>(state, symbol));
+        }
+      }
+    }
+
+    for (Pair<State, Symbol> pair : pairsToAdd) {
+      addTransition(pair.key(), error, pair.value());
+    }
+  }
+
+  /**
+   * Clone the automaton
+   * @return a new automaton with the same states, transitions, and alphabet
+   */
+  @Override
+  public NonDeterministicAutomaton<State, Symbol> clone() {
+    NonDeterministicAutomaton<State, Symbol> cloned = new NonDeterministicAutomaton<>();
+
+    cloned.initialState = initialState;
+    cloned.finalStates.addAll(finalStates);
+    cloned.alphabet.addAll(alphabet);
+
+    for (State state : getStates()) {
+      for (Symbol symbol : getAlphabet()) {
+        Set<State> targetStates = delta(state, symbol);
+        for (State target : targetStates) {
+          cloned.addTransition(state, target, symbol);
+        }
+      }
+
+      for (State target : emptyDelta(state)) {
+        cloned.addEmptyTransition(state, target);
+      }
+    }
+
+    return cloned;
   }
 }
+
