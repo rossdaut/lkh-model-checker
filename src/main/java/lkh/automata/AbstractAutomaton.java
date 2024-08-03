@@ -1,6 +1,5 @@
   package lkh.automata;
 
-import lkh.utils.Pair;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
