@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface LTS {
-  boolean addState(State state);
+  void addState(State state);
 
-  boolean addTransition(State src, Action action, State dest);
+  void addTransition(State src, Action action, State dest);
 
   Set<State> getStates();
 

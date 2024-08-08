@@ -14,22 +14,20 @@ public class HashMapLTS implements LTS {
   private final HashMap<State, Set<Transition>> map = new HashMap<>();
 
   @Override
-  public boolean addState(State state) {
+  public void addState(State state) {
     if (state == null) throw new NullPointerException("null state");
-    if (map.containsKey(state)) return false;
 
-    map.put(state, new HashSet<>());
-    return true;
+    map.putIfAbsent(state, new HashSet<>());
   }
 
   @Override
-  public boolean addTransition(State fromState, Action action, State toState) {
+  public void addTransition(State fromState, Action action, State toState) {
     if (action == null) throw new NullPointerException("null action");
 
     addState(fromState);
     addState(toState);
 
-    return map.get(fromState).add(new Transition(action, toState));
+    map.get(fromState).add(new Transition(action, toState));
   }
 
   @Override
