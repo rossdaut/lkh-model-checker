@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NonDeterministicAutomatonTest {
+public class AutomataTest {
   private static NonDeterministicAutomaton<String, String> nfa;
   private static String resourcesPath;
 

@@ -1,9 +1,9 @@
 package lkh.automata;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import lkh.utils.Pair;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 public class AutomataOperations {
   /**
@@ -50,6 +50,147 @@ public class AutomataOperations {
       }
     }
 
+    return result;
+  }
+
+  /**
+   * NFA intersection.
+   * @param automaton1 a complete NFA
+   * @param automaton2 a complete NFA
+   * @return a NFA accepting the intersection of the languages of the input NFAs
+ */
+  public static <A, B, Symbol> NonDeterministicAutomaton<Pair<A, B>, Symbol>
+  intersection(NonDeterministicAutomaton<A, Symbol> automaton1, NonDeterministicAutomaton<B, Symbol> automaton2) {
+    //Chequear que estén completos???
+    NonDeterministicAutomaton<Pair<A, B>, Symbol> result = new NonDeterministicAutomaton<>();
+    Set<Pair<A, B>> unvisitedStates = new HashSet<>();
+
+    // Initial state
+    Pair<A, B> initial = new Pair<>(automaton1.initialState, automaton2.initialState);
+    unvisitedStates.add(initial);
+    result.setInitialState(initial);
+
+    // Transition map
+    while(!unvisitedStates.isEmpty()) {
+      Pair<A, B> pair = unvisitedStates.stream().findAny().get();
+      unvisitedStates.remove(pair);
+
+      for (Symbol symbol : automaton1.alphabet) {
+        Set<A> s1 = automaton1.lambdaClosure(automaton1.delta(pair.key(), symbol));
+        Set<B> s2 = automaton2.lambdaClosure(automaton2.delta(pair.value(), symbol));
+
+        for (A state1 : s1) {
+          for (B state2 : s2) {
+            Pair<A, B> next = new Pair<>(state1, state2);
+            if (!result.getStates().contains(next)) {
+              unvisitedStates.add(next);
+              result.addState(next);
+
+              if (automaton1.isFinal(state1) && automaton2.isFinal(state2)) {
+                result.addFinalState(next);
+              }
+            }
+
+            result.addTransition(pair, next, symbol);
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * DFA intersection.
+   * @param automaton1 a DFA
+   * @param automaton2 a DFA
+   * @return a NFA accepting the intersection of the languages of the input DFAs
+   */
+  public static <A, B, Symbol> DeterministicAutomaton<Pair<A, B>, Symbol>
+  intersection(DeterministicAutomaton<A, Symbol> automaton1, DeterministicAutomaton<B, Symbol> automaton2) {
+    DeterministicAutomaton<Pair<A, B>, Symbol> result = new DeterministicAutomaton<>();
+    Set<Pair<A, B>> unvisitedStates = new HashSet<>();
+
+    // Initial state
+    Pair<A, B> initial = new Pair<>(automaton1.initialState, automaton2.initialState);
+    unvisitedStates.add(initial);
+    result.setInitialState(initial);
+
+    // Transition map
+    while(!unvisitedStates.isEmpty()) {
+      Pair<A, B> pair = unvisitedStates.stream().findAny().get();
+      unvisitedStates.remove(pair);
+
+      if (automaton1.isFinal(pair.key()) && automaton2.isFinal(pair.value())) {
+        result.addFinalState(pair);
+      }
+
+      for (Symbol symbol : automaton1.getAlphabet()) {
+        Optional<A> s1 = automaton1.delta(pair.key(), symbol);
+        Optional<B> s2 = automaton2.delta(pair.value(), symbol);
+
+        if (s1.isEmpty() || s2.isEmpty()) continue;
+
+        Pair<A, B> next = new Pair<>(s1.get(), s2.get());
+
+        if (!result.containsState(next)) {
+          unvisitedStates.add(next);
+        }
+
+        result.addTransition(pair, next, symbol);
+      }
+    }
+
+    return result;
+  }
+
+
+  /**
+   * NonDeterministicAutomaton to DeterministicAutomaton passage.
+   * It checks that the input has a deterministic structure.
+   * @param nfa a NFA that can be automatically determinized
+   * @return the same automaton as a DeterministicAutomaton
+   * @throws IllegalStateException if the input is not directly determinizable
+   */
+  public static <State, Symbol> DeterministicAutomaton<State, Symbol>
+  asDeterministic(NonDeterministicAutomaton<State, Symbol> nfa) {
+    DeterministicAutomaton<State, Symbol> dfa = new DeterministicAutomaton<>();
+    Set<State> nextStates;
+
+    dfa.setInitialState(nfa.getInitialState());
+
+    for (State state : nfa.getStates()) {
+      if (!nfa.emptyDelta(state).isEmpty())
+        throw new IllegalStateException("the NFA cannot be directly determinized (has empty transitions)");
+
+      for (Symbol symbol : nfa.getAlphabet()) {
+        nextStates = nfa.delta(state, symbol);
+        if (nextStates.size() > 1)
+          throw new IllegalStateException("the NFA cannot be directly determinized (has multiple transitions)");
+
+        nextStates.stream().findFirst().ifPresent(target -> dfa.addTransition(state, target, symbol));
+      }
+    }
+
+    for (State state : nfa.getFinalStates()) {
+      dfa.addFinalState(state);
+    }
+
+    return dfa;
+  }
+
+  /**
+   * Complements a DFA.
+   * @param dfa a complete DFA
+   * @return a DFA accepting the complement language of the input DFA
+   * @param <State> the type of State of the input DFA
+   * @param <Symbol> the type of Symbol
+   */
+  public static <State, Symbol> DeterministicAutomaton<State, Symbol>
+  complement(DeterministicAutomaton<State, Symbol> dfa) {
+    DeterministicAutomaton<State, Symbol> result = dfa.clone();
+    result.finalStates.addAll(dfa.getStates());
+    result.finalStates.removeAll(dfa.finalStates);
     return result;
   }
 }
