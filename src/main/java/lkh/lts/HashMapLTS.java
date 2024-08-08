@@ -1,34 +1,28 @@
 package lkh.lts;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.util.*;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-public class HashMapLTS implements LTS {
-  private final HashMap<State, Set<Transition>> map = new HashMap<>();
+public class HashMapLTS<State, Action> implements LTS<State, Action> {
+  private final Map<State, Map<Action, Set<State>>> map = new HashMap<>();
   private final Set<Action> actions = new HashSet<>();
 
   @Override
   public void addState(State state) {
     if (state == null) throw new NullPointerException("null state");
 
-    map.putIfAbsent(state, new HashSet<>());
+    map.putIfAbsent(state, new HashMap<>());
   }
 
   @Override
-  public void addTransition(State fromState, Action action, State toState) {
+  public void addTransition(State source, State target, Action action) {
     if (action == null) throw new NullPointerException("null action");
 
-    addState(fromState);
-    addState(toState);
+    addState(source);
+    addState(target);
+    actions.add(action);
 
-    map.get(fromState).add(new Transition(action, toState));
+    map.get(source).putIfAbsent(action, new HashSet<>());
+    map.get(source).get(action).add(target);
   }
 
   @Override
@@ -51,24 +45,6 @@ public class HashMapLTS implements LTS {
     if (!containsState(from))
       throw new IllegalArgumentException("lts doesn't contain the given state");
 
-    return map.get(from).stream()
-        .filter(t -> t.action.equals(action))   // find collection of transitions
-        .map(Transition::getState)              // get collection of states
-        .collect(Collectors.toSet());
-  }
-
-  @Override
-  public Set<State> evaluate(Collection<Proposition> propositions) {
-    return getStates().stream()
-        .filter(s -> s.satisfiesAll(propositions))
-        .collect(Collectors.toSet());
-  }
-
-  @Data
-  @AllArgsConstructor
-  @EqualsAndHashCode
-  private static class Transition {
-    Action action;
-    State state;
+    return map.get(from).getOrDefault(action, new HashSet<>());
   }
 }
