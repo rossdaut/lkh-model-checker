@@ -4,6 +4,11 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface LTS {
+  /**
+   * Add a state to this LTS.
+   * @param state a non-null state
+   * @throws NullPointerException if the state is null
+   */
   void addState(State state);
 
   /**
