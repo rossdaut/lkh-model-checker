@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class HashMapLTS implements LTS {
   private final HashMap<State, Set<Transition>> map = new HashMap<>();
+  private final Set<Action> actions = new HashSet<>();
 
   @Override
   public void addState(State state) {
@@ -33,6 +34,11 @@ public class HashMapLTS implements LTS {
   @Override
   public Set<State> getStates() {
     return map.keySet();
+  }
+
+  @Override
+  public Set<Action> getActions() {
+    return actions;
   }
 
   @Override

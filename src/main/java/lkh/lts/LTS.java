@@ -22,6 +22,12 @@ public interface LTS {
   Set<State> getStates();
 
   /**
+   * Get the set of actions of LTS
+   * @return the set of actions
+   */
+  Set<Action> getActions();
+
+  /**
    * Return whether the given state exists in the LTS
    * @param state the state to check
    * @return true if the state exists in the LTS, false otherwise
