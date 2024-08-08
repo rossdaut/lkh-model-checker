@@ -42,7 +42,12 @@ public class HashMapLTS implements LTS {
   }
 
   @Override
-  public Set<State> destinations(State from, Action action) {
+  public boolean containsState(State state) {
+    return getStates().contains(state);
+  }
+
+  @Override
+  public Set<State> targets(State from, Action action) {
     if (!containsState(from))
       throw new IllegalArgumentException("lts doesn't contain the given state");
 
@@ -57,11 +62,6 @@ public class HashMapLTS implements LTS {
     return getStates().stream()
         .filter(s -> s.satisfiesAll(propositions))
         .collect(Collectors.toSet());
-  }
-
-  @Override
-  public boolean containsState(State state) {
-    return getStates().contains(state);
   }
 
   @Data

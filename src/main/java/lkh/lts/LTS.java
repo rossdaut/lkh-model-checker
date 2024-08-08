@@ -40,7 +40,7 @@ public interface LTS {
    * @param action the action (symbol) to consume
    * @return the set of states reachable from `from` by consuming `action`
    */
-  Set<State> destinations(State from, Action action);
+  Set<State> targets(State from, Action action);
 
   /**
    * Return the set of states for which the given propositions hold
