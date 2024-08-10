@@ -1,6 +1,5 @@
 package lkh.lts;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -60,6 +59,207 @@ public class HashMapLTSTest {
     Set<String> states = lts.getStates();
     assertEquals(states, new HashSet<>(Arrays.asList(state1, state2)),
         "State 1 and State 2 should be present in the LTS.");
+  }
+
+  @Test
+  public void testAddStateDoesntAddLabel() {
+    String state1 = "State1";
+    
+    lts.addState(state1);
+    var labels = lts.getLabels(state1);
+
+    assertTrue(labels.isEmpty());
+  }
+
+  // addState(State, Set<String>)
+
+  @Test
+  public void testAddStateAndOneLabel() {
+    String state = "State";
+    String label = "Label";
+
+    lts.addState(state, Set.of(label));
+    var states = lts.getStates();
+    var labels = lts.getLabels(state);
+
+    assertEquals(1, states.size());
+    assertEquals(1, labels.size());
+    assertTrue(states.contains(state));
+    assertTrue(labels.contains(label));
+  }
+
+  @Test
+  public void testAddStateMultipleLabels() {
+    String state = "State";
+    Set<String> labels = Set.of("Label1", "Label2", "Label3");
+
+    lts.addState(state, labels);
+
+    assertTrue(lts.getLabels(state).contains("Label1"));
+    assertTrue(lts.getLabels(state).contains("Label2"));
+    assertTrue(lts.getLabels(state).contains("Label3"));
+  }
+
+  @Test
+  public void testAddStateThrowsNullState() {
+    Set<String> label = Set.of("Label");
+
+    assertThrows(NullPointerException.class, () -> lts.addState(null, label));
+  }
+
+  @Test
+  public void testAddStateThrowsNullLabels() {
+    String state = "State";
+
+    assertThrows(NullPointerException.class, () -> lts.addState(state, null));
+  }
+
+  // addLabel()
+  @Test
+  void testAddLabelWithValidStateAndLabel() {
+    // Add a state and then add a label to it
+    lts.addState("A");
+    lts.addLabel("A", "label1");
+
+    Set<String> labels = lts.getLabels("A");
+    assertEquals(1, labels.size(), "Expected one label to be associated with 'A'");
+    assertTrue(labels.contains("label1"), "Expected 'label1' to be associated with 'A'");
+  }
+
+  @Test
+  void testAddLabelWithNullState() {
+    // Verify that adding a label with a null state throws a NullPointerException
+    assertThrows(
+      NullPointerException.class,
+      () -> lts.addLabel(null, "label1"),
+      "Expected a NullPointerException when adding a label with null state"
+    );
+  }
+
+  @Test
+  void testAddLabelWithNullLabel() {
+    // Add a state and then verify that adding a null label throws a NullPointerException
+    lts.addState("A");
+    assertThrows(
+      NullPointerException.class,
+      () -> lts.addLabel("A", null),
+      "Expected a NullPointerException when adding a null label"
+    );
+  }
+
+  @Test
+  void testAddLabelToNonExistentState() {
+    // Verify that adding a label to a non-existent state throws an IllegalArgumentException
+    assertThrows(IllegalArgumentException.class, () -> lts.addLabel("A", "label1"), "Expected an IllegalArgumentException when adding a label to a non-existent state");
+  }
+
+  @Test
+  void testAddLabelMultipleTimesToSameState() {
+    // Add a state and then add the same label multiple times
+    lts.addState("A");
+    lts.addLabel("A", "label1");
+    lts.addLabel("A", "label1");  // Add the same label again
+
+    Set<String> labels = lts.getLabels("A");
+    assertEquals(1, labels.size(), "Expected only one instance of the label to be associated with 'A'");
+    assertTrue(labels.contains("label1"), "Expected 'label1' to be associated with 'A'");
+  }
+
+  @Test
+  void testAddDifferentLabelsToSameState() {
+    // Add a state and then add multiple different labels to it
+    lts.addState("A");
+    lts.addLabel("A", "label1");
+    lts.addLabel("A", "label2");
+
+    Set<String> labels = lts.getLabels("A");
+    assertEquals(2, labels.size(), "Expected two labels to be associated with 'A'");
+    assertTrue(labels.contains("label1"), "Expected 'label1' to be associated with 'A'");
+    assertTrue(labels.contains("label2"), "Expected 'label2' to be associated with 'A'");
+  }
+
+  @Test
+  void testAddLabelAfterAddingLabelsWithAddState() {
+    // Add a state with labels using addState, then add another label with addLabel
+    lts.addState("A", Set.of("label1", "label2"));
+    lts.addLabel("A", "label3");
+
+    Set<String> labels = lts.getLabels("A");
+    assertEquals(3, labels.size(), "Expected three labels to be associated with 'A'");
+    assertTrue(labels.contains("label1"), "Expected 'label1' to be associated with 'A'");
+    assertTrue(labels.contains("label2"), "Expected 'label2' to be associated with 'A'");
+    assertTrue(labels.contains("label3"), "Expected 'label3' to be associated with 'A'");
+  }
+
+  // addLabels()
+
+  @Test
+  void testAddLabelsWithValidStateAndLabels() {
+    // Add a state and then add multiple labels to it
+    lts.addState("A");
+    lts.addLabels("A", Set.of("label1", "label2"));
+
+    Set<String> labels = lts.getLabels("A");
+    assertEquals(2, labels.size(), "Expected two labels to be associated with 'A'");
+    assertTrue(labels.contains("label1"), "Expected 'label1' to be associated with 'A'");
+    assertTrue(labels.contains("label2"), "Expected 'label2' to be associated with 'A'");
+  }
+
+  @Test
+  void testAddLabelsWithEmptyLabels() {
+    // Add a state and then add an empty set of labels to it
+    lts.addState("A");
+    lts.addLabels("A", Set.of());
+
+    Set<String> labels = lts.getLabels("A");
+    assertTrue(labels.isEmpty(), "Expected no labels to be associated with 'A'");
+  }
+
+  @Test
+  void testAddLabelsToNonExistentState() {
+    // Verify that adding labels to a non-existent state throws an IllegalArgumentException
+    assertThrows(IllegalArgumentException.class, () -> lts.addLabels("A", Set.of("label1")), "Expected an IllegalArgumentException when adding labels to a non-existent state");
+  }
+
+  @Test
+  void testAddLabelsWithNullState() {
+    // Verify that adding labels with a null state throws a NullPointerException
+    assertThrows(NullPointerException.class, () -> lts.addLabels(null, Set.of("label1")), "Expected a NullPointerException when adding labels with null state");
+  }
+
+  @Test
+  void testAddLabelsWithNullLabels() {
+    // Add a state and then verify that adding null labels throws a NullPointerException
+    lts.addState("A");
+    assertThrows(NullPointerException.class, () -> lts.addLabels("A", null), "Expected a NullPointerException when adding null labels");
+  }
+
+  @Test
+  void testAddLabelsMultipleTimes() {
+    // Add a state and then add multiple labels to it in separate calls
+    lts.addState("A");
+    lts.addLabels("A", Set.of("label1"));
+    lts.addLabels("A", Set.of("label2", "label3"));
+
+    Set<String> labels = lts.getLabels("A");
+    assertEquals(3, labels.size(), "Expected three labels to be associated with 'A'");
+    assertTrue(labels.contains("label1"), "Expected 'label1' to be associated with 'A'");
+    assertTrue(labels.contains("label2"), "Expected 'label2' to be associated with 'A'");
+    assertTrue(labels.contains("label3"), "Expected 'label3' to be associated with 'A'");
+  }
+
+  @Test
+  void testAddLabelsWithDuplicateLabels() {
+    // Add a state and then add labels, including duplicates
+    lts.addState("A");
+    lts.addLabels("A", Set.of("label1", "label2"));
+    lts.addLabels("A", Set.of("label2", "label3")); // 'label2' is duplicate
+
+    Set<String> labels = lts.getLabels("A");
+    assertEquals(3, labels.size(), "Expected three labels to be associated with 'A'");
+    assertTrue(labels.contains("label1"), "Expected 'label1' to be associated with 'A'");
+    assertTrue(labels.contains("label2"), "Expected 'label2' to be associated with 'A'");
+    assertTrue(labels.contains("label3"), "Expected 'label3' to be associated with 'A'");
   }
 
   //addTransition()
@@ -207,6 +407,14 @@ public class HashMapLTSTest {
     assertTrue(states.contains("B"), "Expected state 'B' to be present");
     assertTrue(states.contains("C"), "Expected state 'C' to be present");
     assertTrue(states.contains("D"), "Expected state 'D' to be present");
+  }
+
+  // getLabels()
+
+  @Test
+  void testGetLabelsForNonExistentState() {
+    // Try to retrieve labels for a non-existent state
+    assertThrows(IllegalArgumentException.class, () -> lts.getLabels("A"), "Expected labels to be null for non-existent state");
   }
 
   // getActions()

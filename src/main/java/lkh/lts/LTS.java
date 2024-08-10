@@ -4,14 +4,35 @@ import java.util.Set;
 
 public interface LTS<State, Action> {
   /**
-   * Add a state to this LTS.
+   * Add a state without labels to this LTS.
    * @param state a non-null state
    * @throws NullPointerException if the state is null
    */
   void addState(State state);
 
   /**
-   * Add a transition. If the states don't exist, add them too.
+   * Add a states with labels to this LTS.
+   * @param state a non-null state
+   * @param labels a non-null set of labels
+   */
+  void addState(State state, Set<String> labels);
+
+  /**
+   * Add a label to the given state
+   * @param state the state
+   * @param label the label to add
+   */
+  void addLabel(State state, String label);
+
+  /**
+   * Add all the given labels to the state
+   * @param state the state that will have the new labels
+   * @param labels the set of labels to add
+   */
+  void addLabels(State state, Set<String> labels);
+
+  /**
+   * Add a transition. If the states don't exist, add them without labels.
    * @param source a non-null source state
    * @param action a non-null action
    * @param target a non-null target state
@@ -24,6 +45,13 @@ public interface LTS<State, Action> {
    * @return the set of states
    */
   Set<State> getStates();
+
+  /**
+   * Get the set of labels of the given state
+   * @param state the state
+   * @return the set of labels that hold in the given state
+   */
+  Set<String> getLabels(State state);
 
   /**
    * Get the set of actions of LTS
@@ -45,4 +73,5 @@ public interface LTS<State, Action> {
    * @return the set of states reachable from `from` by consuming `action`
    */
   Set<State> targets(State from, Action action);
+
 }
