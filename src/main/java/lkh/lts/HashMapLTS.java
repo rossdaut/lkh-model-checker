@@ -60,6 +60,7 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
 
   @Override
   public Set<String> getLabels(State state) {
+    if (!containsState(state)) throw new IllegalArgumentException("state not in LTS");
     return labelMap.get(state);
   }
 
