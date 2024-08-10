@@ -1,11 +1,10 @@
 package lkh.lts;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class HashMapLTSTest {
 
@@ -16,7 +15,7 @@ public class HashMapLTSTest {
     lts = new HashMapLTS<>();
   }
 
-  //addState()
+  // addState()
 
   @Test
   public void testAddState() {
@@ -31,7 +30,9 @@ public class HashMapLTSTest {
   @Test
   public void testAddStateNullState() {
     // Test adding a null state (should throw NullPointerException)
-    assertThrows(NullPointerException.class, () -> lts.addState(null),
+    assertThrows(
+        NullPointerException.class,
+        () -> lts.addState(null),
         "Adding a null state should throw NullPointerException.");
   }
 
@@ -64,7 +65,7 @@ public class HashMapLTSTest {
   @Test
   public void testAddStateDoesntAddLabel() {
     String state1 = "State1";
-    
+
     lts.addState(state1);
     var labels = lts.getLabels(state1);
 
@@ -130,10 +131,9 @@ public class HashMapLTSTest {
   void testAddLabelWithNullState() {
     // Verify that adding a label with a null state throws a NullPointerException
     assertThrows(
-      NullPointerException.class,
-      () -> lts.addLabel(null, "label1"),
-      "Expected a NullPointerException when adding a label with null state"
-    );
+        NullPointerException.class,
+        () -> lts.addLabel(null, "label1"),
+        "Expected a NullPointerException when adding a label with null state");
   }
 
   @Test
@@ -141,16 +141,18 @@ public class HashMapLTSTest {
     // Add a state and then verify that adding a null label throws a NullPointerException
     lts.addState("A");
     assertThrows(
-      NullPointerException.class,
-      () -> lts.addLabel("A", null),
-      "Expected a NullPointerException when adding a null label"
-    );
+        NullPointerException.class,
+        () -> lts.addLabel("A", null),
+        "Expected a NullPointerException when adding a null label");
   }
 
   @Test
   void testAddLabelToNonExistentState() {
     // Verify that adding a label to a non-existent state throws an IllegalArgumentException
-    assertThrows(IllegalArgumentException.class, () -> lts.addLabel("A", "label1"), "Expected an IllegalArgumentException when adding a label to a non-existent state");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> lts.addLabel("A", "label1"),
+        "Expected an IllegalArgumentException when adding a label to a non-existent state");
   }
 
   @Test
@@ -158,7 +160,7 @@ public class HashMapLTSTest {
     // Add a state and then add the same label multiple times
     lts.addState("A");
     lts.addLabel("A", "label1");
-    lts.addLabel("A", "label1");  // Add the same label again
+    lts.addLabel("A", "label1"); // Add the same label again
 
     Set<String> labels = lts.getLabels("A");
     assertEquals(1, labels.size(), "Expected only one instance of the label to be associated with 'A'");
@@ -218,20 +220,29 @@ public class HashMapLTSTest {
   @Test
   void testAddLabelsToNonExistentState() {
     // Verify that adding labels to a non-existent state throws an IllegalArgumentException
-    assertThrows(IllegalArgumentException.class, () -> lts.addLabels("A", Set.of("label1")), "Expected an IllegalArgumentException when adding labels to a non-existent state");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> lts.addLabels("A", Set.of("label1")),
+        "Expected an IllegalArgumentException when adding labels to a non-existent state");
   }
 
   @Test
   void testAddLabelsWithNullState() {
     // Verify that adding labels with a null state throws a NullPointerException
-    assertThrows(NullPointerException.class, () -> lts.addLabels(null, Set.of("label1")), "Expected a NullPointerException when adding labels with null state");
+    assertThrows(
+        NullPointerException.class,
+        () -> lts.addLabels(null, Set.of("label1")),
+        "Expected a NullPointerException when adding labels with null state");
   }
 
   @Test
   void testAddLabelsWithNullLabels() {
     // Add a state and then verify that adding null labels throws a NullPointerException
     lts.addState("A");
-    assertThrows(NullPointerException.class, () -> lts.addLabels("A", null), "Expected a NullPointerException when adding null labels");
+    assertThrows(
+        NullPointerException.class,
+        () -> lts.addLabels("A", null),
+        "Expected a NullPointerException when adding null labels");
   }
 
   @Test
@@ -262,7 +273,7 @@ public class HashMapLTSTest {
     assertTrue(labels.contains("label3"), "Expected 'label3' to be associated with 'A'");
   }
 
-  //addTransition()
+  // addTransition()
 
   @Test
   public void testAddTransition() {
@@ -282,7 +293,9 @@ public class HashMapLTSTest {
     String target = "State2";
 
     // Expecting NullPointerException for null action
-    assertThrows(NullPointerException.class, () -> lts.addTransition(source, target, null),
+    assertThrows(
+        NullPointerException.class,
+        () -> lts.addTransition(source, target, null),
         "Adding a transition with a null action should throw NullPointerException.");
   }
 
@@ -308,7 +321,10 @@ public class HashMapLTSTest {
     lts.addTransition(source, target, action); // Adding the same transition again
 
     Set<String> targets = lts.targets(source, action);
-    assertEquals(1, targets.size(), "There should be only one instance of the target state for the given action.");
+    assertEquals(
+        1,
+        targets.size(),
+        "There should be only one instance of the target state for the given action.");
     assertTrue(targets.contains(target), "Target state should be present for the given action.");
   }
 
@@ -326,8 +342,14 @@ public class HashMapLTSTest {
     Set<String> targetsAction1 = lts.targets(source, action1);
     Set<String> targetsAction2 = lts.targets(source, action2);
 
-    assertEquals(targetsAction1, Collections.singleton(target1), "Target1 only should be reachable via Action1.");
-    assertEquals(targetsAction2, Collections.singleton(target2), "Target2 only should be reachable via Action2.");
+    assertEquals(
+        targetsAction1,
+        Collections.singleton(target1),
+        "Target1 only should be reachable via Action1.");
+    assertEquals(
+        targetsAction2,
+        Collections.singleton(target2),
+        "Target2 only should be reachable via Action2.");
   }
 
   @Test
@@ -414,7 +436,10 @@ public class HashMapLTSTest {
   @Test
   void testGetLabelsForNonExistentState() {
     // Try to retrieve labels for a non-existent state
-    assertThrows(IllegalArgumentException.class, () -> lts.getLabels("A"), "Expected labels to be null for non-existent state");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> lts.getLabels("A"),
+        "Expected labels to be null for non-existent state");
   }
 
   // getActions()
@@ -472,7 +497,7 @@ public class HashMapLTSTest {
     assertTrue(actions.isEmpty(), "Expected no actions since no transitions were added");
   }
 
-  //containState()
+  // containState()
 
   @Test
   void testContainsStateWhenStateNotPresent() {
@@ -504,8 +529,12 @@ public class HashMapLTSTest {
     // Add a transition which should implicitly add states
     lts.addTransition("A", "B", "action1");
 
-    assertTrue(lts.containsState("A"), "Expected 'A' to be present in the LTS after being implicitly added");
-    assertTrue(lts.containsState("B"), "Expected 'B' to be present in the LTS after being implicitly added");
+    assertTrue(
+        lts.containsState("A"),
+        "Expected 'A' to be present in the LTS after being implicitly added");
+    assertTrue(
+        lts.containsState("B"),
+        "Expected 'B' to be present in the LTS after being implicitly added");
   }
 
   @Test
@@ -520,7 +549,10 @@ public class HashMapLTSTest {
   @Test
   void testTargetsWhenStateNotPresent() {
     // Expect an exception when the source state is not in the LTS
-    assertThrows(IllegalArgumentException.class, () -> lts.targets("A", "action1"), "Expected exception for non-existent source state");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> lts.targets("A", "action1"),
+        "Expected exception for non-existent source state");
   }
 
   @Test
