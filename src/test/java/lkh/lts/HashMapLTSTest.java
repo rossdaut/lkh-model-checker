@@ -306,4 +306,59 @@ public class HashMapLTSTest {
     // Check how the method behaves when null is passed
     assertFalse(lts.containsState(null), "Expected false when passing null as the state");
   }
+
+  // targets()
+
+  @Test
+  void testTargetsWhenStateNotPresent() {
+    // Expect an exception when the source state is not in the LTS
+    assertThrows(IllegalArgumentException.class, () -> lts.targets("A", "action1"), "Expected exception for non-existent source state");
+  }
+
+  @Test
+  void testTargetsWhenActionNotPresent() {
+    // Add a state but no transitions
+    lts.addState("A");
+
+    // Expect an empty set when no transitions are associated with the action
+    Set<String> targets = lts.targets("A", "action1");
+    assertTrue(targets.isEmpty(), "Expected no target states for an action that doesn't exist");
+  }
+
+  @Test
+  void testTargetsWithSingleTransition() {
+    // Add a transition and verify the target state is correct
+    lts.addTransition("A", "B", "action1");
+
+    Set<String> targets = lts.targets("A", "action1");
+    assertEquals(1, targets.size(), "Expected one target state");
+    assertTrue(targets.contains("B"), "Expected 'B' to be the target state");
+  }
+
+  @Test
+  void testTargetsWithMultipleTransitionsSameAction() {
+    // Add multiple transitions from the same source with the same action
+    lts.addTransition("A", "B", "action1");
+    lts.addTransition("A", "C", "action1");
+
+    Set<String> targets = lts.targets("A", "action1");
+    assertEquals(2, targets.size(), "Expected two target states");
+    assertTrue(targets.contains("B"), "Expected 'B' to be a target state");
+    assertTrue(targets.contains("C"), "Expected 'C' to be a target state");
+  }
+
+  @Test
+  void testTargetsWithDifferentActions() {
+    // Add transitions with different actions
+    lts.addTransition("A", "B", "action1");
+    lts.addTransition("A", "C", "action2");
+
+    Set<String> targets1 = lts.targets("A", "action1");
+    Set<String> targets2 = lts.targets("A", "action2");
+
+    assertEquals(1, targets1.size(), "Expected one target state for action1");
+    assertEquals(1, targets2.size(), "Expected one target state for action2");
+    assertTrue(targets1.contains("B"), "Expected 'B' to be the target for action1");
+    assertTrue(targets2.contains("C"), "Expected 'C' to be the target for action2");
+  }
 }
