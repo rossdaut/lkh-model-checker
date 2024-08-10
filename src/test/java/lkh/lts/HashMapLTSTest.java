@@ -17,6 +17,8 @@ public class HashMapLTSTest {
     lts = new HashMapLTS<>();
   }
 
+  //addState()
+
   @Test
   public void testAddState() {
     // Test adding a state to the LTS
@@ -59,6 +61,8 @@ public class HashMapLTSTest {
     assertEquals(states, new HashSet<>(Arrays.asList(state1, state2)),
         "State 1 and State 2 should be present in the LTS.");
   }
+
+  //addTransition()
 
   @Test
   public void testAddTransition() {
@@ -139,5 +143,167 @@ public class HashMapLTSTest {
         "Source state should be added for the given action.");
     assertTrue(lts.getStates().contains(target),
         "Target state should be added for the given action.");
+  }
+
+  // getStates()
+
+  @Test
+  void testGetStatesInitiallyEmpty() {
+    // Test that the LTS is empty initially
+    Set<String> states = lts.getStates();
+    assertTrue(states.isEmpty(), "Expected no states initially");
+  }
+
+  @Test
+  void testGetStatesAfterAddingStates() {
+    // Add a few states
+    lts.addState("A");
+    lts.addState("B");
+    lts.addState("C");
+
+    // Retrieve the states and check that they are correct
+    Set<String> states = lts.getStates();
+    assertEquals(3, states.size(), "Expected three states");
+    assertTrue(states.contains("A"), "Expected state 'A' to be present");
+    assertTrue(states.contains("B"), "Expected state 'B' to be present");
+    assertTrue(states.contains("C"), "Expected state 'C' to be present");
+  }
+
+  @Test
+  void testGetStatesAfterAddingTransition() {
+    // Add a transition which implicitly adds states
+    lts.addTransition("A", "B", "action1");
+
+    // Retrieve the states and check that both states are present
+    Set<String> states = lts.getStates();
+    assertEquals(2, states.size(), "Expected two states after adding a transition");
+    assertTrue(states.contains("A"), "Expected state 'A' to be present");
+    assertTrue(states.contains("B"), "Expected state 'B' to be present");
+  }
+
+  @Test
+  void testGetStatesNoDuplicateStates() {
+    // Add the same state multiple times
+    lts.addState("A");
+    lts.addState("A");
+
+    // Retrieve the states and check that there are no duplicates
+    Set<String> states = lts.getStates();
+    assertEquals(1, states.size(), "Expected only one state 'A' without duplicates");
+    assertTrue(states.contains("A"), "Expected state 'A' to be present");
+  }
+
+  @Test
+  void testGetStatesAfterMultipleTransitions() {
+    // Add multiple transitions involving multiple states
+    lts.addTransition("A", "B", "action1");
+    lts.addTransition("B", "C", "action2");
+    lts.addTransition("C", "D", "action3");
+
+    // Retrieve the states and check that all states are present
+    Set<String> states = lts.getStates();
+    assertEquals(4, states.size(), "Expected four states after multiple transitions");
+    assertTrue(states.contains("A"), "Expected state 'A' to be present");
+    assertTrue(states.contains("B"), "Expected state 'B' to be present");
+    assertTrue(states.contains("C"), "Expected state 'C' to be present");
+    assertTrue(states.contains("D"), "Expected state 'D' to be present");
+  }
+
+  // getActions()
+
+  @Test
+  void testGetActionsInitiallyEmpty() {
+    // Test that the actions set is empty initially
+    Set<String> actions = lts.getActions();
+    assertTrue(actions.isEmpty(), "Expected no actions initially");
+  }
+
+  @Test
+  void testGetActionsAfterAddingSingleTransition() {
+    // Add a transition and verify the action is in the actions set
+    lts.addTransition("A", "B", "action1");
+
+    Set<String> actions = lts.getActions();
+    assertEquals(1, actions.size(), "Expected one action after adding a transition");
+    assertTrue(actions.contains("action1"), "Expected 'action1' to be present");
+  }
+
+  @Test
+  void testGetActionsAfterAddingMultipleTransitionsWithDifferentActions() {
+    // Add multiple transitions with different actions
+    lts.addTransition("A", "B", "action1");
+    lts.addTransition("B", "C", "action2");
+    lts.addTransition("C", "D", "action3");
+
+    Set<String> actions = lts.getActions();
+    assertEquals(3, actions.size(), "Expected three actions after adding multiple transitions");
+    assertTrue(actions.contains("action1"), "Expected 'action1' to be present");
+    assertTrue(actions.contains("action2"), "Expected 'action2' to be present");
+    assertTrue(actions.contains("action3"), "Expected 'action3' to be present");
+  }
+
+  @Test
+  void testGetActionsNoDuplicateActions() {
+    // Add the same action multiple times in different transitions
+    lts.addTransition("A", "B", "action1");
+    lts.addTransition("A", "C", "action1");
+
+    Set<String> actions = lts.getActions();
+    assertEquals(1, actions.size(), "Expected no duplicate actions");
+    assertTrue(actions.contains("action1"), "Expected 'action1' to be present");
+  }
+
+  @Test
+  void testGetActionsWithNoTransitions() {
+    // Add states but no transitions
+    lts.addState("A");
+    lts.addState("B");
+
+    // Verify that the actions set is still empty
+    Set<String> actions = lts.getActions();
+    assertTrue(actions.isEmpty(), "Expected no actions since no transitions were added");
+  }
+
+  //containState()
+
+  @Test
+  void testContainsStateWhenStateNotPresent() {
+    // Verify that a state that hasn't been added returns false
+    assertFalse(lts.containsState("A"), "Expected 'A' to not be present in the LTS");
+  }
+
+  @Test
+  void testContainsStateAfterAddingState() {
+    // Add a state and check if it is contained in the LTS
+    lts.addState("A");
+    assertTrue(lts.containsState("A"), "Expected 'A' to be present in the LTS after being added");
+  }
+
+  @Test
+  void testContainsStateAfterAddingMultipleStates() {
+    // Add multiple states and verify that they are all contained in the LTS
+    lts.addState("A");
+    lts.addState("B");
+    lts.addState("C");
+
+    assertTrue(lts.containsState("A"), "Expected 'A' to be present in the LTS");
+    assertTrue(lts.containsState("B"), "Expected 'B' to be present in the LTS");
+    assertTrue(lts.containsState("C"), "Expected 'C' to be present in the LTS");
+  }
+
+  @Test
+  void testContainsStateWithImplicitlyAddedState() {
+    // Add a transition which should implicitly add states
+    lts.addTransition("A", "B", "action1");
+
+    assertTrue(lts.containsState("A"), "Expected 'A' to be present in the LTS after being implicitly added");
+    assertTrue(lts.containsState("B"), "Expected 'B' to be present in the LTS after being implicitly added");
+  }
+
+  @Test
+  void testContainsStateWithNullState() {
+    lts.addState("A");
+    // Check how the method behaves when null is passed
+    assertFalse(lts.containsState(null), "Expected false when passing null as the state");
   }
 }
