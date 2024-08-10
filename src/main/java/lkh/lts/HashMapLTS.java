@@ -20,7 +20,7 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
     if (labels == null) throw new NullPointerException("null labels");
 
     addState(state);
-    labelMap.put(state, labels);
+    labelMap.put(state, new HashSet<>(labels));
   }
 
   @Override
