@@ -81,4 +81,18 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
 
     return map.get(from).getOrDefault(action, new HashSet<>());
   }
+
+  @Override
+  public Optional<Set<State>> targets(Set<State> sourceStates, Action action, boolean stronglyExecutable) {
+    Set<State> targets = new HashSet<>();
+    Set<State> targetStates;
+
+    for (State source : sourceStates) {
+      targetStates = targets(source, action);
+      if (stronglyExecutable && targetStates.isEmpty()) return Optional.empty();
+      targets.addAll(targetStates);
+    }
+
+    return Optional.of(targets);
+  }
 }

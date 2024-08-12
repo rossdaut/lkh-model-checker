@@ -1,5 +1,6 @@
 package lkh.lts;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface LTS<State, Action> {
@@ -68,10 +69,18 @@ public interface LTS<State, Action> {
 
   /**
    * Return the set of states reachable from the given source by consuming the given action
-   * @param from the source state
+   * @param source the source state
    * @param action the action (symbol) to consume
-   * @return the set of states reachable from `from` by consuming `action`
+   * @return the set of states reachable from `source` by consuming `action`
    */
-  Set<State> targets(State from, Action action);
+  Set<State> targets(State source, Action action);
 
+  /**
+   * Return the set of states reachable from any of the given source states by consuming the given action
+   * @param sourceStates the source states
+   * @param action the action (symbol) to consume
+   * @return the set of states reachable from `sourceStates` by consuming `action`
+   *       or empty if any of the source states has no transitions for the given action
+   */
+  Optional<Set<State>> targets(Set<State> sourceStates, Action action, boolean stronglyExecutable);
 }

@@ -601,4 +601,102 @@ public class HashMapLTSTest {
     assertTrue(targets1.contains("B"), "Expected 'B' to be the target for action1");
     assertTrue(targets2.contains("C"), "Expected 'C' to be the target for action2");
   }
+
+  // targets(Set<State>, Action, boolean)
+
+  @Test
+  void testTargetsWithMultipleSourceStatesAndAction() {
+    lts.addTransition("A", "X", "action1");
+    lts.addTransition("B", "Y", "action1");
+    lts.addTransition("C", "Z", "action2");
+
+    // Test with multiple source states and an action
+    Set<String> sourceStates = Set.of("A", "B");
+    Optional<Set<String>> targets = lts.targets(sourceStates, "action1", false);
+
+    assertTrue(targets.isPresent(), "Expected targets to be present");
+    assertEquals(2, targets.get().size(), "Expected two target states");
+    assertTrue(targets.get().contains("X"), "Expected 'X' to be a target state");
+    assertTrue(targets.get().contains("Y"), "Expected 'Y' to be a target state");
+  }
+
+  @Test
+  void testTargetsWithEmptySourceStates() {
+    // Test with empty source states
+    Set<String> sourceStates = new HashSet<>();
+    Optional<Set<String>> targets = lts.targets(sourceStates, "action1", false);
+
+    assertTrue(targets.isPresent(), "Expected targets to be present");
+    assertTrue(targets.get().isEmpty(), "Expected no target states");
+  }
+
+  @Test
+  void testTargetsWithNonExistentSourceState() {
+    // Add state and transition
+    lts.addState("B");
+    lts.addTransition("A", "X", "action1");
+
+    // Test with a non-existent source state
+    Set<String> sourceStates = Set.of("B");
+    Optional<Set<String>> targets = lts.targets(sourceStates, "action1", false);
+
+    assertTrue(targets.isPresent(), "Expected targets to be present");
+    assertTrue(targets.get().isEmpty(), "Expected no target states for non-existent source state");
+  }
+
+  @Test
+  void testTargetsWithNonExistentAction() {
+    lts.addState("B");
+    lts.addTransition("A", "X", "action1");
+
+    // Test with an action that doesn't exist
+    Set<String> sourceStates = Set.of("A", "B");
+    Optional<Set<String>> targets = lts.targets(sourceStates, "action2", false);
+
+    assertTrue(targets.isPresent(), "Expected targets to be present");
+    assertTrue(targets.get().isEmpty(), "Expected no target states for non-existent action");
+  }
+
+  @Test
+  void testTargetsWithStronglyExecutableAndEmptyTarget() {
+    lts.addState("B");
+    lts.addTransition("A", "X", "action1");
+
+    // Test with stronglyExecutable = true and one source state leading to no target
+    Set<String> sourceStates = Set.of("A", "B");
+    Optional<Set<String>> targets = lts.targets(sourceStates, "action1", true);
+
+    assertFalse(targets.isPresent(), "Expected no targets due to strongly executable and empty target");
+  }
+
+  @Test
+  void testTargetsWithStronglyExecutableAndNonEmptyTarget() {
+    lts.addState("C");
+    lts.addTransition("A", "X", "action1");
+    lts.addTransition("B", "Y", "action1");
+
+    // Test with stronglyExecutable = true and all source states having targets
+    Set<String> sourceStates = Set.of("A", "B");
+    Optional<Set<String>> targets = lts.targets(sourceStates, "action1", true);
+
+    assertTrue(targets.isPresent(), "Expected targets to be present");
+    assertEquals(2, targets.get().size(), "Expected two target states");
+    assertTrue(targets.get().contains("X"), "Expected 'X' to be a target state");
+    assertTrue(targets.get().contains("Y"), "Expected 'Y' to be a target state");
+  }
+
+  @Test
+  void testTargetsWithSingleSourceStateAndStronglyExecutable() {
+    // Add states and transitions
+    lts.addState("A");
+    lts.addTransition("A", "X", "action1");
+
+    // Test with a single source state and stronglyExecutable = true
+    Set<String> sourceStates = Set.of("A");
+    Optional<Set<String>> targets = lts.targets(sourceStates, "action1", true);
+
+    assertTrue(targets.isPresent(), "Expected targets to be present");
+    assertEquals(1, targets.get().size(), "Expected one target state");
+    assertTrue(targets.get().contains("X"), "Expected 'X' to be a target state");
+  }
 }
