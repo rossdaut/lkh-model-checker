@@ -1,0 +1,13 @@
+Logic KH grammar:
+
+<Expr> :: <Implication> <EOF>
+
+<Implies> :: <Disyunction> (IMPLIES <Implies>)?
+
+<Disyunction> :: <Conjunction> (OR <Conjunction>)*
+
+<Conjunction> :: <Not> (AND <Not>)*
+
+<Not>:: NOT <Atom> | <Atom>
+
+<Atom> :: kh(<Expr>, <Implies>) | PROP | '(' <Implies> ')'
