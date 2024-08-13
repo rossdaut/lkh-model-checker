@@ -106,15 +106,18 @@ public class AutomataOperations {
    * @param automaton2 a DFA
    * @return a NFA accepting the intersection of the languages of the input DFAs
    */
-  public static <A, B, Symbol> DeterministicAutomaton<Pair<A, B>, Symbol>
+  public static <A, B, Symbol> DeterministicAutomaton<Integer, Symbol>
   intersection(DeterministicAutomaton<A, Symbol> automaton1, DeterministicAutomaton<B, Symbol> automaton2) {
-    DeterministicAutomaton<Pair<A, B>, Symbol> result = new DeterministicAutomaton<>();
+    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
     Set<Pair<A, B>> unvisitedStates = new HashSet<>();
+    Map<Pair<A, B>, Integer> indexMap = new HashMap<>();
+    int lastIndex = 0;
 
     // Initial state
     Pair<A, B> initial = new Pair<>(automaton1.initialState, automaton2.initialState);
+    indexMap.put(initial, lastIndex++);
     unvisitedStates.add(initial);
-    result.setInitialState(initial);
+    result.setInitialState(indexMap.get(initial));
 
     // Transition map
     while(!unvisitedStates.isEmpty()) {
@@ -122,7 +125,7 @@ public class AutomataOperations {
       unvisitedStates.remove(pair);
 
       if (automaton1.isFinal(pair.key()) && automaton2.isFinal(pair.value())) {
-        result.addFinalState(pair);
+        result.addFinalState(indexMap.get(pair));
       }
 
       for (Symbol symbol : automaton1.getAlphabet()) {
@@ -133,11 +136,12 @@ public class AutomataOperations {
 
         Pair<A, B> next = new Pair<>(s1.get(), s2.get());
 
-        if (!result.containsState(next)) {
+        if (!indexMap.containsKey(next)) {
           unvisitedStates.add(next);
+          indexMap.put(next, lastIndex++);
         }
 
-        result.addTransition(pair, next, symbol);
+        result.addTransition(indexMap.get(pair), indexMap.get(next), symbol);
       }
     }
 

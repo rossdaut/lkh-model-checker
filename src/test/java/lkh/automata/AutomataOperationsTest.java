@@ -65,10 +65,10 @@ public class AutomataOperationsTest {
 
   @ParameterizedTest
   @CsvSource({"acb,true", "acbacb,true", "'',false", "acacac,false", "acbbac,false", "aacb,false", "aaacbacb,false"})
-  public void positiveIntersectionTest1(String string, boolean expected) {
+  public void IntersectionTest1(String string, boolean expected) {
     //dfa1: (ac | b +)+   dfa2: (a+cb)+   intersection: (acb)+
     List<String> s = string.isEmpty() ? Collections.emptyList() : Arrays.asList(string.split(""));
-    DeterministicAutomaton<Pair<String, String>, String> intersection = AutomataOperations.intersection(dfa1, dfa2);
+    DeterministicAutomaton<Integer, String> intersection = AutomataOperations.intersection(dfa1, dfa2);
     assertEquals(expected, dfa1.evaluate(s) && dfa2.evaluate(s));
     assertEquals(expected, intersection.evaluate(s));
   }
