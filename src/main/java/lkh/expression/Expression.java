@@ -11,18 +11,18 @@ import java.io.PrintWriter;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TreeNode {
+public class Expression {
   private TokenType tokenType;
   private String name;
-  private TreeNode left;
-  private TreeNode right;
+  private Expression left;
+  private Expression right;
   private int size;
 
-  public TreeNode(TokenType tokenType, String name) {
+  public Expression(TokenType tokenType, String name) {
     this(tokenType, name, null, null);
   }
 
-  public TreeNode(TokenType tokenType, String name, TreeNode left, TreeNode right) {
+  public Expression(TokenType tokenType, String name, Expression left, Expression right) {
     this.tokenType = tokenType;
     this.name=name;
     this.left=left;
@@ -48,7 +48,7 @@ public class TreeNode {
     }
   }
 
-  private void writeSons(PrintWriter f, TreeNode tree, int id) {
+  private void writeSons(PrintWriter f, Expression tree, int id) {
     writeLabel(f,tree, id);
     if(tree.left != null){
       int left_id = id + 1;
@@ -64,7 +64,7 @@ public class TreeNode {
     }
   }
 
-  private void writeLabel(PrintWriter f, TreeNode tree, int id) {
+  private void writeLabel(PrintWriter f, Expression tree, int id) {
     f.printf("%d [label=\"%s\"];\n", id, tree.name);
   }
 
