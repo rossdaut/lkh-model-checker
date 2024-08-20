@@ -148,7 +148,6 @@ public class AutomataOperations {
     return result;
   }
 
-
   /**
    * NonDeterministicAutomaton to DeterministicAutomaton passage.
    * It checks that the input has a deterministic structure.
@@ -195,6 +194,39 @@ public class AutomataOperations {
     DeterministicAutomaton<State, Symbol> result = dfa.clone();
     result.finalStates.addAll(dfa.getStates());
     result.finalStates.removeAll(dfa.finalStates);
+    return result;
+  }
+
+  /**
+   * Return an equivalent automaton where states are replaced for integers.
+   * @param automaton a non-null deterministic automaton
+   * @return a deterministic automaton with integer states
+   * @param <State> the type of the input automaton states
+   * @param <Symbol> the type of the symbols
+   */
+  private <State, Symbol> DeterministicAutomaton<Integer, Symbol>
+  toIntegerStates(DeterministicAutomaton<State, Symbol> automaton) {
+    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
+    Map<State, Integer> indexMap = new HashMap<>();
+
+    for (State state: automaton.getStates()) {
+      indexMap.put(state, indexMap.size());
+      result.addState(indexMap.get(state));
+
+      if (automaton.isFinal(state)) {
+        result.addFinalState(indexMap.get(state));
+      }
+    }
+
+    result.initialState = indexMap.get(automaton.getInitialState());
+
+    for(State source: automaton.getStates()) {
+      for(Symbol symbol: automaton.getAlphabet()) {
+        Optional<State> target = automaton.delta(source, symbol);
+        target.ifPresent(t -> result.addTransition(indexMap.get(source), indexMap.get(t), symbol));
+      }
+    }
+
     return result;
   }
 }
