@@ -15,15 +15,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AutomataOperationsTest {
   static NonDeterministicAutomaton<String, String> nfa;
-  static DeterministicAutomaton<String, String> dfa1, dfa2;
+  static DeterministicAutomaton<String, String> dfa1, dfa2, dfa3;
   static String resourcesPath = "src/test/resources";
 
   @BeforeAll
   static void setUp() {
     try {
-      nfa = DotReader.readNFA(resourcesPath + "/nfa.dot");  //(ac | b +)+
-      dfa1 = DotReader.readDFA(resourcesPath + "/dfa.dot");  //(ac | b +)+
-      dfa2 = DotReader.readDFA(resourcesPath + "/dfa2.dot");  //(a+cb)+
+      nfa = DotReader.readNFA(resourcesPath + "/nfa.dot");    // (ac | b +)+
+      dfa1 = DotReader.readDFA(resourcesPath + "/dfa.dot");   // (ac | b +)+
+      dfa2 = DotReader.readDFA(resourcesPath + "/dfa2.dot");  // (a+cb)+
+      dfa3 = DotReader.readDFA(resourcesPath + "/dfa3.dot");  // acb
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -65,12 +66,27 @@ public class AutomataOperationsTest {
 
   @ParameterizedTest
   @CsvSource({"acb,true", "acbacb,true", "'',false", "acacac,false", "acbbac,false", "aacb,false", "aaacbacb,false"})
-  public void IntersectionTest1(String string, boolean expected) {
+  public void intersectionTest(String string, boolean expected) {
     //dfa1: (ac | b +)+   dfa2: (a+cb)+   intersection: (acb)+
     List<String> s = string.isEmpty() ? Collections.emptyList() : Arrays.asList(string.split(""));
     DeterministicAutomaton<Integer, String> intersection = AutomataOperations.intersection(dfa1, dfa2);
     assertEquals(expected, dfa1.evaluate(s) && dfa2.evaluate(s));
     assertEquals(expected, intersection.evaluate(s));
+  }
+
+  @ParameterizedTest
+  @CsvSource({"acb,true", "acbacb,false", "'',false", "acacac,false", "acbbac,false", "aacb,false", "aaacbacb,false"})
+  public void multipleIntersectionTest(String string, boolean expected) {
+    //dfa1: (ac | b +)+   dfa2: (a+cb)+   intersection: (acb)+
+    //dfa3: acb  intersection: acb
+    List<String> s = string.isEmpty() ? Collections.emptyList() : Arrays.asList(string.split(""));
+    Set<DeterministicAutomaton<String, String>> automata = Set.of(dfa1, dfa2, dfa3);
+
+    DeterministicAutomaton<Integer, String> result = AutomataOperations.intersection(automata);
+
+    boolean actual = result.evaluate(s);
+    assertEquals(dfa1.evaluate(s) && dfa2.evaluate(s) && dfa3.evaluate(s), actual);
+    assertEquals(expected, actual);
   }
 
   // Pre: dfa states are strings of digits

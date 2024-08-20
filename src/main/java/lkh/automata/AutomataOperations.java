@@ -154,12 +154,12 @@ public class AutomataOperations {
    * @return a DFA accepting the intersection of the languages of all DFA's
    * @param <Symbol> the type of the symbols
    */
-  public static <Symbol> DeterministicAutomaton<Integer, Symbol>
-  intersection(Set<DeterministicAutomaton<?, Symbol>> automata) {
+  public static <State, Symbol> DeterministicAutomaton<Integer, Symbol>
+  intersection(Set<DeterministicAutomaton<State, Symbol>> automata) {
     if (automata == null) throw new NullPointerException("null automata set");
     if (automata.isEmpty()) { throw new IllegalArgumentException("empty automata set"); }
 
-    Queue<DeterministicAutomaton<?, Symbol>> queue = new LinkedList<>(automata);
+    Queue<DeterministicAutomaton<State, Symbol>> queue = new LinkedList<>(automata);
     DeterministicAutomaton<Integer, Symbol> result = toIntegerStates(queue.remove());
 
     while (!queue.isEmpty()) {
