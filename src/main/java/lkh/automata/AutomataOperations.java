@@ -149,6 +149,27 @@ public class AutomataOperations {
   }
 
   /**
+   * Set of DeterministicAutomaton intersection.
+   * @param automata a set of DFAs
+   * @return a DFA accepting the intersection of the languages of all DFA's
+   * @param <Symbol> the type of the symbols
+   */
+  public static <Symbol> DeterministicAutomaton<Integer, Symbol>
+  intersection(Set<DeterministicAutomaton<?, Symbol>> automata) {
+    if (automata == null) throw new NullPointerException("null automata set");
+    if (automata.isEmpty()) { throw new IllegalArgumentException("empty automata set"); }
+
+    Queue<DeterministicAutomaton<?, Symbol>> queue = new LinkedList<>(automata);
+    DeterministicAutomaton<Integer, Symbol> result = toIntegerStates(queue.remove());
+
+    while (!queue.isEmpty()) {
+      result = intersection(result, queue.remove());
+    }
+
+    return result;
+  }
+
+  /**
    * NonDeterministicAutomaton to DeterministicAutomaton passage.
    * It checks that the input has a deterministic structure.
    * @param nfa a NFA that can be automatically determinized
@@ -204,7 +225,7 @@ public class AutomataOperations {
    * @param <State> the type of the input automaton states
    * @param <Symbol> the type of the symbols
    */
-  private <State, Symbol> DeterministicAutomaton<Integer, Symbol>
+  static private <State, Symbol> DeterministicAutomaton<Integer, Symbol>
   toIntegerStates(DeterministicAutomaton<State, Symbol> automaton) {
     DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
     Map<State, Integer> indexMap = new HashMap<>();
