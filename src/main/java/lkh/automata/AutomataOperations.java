@@ -106,15 +106,18 @@ public class AutomataOperations {
    * @param automaton2 a DFA
    * @return a NFA accepting the intersection of the languages of the input DFAs
    */
-  public static <A, B, Symbol> DeterministicAutomaton<Pair<A, B>, Symbol>
+  public static <A, B, Symbol> DeterministicAutomaton<Integer, Symbol>
   intersection(DeterministicAutomaton<A, Symbol> automaton1, DeterministicAutomaton<B, Symbol> automaton2) {
-    DeterministicAutomaton<Pair<A, B>, Symbol> result = new DeterministicAutomaton<>();
+    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
     Set<Pair<A, B>> unvisitedStates = new HashSet<>();
+    Map<Pair<A, B>, Integer> indexMap = new HashMap<>();
+    int lastIndex = 0;
 
     // Initial state
     Pair<A, B> initial = new Pair<>(automaton1.initialState, automaton2.initialState);
+    indexMap.put(initial, lastIndex++);
     unvisitedStates.add(initial);
-    result.setInitialState(initial);
+    result.setInitialState(indexMap.get(initial));
 
     // Transition map
     while(!unvisitedStates.isEmpty()) {
@@ -122,7 +125,7 @@ public class AutomataOperations {
       unvisitedStates.remove(pair);
 
       if (automaton1.isFinal(pair.key()) && automaton2.isFinal(pair.value())) {
-        result.addFinalState(pair);
+        result.addFinalState(indexMap.get(pair));
       }
 
       for (Symbol symbol : automaton1.getAlphabet()) {
@@ -133,17 +136,38 @@ public class AutomataOperations {
 
         Pair<A, B> next = new Pair<>(s1.get(), s2.get());
 
-        if (!result.containsState(next)) {
+        if (!indexMap.containsKey(next)) {
           unvisitedStates.add(next);
+          indexMap.put(next, lastIndex++);
         }
 
-        result.addTransition(pair, next, symbol);
+        result.addTransition(indexMap.get(pair), indexMap.get(next), symbol);
       }
     }
 
     return result;
   }
 
+  /**
+   * Set of DeterministicAutomaton intersection.
+   * @param automata a set of DFAs
+   * @return a DFA accepting the intersection of the languages of all DFA's
+   * @param <Symbol> the type of the symbols
+   */
+  public static <State, Symbol> DeterministicAutomaton<Integer, Symbol>
+  intersection(Set<DeterministicAutomaton<State, Symbol>> automata) {
+    if (automata == null) throw new NullPointerException("null automata set");
+    if (automata.isEmpty()) { throw new IllegalArgumentException("empty automata set"); }
+
+    Queue<DeterministicAutomaton<State, Symbol>> queue = new LinkedList<>(automata);
+    DeterministicAutomaton<Integer, Symbol> result = toIntegerStates(queue.remove());
+
+    while (!queue.isEmpty()) {
+      result = intersection(result, queue.remove());
+    }
+
+    return result;
+  }
 
   /**
    * NonDeterministicAutomaton to DeterministicAutomaton passage.
@@ -191,6 +215,39 @@ public class AutomataOperations {
     DeterministicAutomaton<State, Symbol> result = dfa.clone();
     result.finalStates.addAll(dfa.getStates());
     result.finalStates.removeAll(dfa.finalStates);
+    return result;
+  }
+
+  /**
+   * Return an equivalent automaton where states are replaced for integers.
+   * @param automaton a non-null deterministic automaton
+   * @return a deterministic automaton with integer states
+   * @param <State> the type of the input automaton states
+   * @param <Symbol> the type of the symbols
+   */
+  static private <State, Symbol> DeterministicAutomaton<Integer, Symbol>
+  toIntegerStates(DeterministicAutomaton<State, Symbol> automaton) {
+    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
+    Map<State, Integer> indexMap = new HashMap<>();
+
+    for (State state: automaton.getStates()) {
+      indexMap.put(state, indexMap.size());
+      result.addState(indexMap.get(state));
+
+      if (automaton.isFinal(state)) {
+        result.addFinalState(indexMap.get(state));
+      }
+    }
+
+    result.initialState = indexMap.get(automaton.getInitialState());
+
+    for(State source: automaton.getStates()) {
+      for(Symbol symbol: automaton.getAlphabet()) {
+        Optional<State> target = automaton.delta(source, symbol);
+        target.ifPresent(t -> result.addTransition(indexMap.get(source), indexMap.get(t), symbol));
+      }
+    }
+
     return result;
   }
 }
