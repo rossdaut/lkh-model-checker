@@ -126,4 +126,31 @@ public class DeterministicAutomaton<State, Symbol> extends AbstractAutomaton<Sta
 
     return cloned;
   }
+
+  /**
+   * Check if the automaton recognizes the empty language.
+   * @return true iff the automaton doesn't recognize any string
+   */
+  public boolean isEmpty() {
+    Set<State> visited = new HashSet<>();
+    Queue<State> unvisited = new LinkedList<>();
+    unvisited.add(initialState);
+
+    while(!unvisited.isEmpty()) {
+      State currentState = unvisited.remove();
+      visited.add(currentState);
+
+      if(isFinal(currentState))
+        return false;
+
+      for(Symbol symbol : getAlphabet()) {
+        delta(currentState, symbol).ifPresent(target -> {
+          if (!visited.contains(target))
+            unvisited.add(target);
+        });
+      }
+    }
+
+    return true;
+  }
 }
