@@ -40,6 +40,10 @@ public abstract class AbstractAutomaton<State, Symbol> {
     return finalStates.add(state);
   }
 
+  public void addFinalStates(Set<State> states) {
+    finalStates.addAll(states);
+  }
+
   /**
    * Add a state to the automaton
    * @param state the state to add
