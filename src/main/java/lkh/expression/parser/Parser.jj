@@ -1,6 +1,8 @@
 PARSER_BEGIN(Parser)
 
-package lkh.parser;
+package lkh.expression.parser;
+
+import lkh.expression.Expression;
 
 public class Parser {}
 
@@ -24,70 +26,70 @@ TOKEN :
   | < PROP : ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
 }
 
-TreeNode Expression() :
-{ TreeNode t; }
+Expression Expression() :
+{ Expression t; }
 {
     t=Implies() <EOF>
     { return t; }
 }
 
-TreeNode Implies() :
-{ TreeNode left, right; }
+Expression Implies() :
+{ Expression left, right; }
 {
     left=Disyunction()
     (
         <IMPLIES> right=Implies()
-        { left = new TreeNode(TokenType.IMPLIES, "implies", left, right); }
+        { left = new Expression(TokenType.IMPLIES, "implies", left, right); }
     )?
     { return left; }
 }
 
-TreeNode Disyunction() :
-{ TreeNode left, right; }
+Expression Disyunction() :
+{ Expression left, right; }
 {
     left=Conjunction()
 
     (<OR> right=Conjunction()
-    { left = new TreeNode(TokenType.OR, "or", left, right); }
+    { left = new Expression(TokenType.OR, "or", left, right); }
     )*
 
     {return left;}
 }
 
-TreeNode Conjunction() :
-{ TreeNode left, right; }
+Expression Conjunction() :
+{ Expression left, right; }
 {
     left=Not()
 
     (<AND> right=Not()
-    { left = new TreeNode(TokenType.AND, "and", left, right); }
+    { left = new Expression(TokenType.AND, "and", left, right); }
     )*
 
     {return left;}
 }
 
-TreeNode Not() :
-{ TreeNode t; }
+Expression Not() :
+{ Expression t; }
 {
     <NOT> t=Atom()
-    { return new TreeNode(TokenType.NOT, "not", null, t); }
+    { return new Expression(TokenType.NOT, "not", null, t); }
 
     | t=Atom()
     { return t; }
 }
 
-TreeNode Atom() :
+Expression Atom() :
 {
     Token t;
-    TreeNode left, right;
+    Expression left, right;
 }
 {
     t=<PROP>
-    { return new TreeNode(TokenType.PROP, t.image); }
+    { return new Expression(TokenType.PROP, t.image); }
 
     | "(" left=Implies() ")"
     { return left; }
 
     | <KH> "(" left=Implies() "," right=Implies() ")"
-    { return new TreeNode(TokenType.KH, "kh", left, right); }
+    { return new Expression(TokenType.KH, "kh", left, right); }
 }
