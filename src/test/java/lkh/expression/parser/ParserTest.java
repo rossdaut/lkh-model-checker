@@ -4,7 +4,6 @@ import lkh.expression.Expression;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
 import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,7 +12,7 @@ public class ParserTest {
   private static Parser parser;
 
   @BeforeAll
-  public static void setUp() throws FileNotFoundException {
+  public static void setUp() {
     String expression = "kh((a implies b) implies c, p)";
     parser = new Parser(new StringReader(expression));
   }
