@@ -53,6 +53,35 @@ public class ModelChecker<State, Action> {
     return AutomataOperations.intersection(automataSet);
   }
 
+  private DeterministicAutomaton<Integer, Action> cond2(Expression initExpr, Expression endExpr) {
+    Set<DeterministicAutomaton<State, Action>> automatonSet = new HashSet<>();
+
+    for (State initState : statesHolding(initExpr)) {
+      for (State endState : statesHolding(endExpr)) {
+        automatonSet.add(aComplement(initState, endState));
+      }
+    }
+
+    return AutomataOperations.intersection(automatonSet);
+  }
+
+  private DeterministicAutomaton<State, Action> aComplement(State initState, State endState) {
+    DeterministicAutomaton<State, Action> automaton = new DeterministicAutomaton<>();
+
+    for (State source : lts.getStates()) {
+      for (Action action : lts.getActions()) {
+        lts.targets(source, action).forEach(target -> {
+          automaton.addTransition(source, target, action);
+        });
+      }
+    }
+
+    automaton.setInitialState(initState);
+    automaton.addFinalState(endState);
+
+    return automaton;
+  }
+
   private DeterministicAutomaton<Set<State>, Action> aStar(State state) {
     Stack<Set<State>> stack = new Stack<>();
     Set<Set<State>> visited = new HashSet<>();
