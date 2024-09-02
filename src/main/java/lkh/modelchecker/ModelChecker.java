@@ -57,7 +57,7 @@ public class ModelChecker<State, Action> {
     Set<DeterministicAutomaton<State, Action>> automatonSet = new HashSet<>();
 
     for (State initState : statesHolding(initExpr)) {
-      for (State endState : statesHolding(endExpr)) {
+      for (State endState : statesHolding(endExpr.not())) {
         automatonSet.add(aComplement(initState, endState));
       }
     }
@@ -79,7 +79,7 @@ public class ModelChecker<State, Action> {
     automaton.setInitialState(initState);
     automaton.addFinalState(endState);
 
-    return automaton;
+    return AutomataOperations.complement(automaton);
   }
 
   private DeterministicAutomaton<Set<State>, Action> aStar(State state) {
