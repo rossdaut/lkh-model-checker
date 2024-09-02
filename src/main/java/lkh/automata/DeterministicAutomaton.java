@@ -11,6 +11,12 @@ import java.util.*;
  * @param <Symbol> the type of the symbols
  */
 public class DeterministicAutomaton<State, Symbol> extends AbstractAutomaton<State, Symbol> {
+  public static <Action> DeterministicAutomaton<Integer, Action> empty() {
+    DeterministicAutomaton<Integer, Action> empty = new DeterministicAutomaton<>();
+    empty.setInitialState(0);
+    return empty;
+  }
+
   /**
    * Add a transition to the automaton
    * If there is already a transition from source with symbol, it will be replaced

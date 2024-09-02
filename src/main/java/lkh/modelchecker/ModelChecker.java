@@ -50,6 +50,10 @@ public class ModelChecker<State, Action> {
       automataSet.add(aStar(state));
     }
 
+    // TODO: Consultar
+    if (automataSet.isEmpty()) {
+      return DeterministicAutomaton.empty();
+    }
     return AutomataOperations.intersection(automataSet);
   }
 
@@ -62,6 +66,9 @@ public class ModelChecker<State, Action> {
       }
     }
 
+    if (automatonSet.isEmpty()) {
+      return DeterministicAutomaton.empty();
+    }
     return AutomataOperations.intersection(automatonSet);
   }
 
