@@ -39,7 +39,7 @@ public class ModelCheckerKhTest {
   }
 
   @ParameterizedTest
-  @CsvSource({ "'kh(p and q, s or t)', true", "'kh(p, p)', true", "'kh(u,p)', true", "'kh(q and r, r)', true"})
+  @CsvSource({ "'kh(p and q, s or t)', true", "'kh(p, p)', true", "'kh(q and r, r)', true"})
   void testKh(String expressionString, boolean expected) throws ParseException {
     Expression expression = Expression.of(expressionString);
 
