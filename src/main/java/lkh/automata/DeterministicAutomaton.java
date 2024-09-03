@@ -11,6 +11,12 @@ import java.util.*;
  * @param <Symbol> the type of the symbols
  */
 public class DeterministicAutomaton<State, Symbol> extends AbstractAutomaton<State, Symbol> {
+  public static <Action> DeterministicAutomaton<Integer, Action> empty() {
+    DeterministicAutomaton<Integer, Action> empty = new DeterministicAutomaton<>();
+    empty.setInitialState(0);
+    return empty;
+  }
+
   /**
    * Add a transition to the automaton
    * If there is already a transition from source with symbol, it will be replaced
@@ -125,5 +131,32 @@ public class DeterministicAutomaton<State, Symbol> extends AbstractAutomaton<Sta
     }
 
     return cloned;
+  }
+
+  /**
+   * Check if the automaton recognizes the empty language.
+   * @return true iff the automaton doesn't recognize any string
+   */
+  public boolean isEmpty() {
+    Set<State> visited = new HashSet<>();
+    Queue<State> unvisited = new LinkedList<>();
+    unvisited.add(initialState);
+
+    while(!unvisited.isEmpty()) {
+      State currentState = unvisited.remove();
+      visited.add(currentState);
+
+      if(isFinal(currentState))
+        return false;
+
+      for(Symbol symbol : getAlphabet()) {
+        delta(currentState, symbol).ifPresent(target -> {
+          if (!visited.contains(target))
+            unvisited.add(target);
+        });
+      }
+    }
+
+    return true;
   }
 }

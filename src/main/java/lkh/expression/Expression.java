@@ -1,5 +1,7 @@
 package lkh.expression;
 
+import lkh.expression.parser.ParseException;
+import lkh.expression.parser.Parser;
 import lkh.expression.parser.TokenType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 
 @Data
 @AllArgsConstructor
@@ -33,6 +36,15 @@ public class Expression {
       this.size += left.size;
     if (right != null)
       this.size += right.size;
+  }
+
+  public Expression not() {
+    return new Expression(TokenType.NOT, "not", null, this);
+  }
+
+  public static Expression of(String expression) throws ParseException {
+    Parser parser = new Parser(new StringReader(expression));
+    return parser.Expression();
   }
 
   public void toDotFile(String filename) {
