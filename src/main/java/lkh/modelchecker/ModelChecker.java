@@ -1,5 +1,6 @@
 package lkh.modelchecker;
 
+import lkh.automata.AutomataIterator;
 import lkh.automata.AutomataOperations;
 import lkh.automata.DeterministicAutomaton;
 import lkh.expression.Expression;
@@ -25,6 +26,10 @@ public class ModelChecker<State, Action> {
     return check(expr, pointedState);
   }
 
+  public Iterator<List<Action>> witnesses(Expression initExpression, Expression endExpression, int lengthLimit) {
+    return new AutomataIterator<>(khAutomaton(initExpression, endExpression), lengthLimit);
+  }
+
   private boolean check(@NonNull Expression expr, State state) {
     Expression left = expr.getLeft();
     Expression right = expr.getRight();
@@ -40,7 +45,11 @@ public class ModelChecker<State, Action> {
   }
 
   private boolean kh(Expression left, Expression right) {
-    return !AutomataOperations.intersection(cond1(left), cond2(left, right)).isEmpty();
+    return !khAutomaton(left, right).isEmpty();
+  }
+
+  private DeterministicAutomaton<Integer, Action> khAutomaton(Expression initExpr, Expression endExpr) {
+    return AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr));
   }
 
   private DeterministicAutomaton<Integer, Action> cond1(Expression initExpr) {
@@ -72,23 +81,6 @@ public class ModelChecker<State, Action> {
     return AutomataOperations.intersection(automatonSet);
   }
 
-  private DeterministicAutomaton<State, Action> aComplement(State initState, State endState) {
-    DeterministicAutomaton<State, Action> automaton = new DeterministicAutomaton<>();
-
-    for (State source : lts.getStates()) {
-      for (Action action : lts.getActions()) {
-        lts.targets(source, action).forEach(target -> {
-          automaton.addTransition(source, target, action);
-        });
-      }
-    }
-
-    automaton.setInitialState(initState);
-    automaton.addFinalState(endState);
-
-    return AutomataOperations.complement(automaton);
-  }
-
   private DeterministicAutomaton<Set<State>, Action> aStar(State state) {
     Stack<Set<State>> stack = new Stack<>();
     Set<Set<State>> visited = new HashSet<>();
@@ -116,6 +108,23 @@ public class ModelChecker<State, Action> {
     automaton.addFinalStates(automaton.getStates());
 
     return automaton;
+  }
+
+  private DeterministicAutomaton<State, Action> aComplement(State initState, State endState) {
+    DeterministicAutomaton<State, Action> automaton = new DeterministicAutomaton<>();
+
+    for (State source : lts.getStates()) {
+      for (Action action : lts.getActions()) {
+        lts.targets(source, action).forEach(target -> {
+          automaton.addTransition(source, target, action);
+        });
+      }
+    }
+
+    automaton.setInitialState(initState);
+    automaton.addFinalState(endState);
+
+    return AutomataOperations.complement(automaton);
   }
 
   private Set<State> statesHolding(Expression expression) {
