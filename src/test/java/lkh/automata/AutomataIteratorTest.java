@@ -90,4 +90,33 @@ class AutomataIteratorTest {
     assertFalse(iterator.hasNext());
     assertNull(iterator.next());
   }
+
+  @Test
+  void testExcessiveLimit() {
+    DeterministicAutomaton<Integer, Character> automaton = new DeterministicAutomaton<>();
+    /* 0 -a-> [1] -b-> [2] -a-> 3 ─┐
+                                └──┘a/b */
+    automaton.setInitialState(0);
+    automaton.addFinalState(1);
+    automaton.addFinalState(2);
+    automaton.addState(3);
+
+    automaton.addTransition(0, 1, 'a');
+    automaton.addTransition(1, 2, 'b');
+    automaton.addTransition(2, 3, 'a');
+    automaton.addTransition(3, 3, 'a');
+    automaton.addTransition(3, 3, 'b');
+
+    AutomataIterator<Integer, Character> iterator = new AutomataIterator<>(automaton, 10);
+    Set<List<Character>> strings = new HashSet<>();
+    // iterator.forEachRemaining(strings::add);
+    while (iterator.hasNext()) {
+      List<Character> nextString = iterator.next();
+      strings.add(nextString);
+    }
+
+    Set<List<Character>> expected = Set.of(List.of('a'), List.of('a', 'b'));
+
+    assertEquals(expected, strings);
+  }
 }
