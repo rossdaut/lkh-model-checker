@@ -1,5 +1,6 @@
   package lkh.automata;
 
+import lkh.utils.Pair;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -97,6 +98,18 @@ public abstract class AbstractAutomaton<State, Symbol> {
    */
   public boolean isFinal(State state) {
     return finalStates.contains(state);
+  }
+
+  public Set<Pair<Symbol, State>> outgoingTransitions(State state) {
+    Set<Pair<Symbol, State>> transitions = new HashSet<>();
+
+    for (var entry : transitionsMap.get(state).entrySet()) {
+      for (var target : entry.getValue()) {
+        transitions.add(new Pair<>(entry.getKey(), target));
+      }
+    }
+
+    return transitions;
   }
 
   /**
