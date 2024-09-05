@@ -11,8 +11,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ModelChecker<State, Action> {
-  private LTS<State, Action> lts;
-  private State pointedState;
+  private final LTS<State, Action> lts;
+  private final State pointedState;
 
   public ModelChecker(@NonNull LTS<State, Action> lts, @NonNull State pointedState) {
     if (!lts.containsState(pointedState))
@@ -22,14 +22,37 @@ public class ModelChecker<State, Action> {
     this.pointedState = pointedState;
   }
 
+  /**
+   * Return whether the LTS satisfies the expression, following the KH logic rules.
+   * - LTS satisfies 'or', 'and', 'not' and 'implies' expression iff the pointed states satisfies it
+   * - LTS satisfies a kh expression iff there exists a witness plan for it (see witnesses())
+   * @param expr a non null KH-Logic expression
+   * @return true if the LTS satisfies the given expression, false otherwise
+   */
   public boolean check(@NonNull Expression expr) {
     return check(expr, pointedState);
   }
 
+  /**
+   * Return the plans that witness kh(initExpr, endExpr) and have length of at most lengthLimit.
+   * A plan witnesses a kh expression if it satisfies (1) and (2).
+   * (1) It is strongly executable for all states satisfying initExpr
+   * (2) Applying it to a state satisfying initExpr, results in a state satisfying endExpr
+   * @param initExpression the expression that source states must satisfy
+   * @param endExpression the expression that end states must satisfy
+   * @param lengthLimit the maximum plan length
+   * @return the list of witness plans for kh(initExpr, endExpr)
+   */
   public Iterator<List<Action>> witnesses(Expression initExpression, Expression endExpression, int lengthLimit) {
     return new AutomataIterator<>(khAutomaton(initExpression, endExpression), lengthLimit);
   }
 
+  /**
+   * Return whether the LTS satisfies the expression over the given state.
+   * @param expr a non null KH-Logic expression
+   * @param state the state to check
+   * @return true if the state satisfies the expression, false otherwise
+   */
   private boolean check(@NonNull Expression expr, State state) {
     Expression left = expr.getLeft();
     Expression right = expr.getRight();
@@ -44,14 +67,32 @@ public class ModelChecker<State, Action> {
     };
   }
 
+  /**
+   * Return whether the LTS satisfies kh(left, right).
+   * @param left initial expression
+   * @param right end expression
+   * @return whether the LTS satisfies kh(left, right)
+   */
   private boolean kh(Expression left, Expression right) {
     return !khAutomaton(left, right).isEmpty();
   }
 
+  /**
+   * Construct the KH automaton by first building the cond1 and cond2 automata and intersect them
+   * @param initExpr initial expression
+   * @param endExpr end expression
+   * @return the KH automaton
+   */
   private DeterministicAutomaton<Integer, Action> khAutomaton(Expression initExpr, Expression endExpr) {
     return AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr));
   }
 
+  /**
+   * Return an automaton describing the plans that satisfy (1)
+   * (1) The plan is strongly executable for all states satisfying initExpr
+   * @param initExpr the expression that all source plans must satisfy
+   * @return an automaton describing all plans that are SE over all states satisfying initExpr
+   */
   private DeterministicAutomaton<Integer, Action> cond1(Expression initExpr) {
     Set<DeterministicAutomaton<Set<State>, Action>> automataSet = new HashSet<>();
 
@@ -66,6 +107,13 @@ public class ModelChecker<State, Action> {
     return AutomataOperations.intersection(automataSet);
   }
 
+  /**
+   * Return an automaton describing all plans that satisfy (2)
+   * (2) When plan is applied to a state where initExpr holds, it leads to a state where endExpr holds
+   * @param initExpr the expression that source states must satisfy
+   * @param endExpr the expression that target states must satisfy
+   * @return an automaton describing all plans that satisfy (2)
+   */
   private DeterministicAutomaton<Integer, Action> cond2(Expression initExpr, Expression endExpr) {
     Set<DeterministicAutomaton<State, Action>> automatonSet = new HashSet<>();
 
@@ -81,6 +129,11 @@ public class ModelChecker<State, Action> {
     return AutomataOperations.intersection(automatonSet);
   }
 
+  /**
+   * Return an automaton describing all plans that are SE over the given state
+   * @param state the source state
+   * @return an automaton describing all plans that are SE over state
+   */
   private DeterministicAutomaton<Set<State>, Action> aStar(State state) {
     Stack<Set<State>> stack = new Stack<>();
     Set<Set<State>> visited = new HashSet<>();
@@ -110,14 +163,18 @@ public class ModelChecker<State, Action> {
     return automaton;
   }
 
+  /**
+   * Return an automaton describing all plans that lead to endState when applied to initState
+   * @param initState the source state
+   * @param endState the target state
+   * @return an automaton describing all plans that lead to endState when applied to initState
+   */
   private DeterministicAutomaton<State, Action> aComplement(State initState, State endState) {
     DeterministicAutomaton<State, Action> automaton = new DeterministicAutomaton<>();
 
     for (State source : lts.getStates()) {
       for (Action action : lts.getActions()) {
-        lts.targets(source, action).forEach(target -> {
-          automaton.addTransition(source, target, action);
-        });
+        lts.targets(source, action).forEach(target -> automaton.addTransition(source, target, action));
       }
     }
 
@@ -127,6 +184,11 @@ public class ModelChecker<State, Action> {
     return AutomataOperations.complement(automaton);
   }
 
+  /**
+   * Return the states where the given expression holds
+   * @param expression the expression to check
+   * @return a set of states where expression holds
+   */
   private Set<State> statesHolding(Expression expression) {
     // TODO: Think about nested KH
     return lts.getStates().stream().filter(state -> check(expression, state)).collect(Collectors.toSet());
