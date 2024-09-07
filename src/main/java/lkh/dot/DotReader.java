@@ -5,6 +5,7 @@ import lkh.automata.DeterministicAutomaton;
 import lkh.automata.NonDeterministicAutomaton;
 import lkh.dot.parser.ParseException;
 import lkh.dot.parser.Parser;
+import lkh.lts.HashMapLTS;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -29,5 +30,11 @@ public class DotReader {
     } catch (ParseException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static HashMapLTS<String, String> readLTS(String filename) throws FileNotFoundException {
+    BufferedReader reader = new BufferedReader(new FileReader(filename));
+
+    return null;
   }
 }
