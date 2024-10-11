@@ -38,6 +38,7 @@ public class PDDL {
 
       for(Action action : problem.getActions().stream().filter(action->action.isApplicable(currentState)).collect(Collectors.toSet())){
         State nextState = new State(currentState);
+        StringBuilder actionString = new StringBuilder(action.getName());
         nextState.apply(action.getConditionalEffects());
 
         if (!indexMap.containsKey(nextState)) {
@@ -45,10 +46,14 @@ public class PDDL {
           unvisitedStates.add(nextState);
         }
 
+        String instances = instancesString(action, problem);
+        if (!instances.isEmpty())
+          actionString.append("(").append(instances).append(")");
+
         lts.addTransition(
                 indexMap.get(currentState),
                 indexMap.get(nextState),
-                action.getName() + "(" + instancesString(action, problem) + ")");
+                actionString.toString());
       }
     }
 
@@ -73,13 +78,14 @@ public class PDDL {
       Fluent fluent = fluents.get(fluentIdx);
       int fluentSymbol = fluent.getSymbol();
       StringBuilder fluentStr = new StringBuilder();
-      fluentStr.append(problem.getPredicateSymbols().get(fluentSymbol)).append("(");
+      fluentStr.append(problem.getPredicateSymbols().get(fluentSymbol));
 
       List<String> arguments = new LinkedList<>();
       for (int argIdx : fluent.getArguments()) {
         arguments.add(problem.getConstantSymbols().get(argIdx));
       }
-      fluentStr.append(String.join(", ", arguments)).append(")");
+      if (!arguments.isEmpty())
+        fluentStr.append("(").append(String.join(", ", arguments)).append(")");
       result.add(fluentStr.toString());
     });
 
