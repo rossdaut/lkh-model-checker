@@ -3,6 +3,7 @@ package lkh.pddl;
 import fr.uga.pddl4j.parser.DefaultParsedProblem;
 import fr.uga.pddl4j.parser.Parser;
 import fr.uga.pddl4j.problem.DefaultProblem;
+import fr.uga.pddl4j.problem.Fluent;
 import fr.uga.pddl4j.problem.Problem;
 import fr.uga.pddl4j.problem.State;
 import fr.uga.pddl4j.problem.operator.Action;
@@ -33,6 +34,7 @@ public class PDDL {
 
     while(!unvisitedStates.isEmpty()){
       State currentState = unvisitedStates.poll();
+      lts.addState(indexMap.get(currentState), labels(currentState, problem));
 
       for(Action action : problem.getActions().stream().filter(action->action.isApplicable(currentState)).collect(Collectors.toSet())){
         State nextState = new State(currentState);
@@ -61,5 +63,26 @@ public class PDDL {
     });
 
     return String.join(", ", instancesList);
+  }
+
+  private static Set<String> labels(State state, Problem problem) {
+    Set<String> result = new HashSet<>();
+    List<Fluent> fluents = problem.getFluents();
+
+    state.stream().forEach(fluentIdx -> {
+      Fluent fluent = fluents.get(fluentIdx);
+      int fluentSymbol = fluent.getSymbol();
+      StringBuilder fluentStr = new StringBuilder();
+      fluentStr.append(problem.getPredicateSymbols().get(fluentSymbol)).append("(");
+
+      List<String> arguments = new LinkedList<>();
+      for (int argIdx : fluent.getArguments()) {
+        arguments.add(problem.getConstantSymbols().get(argIdx));
+      }
+      fluentStr.append(String.join(", ", arguments)).append(")");
+      result.add(fluentStr.toString());
+    });
+
+    return result;
   }
 }
