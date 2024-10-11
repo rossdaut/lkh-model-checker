@@ -1,0 +1,76 @@
+PARSER_BEGIN(LTSParser)
+
+package lkh.lts.parser;
+
+import lkh.lts.HashMapLTS;
+
+public class LTSParser {
+  public static HashMapLTS<String, String> lts;
+
+}
+
+PARSER_END(LTSParser)
+
+SKIP :
+{
+  " "
+| "\n"
+| "\t"
+| "\r"
+}
+
+TOKEN :
+{
+  < DIGRAPH : "digraph" > |
+  < RARROW : "->" > |
+  < LABEL : "label" > |
+  < ID : (["a"-"z", "A"-"Z", "_", ",", "0"-"9"])+ >
+}
+
+HashMapLTS<String, String> LTS() :
+{ lts = new HashMapLTS<>(); }
+{
+     <DIGRAPH> "{" stmtList() "}" <EOF>
+     { return lts; }
+}
+
+void stmtList() :
+{}
+{
+  stmt() (";" stmt())*
+}
+
+void stmt() :
+{ Token id; }
+{
+  id=<ID> rStmt(id)
+}
+
+void rStmt(Token lid) :
+{ String l; Token rid; }
+{
+  <RARROW> rid=<ID> rTransitionStmt(lid, rid)
+  | l=label()
+    {
+      lts.addState(lid.image);
+      String[] labels = l.split(",");
+      for (String label : labels) {
+        lts.addLabel(lid.image, label.trim());
+      }
+    }
+
+}
+
+void rTransitionStmt(Token lid, Token rid) :
+{ String l; }
+{
+  l=label()
+  { lts.addTransition(lid.image, rid.image, l); }
+}
+
+String label() :
+{ Token id; }
+{
+  "[" <LABEL> "=" "\""id=<ID>"\"" "]"
+  { return id.image; }
+}
