@@ -56,7 +56,7 @@ public class DotWriter {
     writer.println("digraph {");
 
     for (State state : lts.getStates()) {
-      writer.printf("%s [label = \"%s\"];\n", state, lts.getLabels(state));
+      writer.printf("%s [label = \"%s\"];\n", state, String.join(", ", lts.getLabels(state)));
     }
 
     for (State source : lts.getStates()) {
