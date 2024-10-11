@@ -3,8 +3,8 @@ package lkh.dot;
 import lkh.automata.AutomataOperations;
 import lkh.automata.DeterministicAutomaton;
 import lkh.automata.NonDeterministicAutomaton;
-import lkh.dot.parser.ParseException;
-import lkh.dot.parser.Parser;
+import lkh.automata.parser.ParseException;
+import lkh.automata.parser.Parser;
 import lkh.lts.HashMapLTS;
 import lkh.lts.parser.LTSParser;
 

@@ -1,6 +1,7 @@
 package lkh.dot;
 
 import lkh.automata.NonDeterministicAutomaton;
+import lkh.lts.LTS;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -41,6 +42,36 @@ public class DotWriter {
     }
     writer.println("}");
 
+    writer.close();
+  }
+
+  public static <State, Action> void writeLTS(LTS<State, Action> lts , String filename) {
+    PrintWriter writer;
+    try {
+      writer = new PrintWriter(filename);
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
+    writer.println("digraph {");
+
+    for (State state : lts.getStates()) {
+      writer.printf("%s [label = \"%s\"];\n", state, lts.getLabels(state));
+    }
+
+    for (State source : lts.getStates()) {
+      for (Action action : lts.getActions()) {
+        for (State target : lts.targets(source, action)) {
+          writer.printf("%s -> %s [label=\"%s\"];\n",
+              source,
+              target,
+              action.toString()
+          );
+        }
+      }
+    }
+
+    writer.println("}");
     writer.close();
   }
 }
