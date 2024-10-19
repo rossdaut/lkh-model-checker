@@ -1,4 +1,0 @@
-digraph {
-  "hola" -> "chau" [label="2"];
-  "hola" -> "hello";
-}
