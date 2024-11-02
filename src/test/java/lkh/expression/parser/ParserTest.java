@@ -3,6 +3,8 @@ package lkh.expression.parser;
 import lkh.expression.Expression;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.StringReader;
 
@@ -146,6 +148,71 @@ public class ParserTest {
     q = new Expression(TokenType.PROP, "q");
     and = new Expression(TokenType.AND, "and", p, q);
     expected = new Expression(TokenType.KH, "kh", or, and);
+
+    actual = parser.Expression();
+
+    assertEquals(expected, actual);
+  }
+
+  @ParameterizedTest
+  @CsvSource({"p(x)", "'p(y, z)'"})
+  public void fluentTest(String expression) throws ParseException {
+    Expression expected, actual;
+    parser.ReInit(new StringReader(expression));
+
+    expected = new Expression(TokenType.PROP, expression);
+    actual = parser.Atom();
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void expressionWithFluentsTest() throws ParseException {
+    String expression = "p(x) and q(y, z)";
+    Expression p, q, expected, actual;
+    parser.ReInit(new StringReader(expression));
+
+    p = new Expression(TokenType.PROP, "p(x)");
+    q = new Expression(TokenType.PROP, "q(y, z)");
+    expected = new Expression(TokenType.AND, "and", p, q);
+    actual = parser.Expression();
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void complexExpressionWithFluentsTest() throws ParseException {
+    String expression = "kh((a(n, m, o) implies b) or c, p(x) and q(y, z))";
+    Expression a, b, c, p, q, implies, or, and, expected, actual;
+    parser.ReInit(new StringReader(expression));
+
+    // Build expected TreeNode
+    a = new Expression(TokenType.PROP, "a(n, m, o)");
+    b = new Expression(TokenType.PROP, "b");
+    c = new Expression(TokenType.PROP, "c");
+    implies = new Expression(TokenType.IMPLIES, "implies", a, b);
+    or = new Expression(TokenType.OR, "or", implies, c);
+    p = new Expression(TokenType.PROP, "p(x)");
+    q = new Expression(TokenType.PROP, "q(y, z)");
+    and = new Expression(TokenType.AND, "and", p, q);
+    expected = new Expression(TokenType.KH, "kh", or, and);
+
+    actual = parser.Expression();
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void parensAndFluentsTest() throws ParseException {
+    String expression = "((p(x, y) or a) implies b)";
+    Expression p, a, b, or, expected, actual;
+    parser.ReInit(new StringReader(expression));
+
+    p = new Expression(TokenType.PROP, "p(x, y)");
+    a = new Expression(TokenType.PROP, "a");
+    b = new Expression(TokenType.PROP, "b");
+    or = new Expression(TokenType.OR, "or", p, a);
+    expected = new Expression(TokenType.IMPLIES, "implies", or, b);
 
     actual = parser.Expression();
 

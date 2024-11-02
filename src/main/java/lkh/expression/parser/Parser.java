@@ -3,6 +3,8 @@
 package lkh.expression.parser;
 
 import lkh.expression.Expression;
+import java.util.List;
+import java.util.LinkedList;
 
 public class Parser implements ParserConstants {
 
@@ -81,7 +83,7 @@ left = new Expression(TokenType.AND, "and", left, right);
       break;
       }
     case KH:
-    case PROP:
+    case ID:
     case 11:{
       t = Atom();
 {if ("" != null) return t;}
@@ -96,11 +98,26 @@ left = new Expression(TokenType.AND, "and", left, right);
 }
 
   final public Expression Atom() throws ParseException {Token t;
+    List<String> l = new LinkedList<>();
     Expression left, right;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-    case PROP:{
-      t = jj_consume_token(PROP);
-{if ("" != null) return new Expression(TokenType.PROP, t.image);}
+    case ID:{
+      t = jj_consume_token(ID);
+      switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+      case 11:{
+        jj_consume_token(11);
+        ArgsList(l);
+        jj_consume_token(12);
+        break;
+        }
+      default:
+        jj_la1[4] = jj_gen;
+        ;
+      }
+if (l.isEmpty())
+            {if ("" != null) return new Expression(TokenType.PROP, t.image);}
+
+        {if ("" != null) return new Expression(TokenType.PROP, t.image + "(" + String.join(", ", l) + ")");}
       break;
       }
     case 11:{
@@ -121,11 +138,26 @@ left = new Expression(TokenType.AND, "and", left, right);
       break;
       }
     default:
-      jj_la1[4] = jj_gen;
+      jj_la1[5] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
     throw new Error("Missing return statement in function");
+}
+
+  final public void ArgsList(List<String> argsList) throws ParseException {Token t;
+    t = jj_consume_token(ID);
+argsList.add(t.image);
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case 13:{
+      jj_consume_token(13);
+      ArgsList(argsList);
+      break;
+      }
+    default:
+      jj_la1[6] = jj_gen;
+      ;
+    }
 }
 
   /** Generated Token Manager. */
@@ -137,13 +169,13 @@ left = new Expression(TokenType.AND, "and", left, right);
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[5];
+  final private int[] jj_la1 = new int[7];
   static private int[] jj_la1_0;
   static {
 	   jj_la1_init_0();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x20,0x40,0x80,0xf00,0xe00,};
+	   jj_la1_0 = new int[] {0x20,0x40,0x80,0xf00,0x800,0xe00,0x2000,};
 	}
 
   /** Constructor with InputStream. */
@@ -157,7 +189,7 @@ left = new Expression(TokenType.AND, "and", left, right);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 7; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -171,7 +203,7 @@ left = new Expression(TokenType.AND, "and", left, right);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 7; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -181,7 +213,7 @@ left = new Expression(TokenType.AND, "and", left, right);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 7; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -199,7 +231,7 @@ left = new Expression(TokenType.AND, "and", left, right);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 7; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -208,7 +240,7 @@ left = new Expression(TokenType.AND, "and", left, right);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 7; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -217,7 +249,7 @@ left = new Expression(TokenType.AND, "and", left, right);
 	 token = new Token();
 	 jj_ntk = -1;
 	 jj_gen = 0;
-	 for (int i = 0; i < 5; i++) jj_la1[i] = -1;
+	 for (int i = 0; i < 7; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -273,7 +305,7 @@ left = new Expression(TokenType.AND, "and", left, right);
 	   la1tokens[jj_kind] = true;
 	   jj_kind = -1;
 	 }
-	 for (int i = 0; i < 5; i++) {
+	 for (int i = 0; i < 7; i++) {
 	   if (jj_la1[i] == jj_gen) {
 		 for (int j = 0; j < 32; j++) {
 		   if ((jj_la1_0[i] & (1<<j)) != 0) {
