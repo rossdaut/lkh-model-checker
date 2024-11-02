@@ -8,17 +8,21 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.io.FileNotFoundException;
 import java.util.Set;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PDDLTest {
   static LTS<Integer, String> lts;
+  static PDDL pddl;
   @BeforeAll
   static void setUp() throws FileNotFoundException {
     String resourcesPath = "src/test/resources";
     String domainFilename = resourcesPath + "/pddl/domain.pddl";
     String problemFilename = resourcesPath + "/pddl/problem.pddl";
-    lts = PDDL.asLTS(domainFilename, problemFilename);
+    pddl = new PDDL(domainFilename, problemFilename);
+    lts = pddl.getLTS();
   }
 
   @ParameterizedTest
