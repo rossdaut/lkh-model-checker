@@ -21,7 +21,7 @@ public interface ParserConstants {
   /** RegularExpression Id. */
   int KH = 9;
   /** RegularExpression Id. */
-  int PROP = 10;
+  int ID = 10;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -38,7 +38,7 @@ public interface ParserConstants {
     "\"and\"",
     "\"not\"",
     "\"kh\"",
-    "<PROP>",
+    "<ID>",
     "\"(\"",
     "\")\"",
     "\",\"",
