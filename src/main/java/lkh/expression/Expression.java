@@ -2,7 +2,6 @@ package lkh.expression;
 
 import lkh.expression.parser.ParseException;
 import lkh.expression.parser.Parser;
-import lkh.expression.parser.TokenType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,17 +14,17 @@ import java.io.StringReader;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Expression {
-  private TokenType tokenType;
+  private ExpressionType tokenType;
   private String name;
   private Expression left;
   private Expression right;
   private int size;
 
-  public Expression(TokenType tokenType, String name) {
+  public Expression(ExpressionType tokenType, String name) {
     this(tokenType, name, null, null);
   }
 
-  public Expression(TokenType tokenType, String name, Expression left, Expression right) {
+  public Expression(ExpressionType tokenType, String name, Expression left, Expression right) {
     this.tokenType = tokenType;
     this.name=name;
     this.left=left;
@@ -39,7 +38,7 @@ public class Expression {
   }
 
   public Expression not() {
-    return new Expression(TokenType.NOT, "not", null, this);
+    return new Expression(ExpressionType.NOT, "not", null, this);
   }
 
   public static Expression of(String expression) throws ParseException {

@@ -2,7 +2,7 @@ PARSER_BEGIN(Parser)
 
 package lkh.expression.parser;
 
-import lkh.expression.Expression;
+import lkh.expression.Expression;import lkh.expression.ExpressionType;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -41,7 +41,7 @@ Expression Implies() :
     left=Disyunction()
     (
         <IMPLIES> right=Implies()
-        { left = new Expression(TokenType.IMPLIES, "implies", left, right); }
+        { left = new Expression(ExpressionType.IMPLIES, "implies", left, right); }
     )?
     { return left; }
 }
@@ -52,7 +52,7 @@ Expression Disyunction() :
     left=Conjunction()
 
     (<OR> right=Conjunction()
-    { left = new Expression(TokenType.OR, "or", left, right); }
+    { left = new Expression(ExpressionType.OR, "or", left, right); }
     )*
 
     {return left;}
@@ -64,7 +64,7 @@ Expression Conjunction() :
     left=Not()
 
     (<AND> right=Not()
-    { left = new Expression(TokenType.AND, "and", left, right); }
+    { left = new Expression(ExpressionType.AND, "and", left, right); }
     )*
 
     {return left;}
@@ -74,7 +74,7 @@ Expression Not() :
 { Expression t; }
 {
     <NOT> t=Atom()
-    { return new Expression(TokenType.NOT, "not", null, t); }
+    { return new Expression(ExpressionType.NOT, "not", null, t); }
 
     | t=Atom()
     { return t; }
@@ -89,11 +89,11 @@ Expression Atom() :
 {
     t=<ID> ("(" ArgsList(l) ")")?
     { 
-        if (l.isEmpty())
-            return new Expression(TokenType.PROP, t.image);
-            
-        return new Expression(TokenType.PROP, t.image + "(" + String.join(", ", l) + ")");
-    }
+    if (l.isEmpty())
+        return new Expression(ExpressionType.PROP, t.image);
+
+    return new Expression(TokenType.PROP, t.image + "(" + String.join(", ", l) + ")");
+}
 
     | "(" left=Implies() ")"
     { return left; }

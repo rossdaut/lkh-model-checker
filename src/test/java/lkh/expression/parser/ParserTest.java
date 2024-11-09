@@ -1,6 +1,7 @@
 package lkh.expression.parser;
 
 import lkh.expression.Expression;
+import lkh.expression.ExpressionType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,7 +25,7 @@ public class ParserTest {
     String expression = "p";
     parser.ReInit(new StringReader(expression));
 
-    Expression expected = new Expression(TokenType.PROP, "p");
+    Expression expected = new Expression(ExpressionType.PROP, "p");
     Expression actual = parser.Atom();
 
     assertEquals(expected, actual);
@@ -36,8 +37,8 @@ public class ParserTest {
     Expression expected, actual, right;
     parser.ReInit(new StringReader(expression));
 
-    right = new Expression(TokenType.PROP, "p");
-    expected = new Expression(TokenType.NOT, "not", null, right);
+    right = new Expression(ExpressionType.PROP, "p");
+    expected = new Expression(ExpressionType.NOT, "not", null, right);
     actual = parser.Not();
 
     assertEquals(expected, actual);
@@ -49,8 +50,8 @@ public class ParserTest {
     Expression expected, actual, right;
     parser.ReInit(new StringReader(expression));
 
-    right = new Expression(TokenType.PROP, "p");
-    expected = new Expression(TokenType.NOT, "not", null, right);
+    right = new Expression(ExpressionType.PROP, "p");
+    expected = new Expression(ExpressionType.NOT, "not", null, right);
     actual = parser.Not();
 
     assertEquals(expected, actual);
@@ -63,9 +64,9 @@ public class ParserTest {
 
     parser.ReInit(new StringReader(expression));
 
-    left = new Expression(TokenType.PROP, "p1");
-    right = new Expression(TokenType.PROP, "p2");
-    expected = new Expression(TokenType.AND, "and", left, right);
+    left = new Expression(ExpressionType.PROP, "p1");
+    right = new Expression(ExpressionType.PROP, "p2");
+    expected = new Expression(ExpressionType.AND, "and", left, right);
     actual = parser.Conjunction();
 
     assertEquals(expected, actual);
@@ -79,9 +80,9 @@ public class ParserTest {
 
     parser.ReInit(new StringReader(expression));
 
-    left = new Expression(TokenType.PROP, "p1");
-    right = new Expression(TokenType.PROP, "p2");
-    expected = new Expression(TokenType.OR, "or", left, right);
+    left = new Expression(ExpressionType.PROP, "p1");
+    right = new Expression(ExpressionType.PROP, "p2");
+    expected = new Expression(ExpressionType.OR, "or", left, right);
     actual = parser.Disyunction();
 
     assertEquals(expected, actual);
@@ -94,9 +95,9 @@ public class ParserTest {
 
     parser.ReInit(new StringReader(expression));
 
-    left = new Expression(TokenType.PROP, "p1");
-    right = new Expression(TokenType.PROP, "p2");
-    expected = new Expression(TokenType.IMPLIES, "implies", left, right);
+    left = new Expression(ExpressionType.PROP, "p1");
+    right = new Expression(ExpressionType.PROP, "p2");
+    expected = new Expression(ExpressionType.IMPLIES, "implies", left, right);
     actual = parser.Implies();
 
     assertEquals(expected, actual);
@@ -109,9 +110,9 @@ public class ParserTest {
 
     parser.ReInit(new StringReader(expression));
 
-    left = new Expression(TokenType.PROP, "p1");
-    right = new Expression(TokenType.PROP, "p2");
-    expected = new Expression(TokenType.KH, "kh", left, right);
+    left = new Expression(ExpressionType.PROP, "p1");
+    right = new Expression(ExpressionType.PROP, "p2");
+    expected = new Expression(ExpressionType.KH, "kh", left, right);
     actual = parser.Atom();
 
     assertEquals(expected, actual);
@@ -124,9 +125,9 @@ public class ParserTest {
 
     parser.ReInit(new StringReader(expression));
 
-    left = new Expression(TokenType.PROP, "p1");
-    right = new Expression(TokenType.PROP, "p2");
-    expected = new Expression(TokenType.OR, "or", left, right);
+    left = new Expression(ExpressionType.PROP, "p1");
+    right = new Expression(ExpressionType.PROP, "p2");
+    expected = new Expression(ExpressionType.OR, "or", left, right);
     actual = parser.Atom();
 
     assertEquals(expected, actual);
@@ -139,15 +140,15 @@ public class ParserTest {
     parser.ReInit(new StringReader(expression));
 
     // Build expected TreeNode
-    a = new Expression(TokenType.PROP, "a");
-    b = new Expression(TokenType.PROP, "b");
-    c = new Expression(TokenType.PROP, "c");
-    implies = new Expression(TokenType.IMPLIES, "implies", a, b);
-    or = new Expression(TokenType.OR, "or", implies, c);
-    p = new Expression(TokenType.PROP, "p");
-    q = new Expression(TokenType.PROP, "q");
-    and = new Expression(TokenType.AND, "and", p, q);
-    expected = new Expression(TokenType.KH, "kh", or, and);
+    a = new Expression(ExpressionType.PROP, "a");
+    b = new Expression(ExpressionType.PROP, "b");
+    c = new Expression(ExpressionType.PROP, "c");
+    implies = new Expression(ExpressionType.IMPLIES, "implies", a, b);
+    or = new Expression(ExpressionType.OR, "or", implies, c);
+    p = new Expression(ExpressionType.PROP, "p");
+    q = new Expression(ExpressionType.PROP, "q");
+    and = new Expression(ExpressionType.AND, "and", p, q);
+    expected = new Expression(ExpressionType.KH, "kh", or, and);
 
     actual = parser.Expression();
 
@@ -160,7 +161,7 @@ public class ParserTest {
     Expression expected, actual;
     parser.ReInit(new StringReader(expression));
 
-    expected = new Expression(TokenType.PROP, expression);
+    expected = new Expression(ExpressionType.PROP, expression);
     actual = parser.Atom();
 
     assertEquals(expected, actual);
@@ -172,9 +173,9 @@ public class ParserTest {
     Expression p, q, expected, actual;
     parser.ReInit(new StringReader(expression));
 
-    p = new Expression(TokenType.PROP, "p(x)");
-    q = new Expression(TokenType.PROP, "q(y, z)");
-    expected = new Expression(TokenType.AND, "and", p, q);
+    p = new Expression(ExpressionType.PROP, "p(x)");
+    q = new Expression(ExpressionType.PROP, "q(y, z)");
+    expected = new Expression(ExpressionType.AND, "and", p, q);
     actual = parser.Expression();
 
     assertEquals(expected, actual);
@@ -187,15 +188,15 @@ public class ParserTest {
     parser.ReInit(new StringReader(expression));
 
     // Build expected TreeNode
-    a = new Expression(TokenType.PROP, "a(n, m, o)");
-    b = new Expression(TokenType.PROP, "b");
-    c = new Expression(TokenType.PROP, "c");
-    implies = new Expression(TokenType.IMPLIES, "implies", a, b);
-    or = new Expression(TokenType.OR, "or", implies, c);
-    p = new Expression(TokenType.PROP, "p(x)");
-    q = new Expression(TokenType.PROP, "q(y, z)");
-    and = new Expression(TokenType.AND, "and", p, q);
-    expected = new Expression(TokenType.KH, "kh", or, and);
+    a = new Expression(ExpressionType.PROP, "a(n, m, o)");
+    b = new Expression(ExpressionType.PROP, "b");
+    c = new Expression(ExpressionType.PROP, "c");
+    implies = new Expression(ExpressionType.IMPLIES, "implies", a, b);
+    or = new Expression(ExpressionType.OR, "or", implies, c);
+    p = new Expression(ExpressionType.PROP, "p(x)");
+    q = new Expression(ExpressionType.PROP, "q(y, z)");
+    and = new Expression(ExpressionType.AND, "and", p, q);
+    expected = new Expression(ExpressionType.KH, "kh", or, and);
 
     actual = parser.Expression();
 
@@ -208,11 +209,11 @@ public class ParserTest {
     Expression p, a, b, or, expected, actual;
     parser.ReInit(new StringReader(expression));
 
-    p = new Expression(TokenType.PROP, "p(x, y)");
-    a = new Expression(TokenType.PROP, "a");
-    b = new Expression(TokenType.PROP, "b");
-    or = new Expression(TokenType.OR, "or", p, a);
-    expected = new Expression(TokenType.IMPLIES, "implies", or, b);
+    p = new Expression(ExpressionType.PROP, "p(x, y)");
+    a = new Expression(ExpressionType.PROP, "a");
+    b = new Expression(ExpressionType.PROP, "b");
+    or = new Expression(ExpressionType.OR, "or", p, a);
+    expected = new Expression(ExpressionType.IMPLIES, "implies", or, b);
 
     actual = parser.Expression();
 
