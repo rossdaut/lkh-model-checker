@@ -1,9 +1,11 @@
 package lkh.automata;
 
+import lkh.utils.MarkableSet;
 import lkh.utils.Pair;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AutomataOperations {
   /**
@@ -51,6 +53,97 @@ public class AutomataOperations {
     }
 
     return result;
+  }
+
+  /**
+   * Minimize a DFA.
+   * The resulting DFA has states of type Integer. The content of the states of the input automaton is not preserved.
+   * The symbols will remain the same type.
+   * @param automaton a DFA
+   * @return a DFA accepting the same language as the input DFA with minimum number of states
+   * @param <State> the type of State of the input DFA
+   * @param <Symbol> the type of Symbol
+   */
+  public static <State, Symbol> DeterministicAutomaton<Integer, Symbol> minimize(DeterministicAutomaton<State, Symbol> automaton) {
+    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
+    Set<Set<State>> P = quotientSet(automaton);
+    Map<Set<State>, Integer> indexMap = new HashMap<>();
+
+    for(Set<State> X : P) {
+      indexMap.putIfAbsent(X, indexMap.size());
+      result.addState(indexMap.get(X));
+
+      if (X.contains(automaton.initialState))
+        result.setInitialState(indexMap.get(X));
+
+      if (X.stream().anyMatch(automaton::isFinal))
+        result.addFinalState(indexMap.get(X));
+
+      for (Symbol symbol : automaton.getAlphabet()) {
+        Optional<State> target = automaton.delta(X.stream().findAny().get(), symbol);
+        if (target.isEmpty()) continue;
+
+        Set<State> Y = P.stream().filter(x -> x.contains(target.get())).findAny().get();
+        indexMap.putIfAbsent(Y, indexMap.size());
+        result.addTransition(indexMap.get(X), indexMap.get(Y), symbol);
+      }
+    }
+
+    return result;
+  }
+
+  private static <State, Symbol> Set<Set<State>> quotientSet(DeterministicAutomaton<State, Symbol> automaton) {
+    Set<MarkableSet<State>> P = new HashSet<>();
+    Set<MarkableSet<State>> P2 = new HashSet<>();
+    MarkableSet<State> X2;
+    boolean changed = true;
+
+    P.add(new MarkableSet<>(automaton.getNonFinalStates()));
+    P.add(new MarkableSet<>(automaton.getFinalStates()));
+
+    while (changed) {
+      for (MarkableSet<State> X : P) {
+        for (State e : X.getUnmarkedElements()) {
+          if (X.isMarked(e)) continue;
+
+          X.mark(e);
+          X2 = new MarkableSet<>(Collections.singleton(e));
+
+          for (State e2 : X.getUnmarkedElements()) {
+            if (equivalent(automaton, e, e2, P)) {
+              X2.add(e2);
+              X.mark(e2);
+            }
+          }
+
+          P2.add(X2);
+        }
+      }
+      if (P.equals(P2)) {
+        changed = false;
+      } else {
+        P = P2;
+        P2 = new HashSet<>();
+      }
+    }
+
+    return P.stream().map(MarkableSet::getElements).collect(Collectors.toSet());
+  }
+
+  private static <State, Symbol> boolean equivalent(DeterministicAutomaton<State, Symbol> automaton, State e, State e2, Set<MarkableSet<State>> P) {
+    for(Symbol symbol : automaton.getAlphabet()) {
+      Optional<State> t1 = automaton.delta(e, symbol);
+      Optional<State> t2 = automaton.delta(e2, symbol);
+      if (t1.isEmpty() && t2.isEmpty()) continue;
+      if (t1.isEmpty() || t2.isEmpty()) return false;
+
+      for(MarkableSet<State> X : P) {
+        if (X.contains(t1.get()) && !X.contains(t2.get())) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   /**

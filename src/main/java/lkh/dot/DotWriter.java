@@ -1,5 +1,6 @@
 package lkh.dot;
 
+import lkh.automata.DeterministicAutomaton;
 import lkh.automata.NonDeterministicAutomaton;
 import lkh.lts.LTS;
 
@@ -38,6 +39,39 @@ public class DotWriter {
                 source,
                 target
         );
+      }
+    }
+    writer.println("}");
+
+    writer.close();
+  }
+
+  public static <State, Symbol> void writeDFA(DeterministicAutomaton<State, Symbol> automaton, String filename) {
+    PrintWriter writer;
+    try {
+      writer = new PrintWriter(filename);
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
+    writer.println("digraph {");
+
+    writer.println("init_ [shape=\"point\"];");
+    writer.printf("init_ -> %s;\n", automaton.getInitialState());
+    for (State state : automaton.getFinalStates()) {
+      writer.printf("%s [shape=\"doublecircle\"];\n", state);
+    }
+
+    for (State source : automaton.getStates()) {
+      for (Symbol symbol : automaton.getAlphabet()) {
+        State target = automaton.delta(source, symbol).orElse(null);
+        if (target != null) {
+          writer.printf("%s -> %s [label=\"%s\"];\n",
+              source,
+              target,
+              symbol.toString()
+          );
+        }
       }
     }
     writer.println("}");
