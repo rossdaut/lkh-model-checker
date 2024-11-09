@@ -37,8 +37,32 @@ public class Expression {
       this.size += right.size;
   }
 
+  public static Expression kh(Expression left, Expression right) {
+    return new Expression(ExpressionType.KH, "kh", left, right);
+  }
+
+  public static Expression implies(Expression left, Expression right) {
+    return new Expression(ExpressionType.IMPLIES, "implies", left, right);
+  }
+
+  public static Expression or(Expression left, Expression right) {
+    return new Expression(ExpressionType.OR, "or", left, right);
+  }
+
+  public static Expression and(Expression left, Expression right) {
+    return new Expression(ExpressionType.AND, "and", left, right);
+  }
+
+  public static Expression not(Expression expr) {
+    return new Expression(ExpressionType.NOT, "not", null, expr);
+  }
+
+  public static Expression prop(String name) {
+    return new Expression(ExpressionType.PROP, name);
+  }
+
   public Expression not() {
-    return new Expression(ExpressionType.NOT, "not", null, this);
+    return not(this);
   }
 
   public static Expression of(String expression) throws ParseException {
