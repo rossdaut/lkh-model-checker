@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.util.Arrays;
 
 @Data
 @AllArgsConstructor
@@ -51,6 +52,13 @@ public class Expression {
 
   public static Expression and(Expression left, Expression right) {
     return new Expression(ExpressionType.AND, "and", left, right);
+  }
+
+  public static Expression and(Expression ...expressions) {
+    if (expressions == null || expressions.length == 0)
+      throw new IllegalArgumentException("pass at least one expression");
+
+    return Arrays.stream(expressions).reduce(Expression::and).get();
   }
 
   public static Expression not(Expression expr) {

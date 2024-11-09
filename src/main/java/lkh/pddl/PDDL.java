@@ -37,7 +37,12 @@ public class PDDL {
     return 0;
   }
 
-  public Expression getGoal() {
+  public Expression getInitialExpression() {
+    Expression[] props = lts.getLabels(getInitialState()).stream().map(Expression::prop).toArray(Expression[]::new);
+    return Expression.and(props);
+  }
+
+  public Expression getGoalExpression() {
     Set<String> fluentsSet = new HashSet<>();
     List<Fluent> fluents = problem.getFluents();
 
