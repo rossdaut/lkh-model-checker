@@ -53,7 +53,7 @@ public class ModelChecker<State, Action> {
    * @param state the state to check
    * @return true if the state satisfies the expression, false otherwise
    */
-  private boolean check(@NonNull Expression expr, State state) {
+  public boolean check(@NonNull Expression expr, State state) {
     Expression left = expr.getLeft();
     Expression right = expr.getRight();
 
