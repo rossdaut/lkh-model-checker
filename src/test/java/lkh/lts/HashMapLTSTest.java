@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class HashMapLTSTest {
 
-  private HashMapLTS<String, String> lts;
+  private static HashMapLTS<String, String> lts;
 
   @BeforeEach
   public void setUp() {

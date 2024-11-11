@@ -1,6 +1,7 @@
 package lkh.automata;
 
 import lkh.dot.DotReader;
+import lkh.dot.DotWriter;
 import lkh.utils.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AutomataOperationsTest {
   static NonDeterministicAutomaton<String, String> nfa;
-  static DeterministicAutomaton<String, String> dfa1, dfa2, dfa3;
+  static DeterministicAutomaton<String, String> dfa1, dfa2, dfa3, dfa4, min;
   static String resourcesPath = "src/test/resources";
 
   @BeforeAll
@@ -25,6 +26,8 @@ public class AutomataOperationsTest {
       dfa1 = DotReader.readDFA(resourcesPath + "/dfa.dot");   // (ac | b +)+
       dfa2 = DotReader.readDFA(resourcesPath + "/dfa2.dot");  // (a+cb)+
       dfa3 = DotReader.readDFA(resourcesPath + "/dfa3.dot");  // acb
+      dfa4 = DotReader.readDFA(resourcesPath + "/dfa4.dot");  // 01+
+      min = DotReader.readDFA(resourcesPath + "/min.dot");    // 01+ (minimized)
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -86,6 +89,14 @@ public class AutomataOperationsTest {
 
     boolean actual = result.evaluate(s);
     assertEquals(dfa1.evaluate(s) && dfa2.evaluate(s) && dfa3.evaluate(s), actual);
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void minimizeTest() {
+    DeterministicAutomaton<Integer, String> actual = AutomataOperations.minimize(dfa4);
+    DeterministicAutomaton<Integer, String> expected = stringToInt(min);
+    DotWriter.writeDFA(actual, "minimized.dot");
     assertEquals(expected, actual);
   }
 

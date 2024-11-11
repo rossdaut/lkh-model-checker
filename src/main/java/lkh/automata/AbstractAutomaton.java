@@ -82,6 +82,12 @@ public abstract class AbstractAutomaton<State, Symbol> {
     return transitionsMap.keySet();
   }
 
+  public Set<State> getNonFinalStates() {
+    Set<State> nonFinalStates = new HashSet<>(getStates());
+    nonFinalStates.removeAll(finalStates);
+    return nonFinalStates;
+  }
+
   /**
    * Check if the automaton contains a state
    * @param state the state to check
