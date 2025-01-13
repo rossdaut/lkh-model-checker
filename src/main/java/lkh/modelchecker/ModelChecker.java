@@ -3,9 +3,12 @@ package lkh.modelchecker;
 import lkh.automata.AutomataIterator;
 import lkh.automata.AutomataOperations;
 import lkh.automata.DeterministicAutomaton;
+import lkh.dot.DotWriter;
 import lkh.expression.Expression;
 import lkh.lts.LTS;
 import lombok.NonNull;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,13 +16,19 @@ import java.util.stream.Collectors;
 public class ModelChecker<State, Action> {
   private final LTS<State, Action> lts;
   private final State pointedState;
+  @Getter @Setter private boolean minimize;
 
-  public ModelChecker(@NonNull LTS<State, Action> lts, @NonNull State pointedState) {
+  public ModelChecker(@NonNull LTS<State, Action> lts, @NonNull State pointedState, boolean minimize) {
     if (!lts.containsState(pointedState))
       throw new IllegalArgumentException("pointedState not in lts");
 
     this.lts = lts;
     this.pointedState = pointedState;
+    this.minimize = minimize;
+  }
+
+  public ModelChecker(@NonNull LTS<State, Action> lts, @NonNull State pointedState) {
+    this(lts, pointedState, false);
   }
 
   /**
@@ -84,7 +93,10 @@ public class ModelChecker<State, Action> {
    * @return the KH automaton
    */
   private DeterministicAutomaton<Integer, Action> khAutomaton(Expression initExpr, Expression endExpr) {
-    return AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr));
+    DeterministicAutomaton<Integer, Action> khAutomaton = AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr));
+    DotWriter.writeDFA(khAutomaton, "khAutomaton" + (minimize ? "_min" : "") + ".dot");
+    System.out.println("Minimize is set to " + minimize);
+    return khAutomaton;
   }
 
   /**
@@ -94,10 +106,16 @@ public class ModelChecker<State, Action> {
    * @return an automaton describing all plans that are SE over all states satisfying initExpr
    */
   private DeterministicAutomaton<Integer, Action> cond1(Expression initExpr) {
-    Set<DeterministicAutomaton<Set<State>, Action>> automataSet = new HashSet<>();
+    Set<DeterministicAutomaton<Integer, Action>> automataSet = new HashSet<>();
 
     for (State state : statesHolding(initExpr)) {
-      automataSet.add(aStar(state));
+      DeterministicAutomaton<Integer, Action> aStar = aStar(state);
+
+      if (minimize) {
+        aStar = AutomataOperations.minimize(aStar);
+      }
+
+      automataSet.add(aStar);
     }
 
     // TODO: Consultar
@@ -115,11 +133,17 @@ public class ModelChecker<State, Action> {
    * @return an automaton describing all plans that satisfy (2)
    */
   private DeterministicAutomaton<Integer, Action> cond2(Expression initExpr, Expression endExpr) {
-    Set<DeterministicAutomaton<State, Action>> automatonSet = new HashSet<>();
+    Set<DeterministicAutomaton<Integer, Action>> automatonSet = new HashSet<>();
 
     for (State initState : statesHolding(initExpr)) {
       for (State endState : statesHolding(endExpr.not())) {
-        automatonSet.add(aComplement(initState, endState));
+        DeterministicAutomaton<Integer, Action> aComplement = aComplement(initState, endState);
+
+        if (minimize) {
+          aComplement = AutomataOperations.minimize(aComplement);
+        }
+
+        automatonSet.add(aComplement);
       }
     }
 
@@ -134,7 +158,7 @@ public class ModelChecker<State, Action> {
    * @param state the source state
    * @return an automaton describing all plans that are SE over state
    */
-  private DeterministicAutomaton<Set<State>, Action> aStar(State state) {
+  private DeterministicAutomaton<Integer, Action> aStar(State state) {
     Stack<Set<State>> stack = new Stack<>();
     Set<Set<State>> visited = new HashSet<>();
     Set<State> initialStateSet = new HashSet<>(Set.of(state));
@@ -160,7 +184,7 @@ public class ModelChecker<State, Action> {
 
     automaton.addFinalStates(automaton.getStates());
 
-    return automaton;
+    return AutomataOperations.toIntegerStates(automaton);
   }
 
   /**
@@ -169,7 +193,7 @@ public class ModelChecker<State, Action> {
    * @param endState the target state
    * @return an automaton describing all plans that lead to endState when applied to initState
    */
-  private DeterministicAutomaton<State, Action> aComplement(State initState, State endState) {
+    private DeterministicAutomaton<Integer, Action> aComplement(State initState, State endState) {
     DeterministicAutomaton<State, Action> automaton = new DeterministicAutomaton<>();
 
     for (State source : lts.getStates()) {
@@ -181,7 +205,7 @@ public class ModelChecker<State, Action> {
     automaton.setInitialState(initState);
     automaton.addFinalState(endState);
 
-    return AutomataOperations.complement(automaton);
+    return AutomataOperations.toIntegerStates(AutomataOperations.complement(automaton));
   }
 
   /**

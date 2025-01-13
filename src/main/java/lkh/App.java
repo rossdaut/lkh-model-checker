@@ -23,6 +23,7 @@ public class App {
     System.out.println("3. Check KH expression");
     System.out.println("4. Check Goal expression");
     System.out.println("5. Start simulation");
+    System.out.println("6. Toggle minimize");
     System.out.println("0. Exit");
   }
 
@@ -47,6 +48,9 @@ public class App {
         break;
       case "5":
         simulate();
+        break;
+      case "6":
+        toggleMinimize();
         break;
       case "0":
         System.exit(0);
@@ -197,12 +201,17 @@ public class App {
     }
   }
 
+  private void toggleMinimize() {
+    modelChecker.setMinimize(!modelChecker.isMinimize());
+  }
+
   private boolean isGoal(int state) {
     return modelChecker.check(pddlParser.getGoalExpression(), state);
   }
 
   public static void main(String[] args) {
     App app = new App();
+    // pickup_tray_on_unit(robot1, stocker, tray1), robot_move(robot1, stocker, conv1), drop_tray_on_conveyor(robot1, conv1, tray1, piece1), conveyor_load_tray_in_unit(conv1, unit1, tray1, piece1), unit_execute_operation(unit1, op10, op20, tray1), unit_execute_operation(unit1, op20, op30, tray1), unit_execute_operation(unit1, op30, stop, tray1), tray_completed(op30, tray1, unit1)
 
     if (args.length != 0 && args.length != 2) {
       System.out.println("Usage: App [<domain filename> <problem filename>]");
