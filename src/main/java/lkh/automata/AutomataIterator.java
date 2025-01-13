@@ -1,14 +1,12 @@
 package lkh.automata;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class AutomataIterator<State, Symbol> implements Iterator<List<Symbol>> {
   private final AbstractAutomaton<State, Symbol> automaton;
   private final int limit;
+  private final Set<State> visited = new HashSet<>();
   private final Queue<StateDescriptor<State, Symbol>> queue;
 
   public AutomataIterator(AbstractAutomaton<State, Symbol> automaton, int limit) {
@@ -61,6 +59,7 @@ public class AutomataIterator<State, Symbol> implements Iterator<List<Symbol>> {
       }
 
       StateDescriptor<State, Symbol> state = queue.remove();
+      visited.add(state.state);
       advance(state);
     }
 
@@ -77,6 +76,9 @@ public class AutomataIterator<State, Symbol> implements Iterator<List<Symbol>> {
     for (var transition : automaton.outgoingTransitions(state.state)) {
       List<Symbol> newString = new LinkedList<>(state.string);
       newString.add(transition.key());
+
+      if (visited.contains(transition.value())) continue;
+
       queue.add(new StateDescriptor<>(newString, transition.value()));
     }
   }
