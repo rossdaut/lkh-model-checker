@@ -43,12 +43,6 @@ class AutomataIteratorTest {
     assertEquals(List.of('a', 'c'), nextString);
     assertTrue(automaton.evaluate(nextString));
 
-    assertTrue(iterator.hasNext());
-    nextString = iterator.next();
-    assertNotNull(nextString);
-    assertEquals(List.of('b', 'b'), nextString);
-    assertTrue(automaton.evaluate(nextString));
-
     assertFalse(iterator.hasNext()); // No more accepted strings within the limit
   }
 
@@ -71,11 +65,11 @@ class AutomataIteratorTest {
     Set<List<Character>> collectedStrings = new HashSet<>();
     iterator.forEachRemaining(collectedStrings::add);
 
-    assertEquals(6, collectedStrings.size());
+    assertEquals(4, collectedStrings.size());
     Set<List<Character>> expectedStrings = Set.of(
         List.of('b'),
-        List.of('a', 'c'), List.of('b', 'b'),
-        List.of('a', 'c', 'b'), List.of('b', 'a', 'c'), List.of('b', 'b', 'b')
+        List.of('a', 'c'),
+        List.of('a', 'c', 'b'), List.of('b', 'a', 'c')
     );
     assertEquals(expectedStrings, collectedStrings);
   }

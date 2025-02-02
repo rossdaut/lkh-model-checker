@@ -95,7 +95,6 @@ public class ModelChecker<State, Action> {
   private DeterministicAutomaton<Integer, Action> khAutomaton(Expression initExpr, Expression endExpr) {
     DeterministicAutomaton<Integer, Action> khAutomaton = AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr));
     DotWriter.writeDFA(khAutomaton, "khAutomaton" + (minimize ? "_min" : "") + ".dot");
-    System.out.println("Minimize is set to " + minimize);
     return khAutomaton;
   }
 

@@ -1,6 +1,6 @@
 package lkh.modelchecker;
 
-import lkh.automata.AutomataIterator;
+import lkh.dot.DotWriter;
 import lkh.expression.Expression;
 import lkh.expression.parser.ParseException;
 import lkh.lts.HashMapLTS;
@@ -55,22 +55,22 @@ public class ModelCheckerKhTest {
 
   @ParameterizedTest
   @MethodSource({"witnessesTestProvider"})
-  void testWitnesses(String initExprString, String endExprString, int witnessLengthLimit, Set<List<Character>> witnesses) throws ParseException {
+  void testWitnesses(String initExprString, String endExprString, int witnessLengthLimit, Set<List<Character>> expectedWitnesses) throws ParseException {
     Expression initExpr = Expression.of(initExprString);
     Expression endExpr = Expression.of(endExprString);
 
     Iterator<List<Character>> it = modelChecker.witnesses(initExpr, endExpr, witnessLengthLimit);
-    Set<List<Character>> expectedWitnesses = new HashSet<>();
-    it.forEachRemaining(expectedWitnesses::add);
+    Set<List<Character>> actualWitnesses = new HashSet<>();
+    it.forEachRemaining(actualWitnesses::add);
 
-    assertEquals(expectedWitnesses, witnesses);
+    assertEquals(expectedWitnesses, actualWitnesses);
   }
 
   private static Stream<Arguments> witnessesTestProvider() {
     return Stream.of(
         Arguments.of("p and q", "s or t", 3, Set.of(List.of('a', 'b'))),
         Arguments.of("p", "p", 3, Set.of(List.of())),
-        Arguments.of("q and r", "r", 6, Set.of(List.of(), List.of('c', 'b', 'a'), List.of('c', 'b', 'a', 'c', 'b', 'a')))
+        Arguments.of("q and r", "r", 6, Set.of(List.of()))
         //Arguments.of("u", "q")
     );
   }

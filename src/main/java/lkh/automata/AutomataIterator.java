@@ -1,19 +1,20 @@
 package lkh.automata;
 
+import lkh.utils.Pair;
+
 import java.util.*;
 import java.util.function.Consumer;
 
 public class AutomataIterator<State, Symbol> implements Iterator<List<Symbol>> {
   private final AbstractAutomaton<State, Symbol> automaton;
   private final int limit;
-  private final Set<State> visited = new HashSet<>();
   private final Queue<StateDescriptor<State, Symbol>> queue;
 
   public AutomataIterator(AbstractAutomaton<State, Symbol> automaton, int limit) {
     this.automaton = automaton;
     this.limit = limit;
     queue = new LinkedList<>();
-    queue.add(new StateDescriptor<>(new LinkedList<>(), automaton.getInitialState()));
+    queue.add(new StateDescriptor<>(automaton.getInitialState()));
   }
 
   /**
@@ -36,7 +37,7 @@ public class AutomataIterator<State, Symbol> implements Iterator<List<Symbol>> {
     if (state == null) return null;
 
     advance(state);
-    return state.string;
+    return state.string();
   }
 
   /**
@@ -59,7 +60,6 @@ public class AutomataIterator<State, Symbol> implements Iterator<List<Symbol>> {
       }
 
       StateDescriptor<State, Symbol> state = queue.remove();
-      visited.add(state.state);
       advance(state);
     }
 
@@ -71,24 +71,38 @@ public class AutomataIterator<State, Symbol> implements Iterator<List<Symbol>> {
    * @param state the current state
    */
   private void advance(StateDescriptor<State, Symbol> state) {
-    if (state.string.size() == limit) return;
+    if (state.path.size() == limit) return;
 
     for (var transition : automaton.outgoingTransitions(state.state)) {
-      List<Symbol> newString = new LinkedList<>(state.string);
-      newString.add(transition.key());
-
-      if (visited.contains(transition.value())) continue;
-
-      queue.add(new StateDescriptor<>(newString, transition.value()));
+      if (transition.value().equals(state.state) || state.pathContainsState(transition.value())) {
+        continue; // Avoid loops and cycles
+      }
+      
+      List<Pair<State, Symbol>> newPath = new LinkedList<>(state.path);
+      newPath.add(new Pair<>(state.state, transition.key()));
+      queue.add(new StateDescriptor<>(newPath, transition.value()));
     }
   }
 
   /**
-   * A record to hold the current state and the string that led to it.
-   * @param string the string that led to the current state
+   * A record to hold the current state and the path that led to it.
+   * @param path the path that led to the current state
    * @param state the state
    * @param <State> the type of the state
    * @param <Symbol> the type of the symbols in the automaton
    */
-  private record StateDescriptor<State, Symbol> (List<Symbol> string, State state) {}
+  public record StateDescriptor<State, Symbol> (List<Pair<State, Symbol>> path, State state) {
+    StateDescriptor(State state) {
+      this(new LinkedList<>(), state);
+    }
+    
+    List<Symbol> string() {
+      return path.stream().map(Pair::value).toList();
+    }
+    
+    boolean pathContainsState(State state) {
+      return path.stream().anyMatch(pair -> pair.key().equals(state));
+    }
+  }
 }
+
