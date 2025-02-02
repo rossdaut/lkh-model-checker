@@ -318,7 +318,7 @@ public class AutomataOperations {
    * @param <State> the type of the input automaton states
    * @param <Symbol> the type of the symbols
    */
-  static private <State, Symbol> DeterministicAutomaton<Integer, Symbol>
+  public static <State, Symbol> DeterministicAutomaton<Integer, Symbol>
   toIntegerStates(DeterministicAutomaton<State, Symbol> automaton) {
     DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
     Map<State, Integer> indexMap = new HashMap<>();

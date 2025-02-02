@@ -70,6 +70,12 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
   }
 
   @Override
+  public Set<Action> getActions(State state) {
+    if (!containsState(state)) throw new IllegalArgumentException("state not in LTS");
+    return map.get(state).keySet();
+  }
+
+  @Override
   public boolean containsState(State state) {
     return getStates().contains(state);
   }
@@ -94,5 +100,10 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
     }
 
     return Optional.of(targets);
+  }
+
+  @Override
+  public String toString(State state) {
+    return state.toString() + "[" + String.join(", ", getLabels(state)) + "]";
   }
 }

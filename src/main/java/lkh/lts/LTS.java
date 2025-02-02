@@ -61,6 +61,13 @@ public interface LTS<State, Action> {
   Set<Action> getActions();
 
   /**
+   * Get the set of actions from the given state
+   * @param state the state
+   * @return the set of actions
+   */
+  Set<Action> getActions(State state);
+
+  /**
    * Return whether the given state exists in the LTS
    * @param state the state to check
    * @return true if the state exists in the LTS, false otherwise
@@ -83,4 +90,11 @@ public interface LTS<State, Action> {
    *       or empty if any of the source states has no transitions for the given action
    */
   Optional<Set<State>> targets(Set<State> sourceStates, Action action, boolean stronglyExecutable);
+
+  /**
+   * Return the state in a human-readable form
+   * @param state the state to show
+   * @return a string with the state labels
+   */
+  String toString(State state);
 }

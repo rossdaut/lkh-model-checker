@@ -2,7 +2,6 @@ package lkh.expression;
 
 import lkh.expression.parser.ParseException;
 import lkh.expression.parser.Parser;
-import lkh.expression.parser.TokenType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,22 +9,23 @@ import lombok.NoArgsConstructor;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
+import java.util.Arrays;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Expression {
-  private TokenType tokenType;
+  private ExpressionType tokenType;
   private String name;
   private Expression left;
   private Expression right;
   private int size;
 
-  public Expression(TokenType tokenType, String name) {
+  public Expression(ExpressionType tokenType, String name) {
     this(tokenType, name, null, null);
   }
 
-  public Expression(TokenType tokenType, String name, Expression left, Expression right) {
+  public Expression(ExpressionType tokenType, String name, Expression left, Expression right) {
     this.tokenType = tokenType;
     this.name=name;
     this.left=left;
@@ -38,8 +38,39 @@ public class Expression {
       this.size += right.size;
   }
 
+  public static Expression kh(Expression left, Expression right) {
+    return new Expression(ExpressionType.KH, "kh", left, right);
+  }
+
+  public static Expression implies(Expression left, Expression right) {
+    return new Expression(ExpressionType.IMPLIES, "implies", left, right);
+  }
+
+  public static Expression or(Expression left, Expression right) {
+    return new Expression(ExpressionType.OR, "or", left, right);
+  }
+
+  public static Expression and(Expression left, Expression right) {
+    return new Expression(ExpressionType.AND, "and", left, right);
+  }
+
+  public static Expression and(Expression ...expressions) {
+    if (expressions == null || expressions.length == 0)
+      throw new IllegalArgumentException("pass at least one expression");
+
+    return Arrays.stream(expressions).reduce(Expression::and).get();
+  }
+
+  public static Expression not(Expression expr) {
+    return new Expression(ExpressionType.NOT, "not", null, expr);
+  }
+
+  public static Expression prop(String name) {
+    return new Expression(ExpressionType.PROP, name);
+  }
+
   public Expression not() {
-    return new Expression(TokenType.NOT, "not", null, this);
+    return not(this);
   }
 
   public static Expression of(String expression) throws ParseException {

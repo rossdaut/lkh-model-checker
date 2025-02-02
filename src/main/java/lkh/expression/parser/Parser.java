@@ -3,6 +3,8 @@
 package lkh.expression.parser;
 
 import lkh.expression.Expression;
+import lkh.expression.ExpressionType;
+
 import java.util.List;
 import java.util.LinkedList;
 
@@ -21,7 +23,7 @@ public class Parser implements ParserConstants {
     case IMPLIES:{
       jj_consume_token(IMPLIES);
       right = Implies();
-left = new Expression(TokenType.IMPLIES, "implies", left, right);
+left = new Expression(ExpressionType.IMPLIES, "implies", left, right);
       break;
       }
     default:
@@ -47,7 +49,7 @@ left = new Expression(TokenType.IMPLIES, "implies", left, right);
       }
       jj_consume_token(OR);
       right = Conjunction();
-left = new Expression(TokenType.OR, "or", left, right);
+left = new Expression(ExpressionType.OR, "or", left, right);
     }
 {if ("" != null) return left;}
     throw new Error("Missing return statement in function");
@@ -68,7 +70,7 @@ left = new Expression(TokenType.OR, "or", left, right);
       }
       jj_consume_token(AND);
       right = Not();
-left = new Expression(TokenType.AND, "and", left, right);
+left = new Expression(ExpressionType.AND, "and", left, right);
     }
 {if ("" != null) return left;}
     throw new Error("Missing return statement in function");
@@ -79,7 +81,7 @@ left = new Expression(TokenType.AND, "and", left, right);
     case NOT:{
       jj_consume_token(NOT);
       t = Atom();
-{if ("" != null) return new Expression(TokenType.NOT, "not", null, t);}
+{if ("" != null) return new Expression(ExpressionType.NOT, "not", null, t);}
       break;
       }
     case KH:
@@ -115,9 +117,9 @@ left = new Expression(TokenType.AND, "and", left, right);
         ;
       }
 if (l.isEmpty())
-            {if ("" != null) return new Expression(TokenType.PROP, t.image);}
+            {if ("" != null) return new Expression(ExpressionType.PROP, t.image);}
 
-        {if ("" != null) return new Expression(TokenType.PROP, t.image + "(" + String.join(", ", l) + ")");}
+        {if ("" != null) return new Expression(ExpressionType.PROP, t.image + "(" + String.join(", ", l) + ")");}
       break;
       }
     case 11:{
@@ -134,7 +136,7 @@ if (l.isEmpty())
       jj_consume_token(13);
       right = Implies();
       jj_consume_token(12);
-{if ("" != null) return new Expression(TokenType.KH, "kh", left, right);}
+{if ("" != null) return new Expression(ExpressionType.KH, "kh", left, right);}
       break;
       }
     default:
