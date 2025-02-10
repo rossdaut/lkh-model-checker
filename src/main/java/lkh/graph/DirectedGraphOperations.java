@@ -14,7 +14,7 @@ public class DirectedGraphOperations {
    *
    * @param <V> The type of vertices in the graph.
    * @param <E> The type of edges in the graph, extending the Edge interface.
-   * @param graph The directed graph on which to perform the strongly connected components analysis.
+   * @param graph The directed graph on which to perform the analysis of strongly connected components.
    * @return A set of sets of vertices, where each inner set represents a strongly connected component.
    */
   public static <V, E extends Edge<V>> Set<Set<V>> getSCCs(DirectedGraph<V, E> graph) {

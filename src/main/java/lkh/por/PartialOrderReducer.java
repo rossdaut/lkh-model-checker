@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import fr.uga.pddl4j.problem.Fluent;
 import fr.uga.pddl4j.problem.Problem;
+import fr.uga.pddl4j.problem.State;
 import fr.uga.pddl4j.problem.operator.Action;
 
 import lkh.graph.DirectedGraph;
@@ -12,21 +13,17 @@ import lkh.graph.DirectedGraphOperations;
 import lkh.graph.HashMapDirectedGraph;
 import lkh.graph.edge.DefaultEdge;
 
+import lkh.utils.Pair;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 public class PartialOrderReducer {
   private final Problem problem;
-  @Getter
   private Map<Action, SASAction> actionsMap;
-  @Getter
   private Map<Fluent, String> fluentsMap;
-  @Getter
   private DirectedGraph<String, DefaultEdge<String>> causalGraph;
-  @Getter
-  DirectedGraph<Set<String>, DefaultEdge<Set<String>>> contractedGraph;
-  @Getter
-  Map<Set<String>, Integer> layer;
+  private DirectedGraph<Set<String>, DefaultEdge<Set<String>>> contractedGraph;
+  private Map<Action, Integer> layer;
 
   public PartialOrderReducer(Problem problem) {
     this.problem = problem;
@@ -48,7 +45,22 @@ public class PartialOrderReducer {
     stratify();
   }
 
-  public void buildCausalGraph() {
+  public Set<Pair<Action,State>> stratifiedExpansion(Action action, State state) {
+    if (state == null) { throw new IllegalArgumentException("Null state"); }
+    Set<Pair<Action,State>> result = new HashSet<>();
+
+    for (Action action2 : problem.getActions().stream().filter(a -> a.isApplicable(state)).collect(Collectors.toSet())) {
+      if (layer.get(action2) >= layer.get(action) || followUpAction(action, action2)) {
+        State nextState = new State(state);
+        nextState.apply(action2.getConditionalEffects());
+        result.add(new Pair<>(action2, nextState));
+      }
+    }
+
+    return result;
+  }
+
+  private void buildCausalGraph() {
     causalGraph = new HashMapDirectedGraph<>();
     causalGraph.addVertices(new HashSet<>(fluentsMap.values()));
 
@@ -64,7 +76,7 @@ public class PartialOrderReducer {
     }
   }
 
-  public void buildContractedGraph() {
+  private void buildContractedGraph() {
     contractedGraph = new HashMapDirectedGraph<>();
     Set<Set<String>> SCCs = DirectedGraphOperations.getSCCs(causalGraph);
 
@@ -81,18 +93,53 @@ public class PartialOrderReducer {
     }
   }
 
-  public void stratify() {
-    layer = new HashMap<>();
+  private void stratify() {
+    Map<Set<String>, Integer> sccsLayer = new HashMap<>();
 
     for(Set<String> SCC : contractedGraph.getVertices()) {
-      layer.put(SCC, 1);
+      sccsLayer.put(SCC, 1);
     }
 
     for(Set<String> SCC : DirectedGraphOperations.getTopologicalSort(contractedGraph)) {
       for(Set<String> SCC2 : contractedGraph.getIncomingNeighbors(SCC)) {
-        layer.put(SCC, Math.max(layer.get(SCC), layer.get(SCC2)) + 1);
+        sccsLayer.put(SCC, Math.max(sccsLayer.get(SCC), sccsLayer.get(SCC2)) + 1);
       }
     }
+
+    actionLayer(sccsLayer);
+  }
+
+  private void actionLayer(Map<Set<String>, Integer> sccsLayer) {
+    layer = new HashMap<>();
+    layer.put(null, 0);
+    for(Action action : problem.getActions()) {
+      String fluent = actionsMap.get(action).transition.stream().findFirst().orElse(null);
+      if (fluent == null) {
+        layer.put(action, Integer.MAX_VALUE);
+      } else {
+        for (Set<String> SCC : contractedGraph.getVertices()) {
+          if (SCC.contains(fluent)) {
+            layer.put(action, sccsLayer.get(SCC));
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  private boolean followUpAction(Action a, Action b) {
+    SASAction action1 = actionsMap.get(a);
+    SASAction action2 = actionsMap.get(b);
+
+    Set<String> firstCond = new HashSet<>(action1.affected);
+    firstCond.retainAll(action2.dependent);
+
+    if(!firstCond.isEmpty()) return true;
+
+    Set<String> secondCond = new HashSet<>(action1.affected);
+    secondCond.retainAll(action2.affected);
+
+    return !secondCond.isEmpty();
   }
 
   @EqualsAndHashCode
