@@ -71,6 +71,10 @@ public class App {
 
   protected void loadLTS(String domainFilename, String problemFilename) throws FileNotFoundException {
     pddlParser = new PDDL(domainFilename, problemFilename);
+    System.out.println("Enable Partial Order Reduction? (y/n)");
+    String input = scanner.nextLine();
+    pddlParser.setReduce(input.toLowerCase().charAt(0) != 'n');
+
     lts = pddlParser.getLTS();
     modelChecker = new ModelChecker<>(lts, pddlParser.getInitialState());
   }
@@ -211,7 +215,6 @@ public class App {
 
   public static void main(String[] args) {
     App app = new App();
-    // pickup_tray_on_unit(robot1, stocker, tray1), robot_move(robot1, stocker, conv1), drop_tray_on_conveyor(robot1, conv1, tray1, piece1), conveyor_load_tray_in_unit(conv1, unit1, tray1, piece1), unit_execute_operation(unit1, op10, op20, tray1), unit_execute_operation(unit1, op20, op30, tray1), unit_execute_operation(unit1, op30, stop, tray1), tray_completed(op30, tray1, unit1)
 
     if (args.length != 0 && args.length != 2) {
       System.out.println("Usage: App [<domain filename> <problem filename>]");

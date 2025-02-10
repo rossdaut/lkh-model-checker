@@ -10,6 +10,9 @@ import fr.uga.pddl4j.problem.operator.Action;
 import lkh.lts.HashMapLTS;
 import lkh.lts.LTS;
 import lkh.expression.Expression;
+import lkh.por.PartialOrderReducer;
+import lkh.utils.Pair;
+import lombok.Setter;
 
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -18,6 +21,8 @@ import java.util.stream.Collectors;
 public class PDDL {
   LTS<Integer, String> lts;
   Problem problem;
+  @Setter
+  boolean reduce;
 
   public PDDL(String domainFilename, String problemFilename) throws FileNotFoundException {
     Parser parser = new Parser();
@@ -69,37 +74,68 @@ public class PDDL {
     LTS<Integer,String> lts = new HashMapLTS<>();
     State init = new State(problem.getInitialState());
 
-    Queue<State> unvisitedStates = new LinkedList<>();
-    unvisitedStates.add(init);
+    Queue<Pair<Action, State>> unvisitedStates = new LinkedList<>();
+    unvisitedStates.add(new Pair<>(null, init));
     Map<State, Integer> indexMap = new HashMap<>();
     indexMap.put(init, 0);
 
     while(!unvisitedStates.isEmpty()){
-      State currentState = unvisitedStates.poll();
-      lts.addState(indexMap.get(currentState), labels(currentState, problem));
+      Pair<Action, State> pair = unvisitedStates.poll();
+      State state = pair.value();
+      Action action = pair.key();
 
-      for(Action action : problem.getActions().stream().filter(action->action.isApplicable(currentState)).collect(Collectors.toSet())){
-        State nextState = new State(currentState);
-        StringBuilder actionString = new StringBuilder(action.getName());
-        nextState.apply(action.getConditionalEffects());
+      lts.addState(indexMap.get(state), labels(state, problem));
+
+      Set<Pair<Action, State>> nextStates;
+      if (reduce) {
+        PartialOrderReducer por = new PartialOrderReducer(problem);
+        nextStates = por.stratifiedExpansion(action, state);
+      } else {
+        nextStates = defaultExpand(state);
+      }
+
+      for (Pair<Action, State> nextPair : nextStates) {
+        State nextState = nextPair.value();
+        Action nextAction = nextPair.key();
 
         if (!indexMap.containsKey(nextState)) {
           indexMap.put(nextState, indexMap.size());
-          unvisitedStates.add(nextState);
+          unvisitedStates.add(nextPair);
         }
-
-        String instances = instancesString(action, problem);
-        if (!instances.isEmpty())
-          actionString.append("(").append(instances).append(")");
-
         lts.addTransition(
-                indexMap.get(currentState),
-                indexMap.get(nextState),
-                actionString.toString());
+            indexMap.get(state),
+            indexMap.get(nextState),
+            actionToString(nextAction));
       }
     }
 
     return lts;
+  }
+
+  private Set<Pair<Action, State>> defaultExpand(State state) {
+    Set<Pair<Action, State>> result = new HashSet<>();
+
+    for (Action action : problem.getActions().stream().filter(action -> action.isApplicable(state)).collect(Collectors.toSet())) {
+      State nextState = new State(state);
+      nextState.apply(action.getConditionalEffects());
+      result.add(new Pair<>(action, nextState));
+    }
+
+    return result;
+  }
+
+  private String actionToString(Action a){
+    // Get pddlAction parameters
+    int[] parameters = a.getParameters();
+
+    // Build the argument list as a string
+    List<String> args = new LinkedList<>();
+    for (int id : a.getInstantiations()) {
+      args.add(problem.getConstantSymbols().get(id));
+    }
+
+    // Print the formatted action name with parameters
+    return a.getName() + "(" + String.join(", ", args) + ")";
   }
 
   private static String instancesString(Action action, Problem problem) {
