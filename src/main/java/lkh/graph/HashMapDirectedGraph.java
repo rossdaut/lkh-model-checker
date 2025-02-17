@@ -1,6 +1,7 @@
 package lkh.graph;
 
 import lkh.graph.edge.Edge;
+import lombok.NonNull;
 
 import java.util.*;
 
@@ -17,30 +18,26 @@ public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph
   private final Map<V, Set<E>> map = new HashMap<>();
 
   @Override
-  public void addVertex(V vertex) {
-    if (vertex == null) throw new NullPointerException("null vertex");
+  public void addVertex(@NonNull V vertex) {
     map.putIfAbsent(vertex, new HashSet<>());
   }
 
   @Override
-  public void addEdge(E edge) {
-    if (edge == null) throw new NullPointerException("null edge");
+  public void addEdge(@NonNull E edge) {
     if (!map.containsKey(edge.getSource())) addVertex(edge.getSource());
     if (!map.containsKey(edge.getTarget())) addVertex(edge.getTarget());
     map.get(edge.getSource()).add(edge);
   }
 
   @Override
-  public void addVertices(Set<V> vertices) {
-    if (vertices == null) throw new NullPointerException("null vertices");
+  public void addVertices(@NonNull Set<V> vertices) {
     for (V vertex : vertices) {
       addVertex(vertex);
     }
   }
 
   @Override
-  public void addEdges(Set<E> edges) {
-    if (edges == null) throw new NullPointerException("null edges");
+  public void addEdges(@NonNull Set<E> edges) {
     for (E edge : edges) {
       addEdge(edge);
     }
@@ -99,6 +96,14 @@ public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph
     if (!map.containsKey(vertex)) return 0;
 
     return map.get(vertex).size();
+  }
+
+  @Override
+  public List<E> getOutgoingEdges(V vertex) {
+    if (!map.containsKey(vertex))
+      throw new IllegalArgumentException("Vertex " + vertex + " does not exist");
+
+    return new ArrayList<>(map.get(vertex));
   }
 
   @Override

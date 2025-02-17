@@ -24,6 +24,14 @@ public interface DirectedGraph<V, E extends Edge<V>> extends Graph<V, E> {
     int getOutDegree(V vertex);
 
     /**
+     * Retrieves a list of edges from the specified vertex.
+     *
+     * @param vertex The vertex to find outgoing edges.
+     * @return A list of edged that are outgoing of the specified vertex.
+     */
+    List<E> getOutgoingEdges(V vertex);
+
+    /**
      * Retrieves a list of neighbors that represent the vertices directly reachable
      * from the specified vertex (outgoing neighbors).
      *
