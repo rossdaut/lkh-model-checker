@@ -79,7 +79,7 @@ public class PDDL {
     Map<State, Integer> indexMap = new HashMap<>();
     indexMap.put(init, 0);
 
-    while(!unvisitedStates.isEmpty()){
+    while (!unvisitedStates.isEmpty()) {
       Pair<Action, State> pair = unvisitedStates.poll();
       State state = pair.value();
       Action action = pair.key();
@@ -125,9 +125,6 @@ public class PDDL {
   }
 
   private String actionToString(Action a){
-    // Get pddlAction parameters
-    int[] parameters = a.getParameters();
-
     // Build the argument list as a string
     List<String> args = new LinkedList<>();
     for (int id : a.getInstantiations()) {
@@ -136,16 +133,6 @@ public class PDDL {
 
     // Print the formatted action name with parameters
     return a.getName() + "(" + String.join(", ", args) + ")";
-  }
-
-  private static String instancesString(Action action, Problem problem) {
-    List<String> instancesList = new LinkedList<>();
-
-    Arrays.stream(action.getInstantiations()).forEach(instantiation -> {
-      instancesList.add(problem.getConstantSymbols().get(instantiation));
-    });
-
-    return String.join(", ", instancesList);
   }
 
   private static Set<String> labels(State state, Problem problem) {

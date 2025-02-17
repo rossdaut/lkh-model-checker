@@ -15,12 +15,11 @@ import lkh.graph.edge.DefaultEdge;
 
 import lkh.utils.Pair;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
 public class PartialOrderReducer {
   private final Problem problem;
-  private Map<Action, SASAction> actionsMap;
-  private Map<Fluent, String> fluentsMap;
+  private final Map<Action, SASAction> actionsMap;
+  private final Map<Fluent, String> fluentsMap;
   private DirectedGraph<String, DefaultEdge<String>> causalGraph;
   private DirectedGraph<Set<String>, DefaultEdge<Set<String>>> contractedGraph;
   private Map<Action, Integer> layer;
@@ -69,7 +68,7 @@ public class PartialOrderReducer {
         if (fluent.equals(fluent2)) continue;
         for (SASAction action : actionsMap.values()) {
           if ((action.transition.contains(fluent) && action.dependent.contains(fluent2)) || (action.affected.contains(fluent) && action.transition.contains(fluent2))) {
-            causalGraph.addEdge(new DefaultEdge<String>(fluent, fluent2));
+            causalGraph.addEdge(new DefaultEdge<>(fluent, fluent2));
           }
         }
       }
@@ -144,22 +143,12 @@ public class PartialOrderReducer {
 
   @EqualsAndHashCode
   public static class SASAction {
-    private String name;
-    private HashSet<String> dependent;
+    private final String name;
+    private final HashSet<String> dependent;
     private HashSet<String> transition;
-    private HashSet<String> affected;
-
-    public SASAction(String name) {
-      this.name = name;
-      this.dependent = new HashSet<>();
-      this.transition = new HashSet<>();
-      this.affected = new HashSet<>();
-    }
+    private final HashSet<String> affected;
 
     public SASAction(Problem problem, Action pddlAction) {
-
-      // Get pddlAction parameters
-      int[] parameters = pddlAction.getParameters();
 
       // Build the argument list as a string
       List<String> args = new LinkedList<>();
@@ -175,30 +164,14 @@ public class PartialOrderReducer {
 
       List<Fluent> fluents = problem.getFluents();
       //dep
-      pddlAction.getPrecondition().getPositiveFluents().stream().forEach(fluentIdx -> {
-        dependent.add(problem.toString(fluents.get(fluentIdx)));
-      });
-      pddlAction.getPrecondition().getNegativeFluents().stream().forEach(fluentIdx -> {
-        dependent.add(problem.toString(fluents.get(fluentIdx)));
-      });
+      pddlAction.getPrecondition().getPositiveFluents().stream().forEach(fluentIdx -> dependent.add(problem.toString(fluents.get(fluentIdx))));
+      pddlAction.getPrecondition().getNegativeFluents().stream().forEach(fluentIdx -> dependent.add(problem.toString(fluents.get(fluentIdx))));
 
       //aff
-      pddlAction.getUnconditionalEffect().getPositiveFluents().stream().forEach(fluentIdx -> {
-        affected.add(problem.toString(fluents.get(fluentIdx)));
-      });
-      pddlAction.getUnconditionalEffect().getNegativeFluents().stream().forEach(fluentIdx -> {
-        affected.add(problem.toString(fluents.get(fluentIdx)));
-      });
+      pddlAction.getUnconditionalEffect().getPositiveFluents().stream().forEach(fluentIdx -> affected.add(problem.toString(fluents.get(fluentIdx))));
+      pddlAction.getUnconditionalEffect().getNegativeFluents().stream().forEach(fluentIdx -> affected.add(problem.toString(fluents.get(fluentIdx))));
 
       //trans
-      transition = new HashSet<>(affected);
-      transition.retainAll(dependent);
-    }
-
-    public SASAction(String name, HashSet<String> dependent, HashSet<String> affected) {
-      this.name = name;
-      this.dependent = dependent;
-      this.affected = affected;
       transition = new HashSet<>(affected);
       transition.retainAll(dependent);
     }
