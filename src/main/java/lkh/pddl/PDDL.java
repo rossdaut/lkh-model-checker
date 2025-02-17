@@ -2,6 +2,7 @@ package lkh.pddl;
 
 import fr.uga.pddl4j.parser.DefaultParsedProblem;
 import fr.uga.pddl4j.parser.Parser;
+import fr.uga.pddl4j.planners.LogLevel;
 import fr.uga.pddl4j.problem.DefaultProblem;
 import fr.uga.pddl4j.problem.Fluent;
 import fr.uga.pddl4j.problem.Problem;
@@ -26,6 +27,7 @@ public class PDDL {
 
   public PDDL(String domainFilename, String problemFilename) throws FileNotFoundException {
     Parser parser = new Parser();
+    parser.setLogLevel(LogLevel.OFF);
     DefaultParsedProblem parsedProblem = parser.parse(domainFilename, problemFilename);
     problem = new DefaultProblem(parsedProblem);
     problem.instantiate();
