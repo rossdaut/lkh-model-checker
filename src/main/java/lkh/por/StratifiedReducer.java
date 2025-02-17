@@ -16,7 +16,7 @@ import lkh.graph.edge.DefaultEdge;
 import lkh.utils.Pair;
 import lombok.EqualsAndHashCode;
 
-public class PartialOrderReducer {
+public class StratifiedReducer {
   private final Problem problem;
   private final Map<Action, SASAction> actionsMap;
   private final Map<Fluent, String> fluentsMap;
@@ -24,7 +24,7 @@ public class PartialOrderReducer {
   private DirectedGraph<Set<String>, DefaultEdge<Set<String>>> contractedGraph;
   private Map<Action, Integer> layer;
 
-  public PartialOrderReducer(Problem problem) {
+  public StratifiedReducer(Problem problem) {
     this.problem = problem;
 
     fluentsMap = problem.getFluents().stream()

@@ -11,7 +11,7 @@ import fr.uga.pddl4j.problem.operator.Action;
 import lkh.lts.HashMapLTS;
 import lkh.lts.LTS;
 import lkh.expression.Expression;
-import lkh.por.PartialOrderReducer;
+import lkh.por.StratifiedReducer;
 import lkh.utils.Pair;
 import lombok.Setter;
 
@@ -90,7 +90,7 @@ public class PDDL {
 
       Set<Pair<Action, State>> nextStates;
       if (reduce) {
-        PartialOrderReducer por = new PartialOrderReducer(problem);
+        StratifiedReducer por = new StratifiedReducer(problem);
         nextStates = por.stratifiedExpansion(action, state);
       } else {
         nextStates = defaultExpand(state);
