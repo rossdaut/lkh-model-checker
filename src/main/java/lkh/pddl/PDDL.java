@@ -133,6 +133,10 @@ public class PDDL {
       args.add(problem.getConstantSymbols().get(id));
     }
 
+    if (args.isEmpty()) {
+      return a.getName();
+    }
+
     // Print the formatted action name with parameters
     return a.getName() + "(" + String.join(", ", args) + ")";
   }
