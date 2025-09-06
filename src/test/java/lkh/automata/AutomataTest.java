@@ -1,5 +1,6 @@
 package lkh.automata;
 
+import lkh.automata.impl.GraphNonDeterministicAutomaton;
 import lkh.dot.DotReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AutomataTest {
-  private static NonDeterministicAutomaton<String, String> nfa;
+  private static GraphNonDeterministicAutomaton<String, String> nfa;
   private static String resourcesPath;
 
   @BeforeAll
@@ -83,7 +84,7 @@ public class AutomataTest {
 
   @Test
   public void testNFAComplete() {
-    NonDeterministicAutomaton<String, String> nfa, nfac;
+    GraphNonDeterministicAutomaton<String, String> nfa, nfac;
     nfa = readNFA("nfa.dot");
     nfac = readNFA("nfac.dot");
 
@@ -93,7 +94,7 @@ public class AutomataTest {
 
   @Test
   public void testDFAComplete() {
-    NonDeterministicAutomaton<String, String> dfa, dfac;
+    GraphNonDeterministicAutomaton<String, String> dfa, dfac;
     dfa = readNFA("dfa.dot");
     dfac = readNFA("dfac.dot");
 
@@ -101,7 +102,7 @@ public class AutomataTest {
     assertEquals(dfa, dfac);
   }
 
-  private NonDeterministicAutomaton<String, String> readNFA(String path) {
+  private GraphNonDeterministicAutomaton<String, String> readNFA(String path) {
     try {
       return DotReader.readNFA(resourcesPath + "/" + path);
     } catch (FileNotFoundException e) {

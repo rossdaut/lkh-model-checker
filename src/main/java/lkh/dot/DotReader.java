@@ -1,8 +1,8 @@
 package lkh.dot;
 
-import lkh.automata.AutomataOperations;
-import lkh.automata.DeterministicAutomaton;
-import lkh.automata.NonDeterministicAutomaton;
+import lkh.automata.impl.AutomataOperations;
+import lkh.automata.impl.GraphDeterministicAutomaton;
+import lkh.automata.impl.GraphNonDeterministicAutomaton;
 import lkh.automata.parser.ParseException;
 import lkh.automata.parser.Parser;
 import lkh.lts.HashMapLTS;
@@ -13,7 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 public class DotReader {
-  public static NonDeterministicAutomaton<String, String> readNFA(String filename) throws FileNotFoundException {
+  public static GraphNonDeterministicAutomaton<String, String> readNFA(String filename) throws FileNotFoundException {
     BufferedReader reader = new BufferedReader(new FileReader(filename));
     try {
       Parser.ReInit(reader);
@@ -23,7 +23,7 @@ public class DotReader {
     }
   }
 
-  public static DeterministicAutomaton<String, String> readDFA(String filename) throws FileNotFoundException {
+  public static GraphDeterministicAutomaton<String, String> readDFA(String filename) throws FileNotFoundException {
     BufferedReader reader = new BufferedReader(new FileReader(filename));
     try {
       Parser.ReInit(reader);

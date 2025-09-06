@@ -1,9 +1,8 @@
-package lkh.automata;
+package lkh.automata.impl;
 
 import lkh.utils.MarkableSet;
 import lkh.utils.Pair;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,8 +16,8 @@ public class AutomataOperations {
    * @param <State> the type of State of the input NFA
    * @param <Symbol> the type of Symbol
    */
-  public static <State, Symbol> DeterministicAutomaton<Integer, Symbol> determinize(NonDeterministicAutomaton<State, Symbol> automaton) {
-    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
+  public static <State, Symbol> GraphDeterministicAutomaton<Integer, Symbol> determinize(GraphNonDeterministicAutomaton<State, Symbol> automaton) {
+    GraphDeterministicAutomaton<Integer, Symbol> result = new GraphDeterministicAutomaton<>();
     Set<Set<State>> unvisitedStates = new HashSet<>();
     Map<Set<State>, Integer> indexMap = new HashMap<>();
     Set<State> s, m;
@@ -64,8 +63,8 @@ public class AutomataOperations {
    * @param <State> the type of State of the input DFA
    * @param <Symbol> the type of Symbol
    */
-  public static <State, Symbol> DeterministicAutomaton<Integer, Symbol> minimize(DeterministicAutomaton<State, Symbol> automaton) {
-    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
+  public static <State, Symbol> GraphDeterministicAutomaton<Integer, Symbol> minimize(GraphDeterministicAutomaton<State, Symbol> automaton) {
+    GraphDeterministicAutomaton<Integer, Symbol> result = new GraphDeterministicAutomaton<>();
     Set<Set<State>> P = quotientSet(automaton);
     Map<Set<State>, Integer> indexMap = new HashMap<>();
 
@@ -92,7 +91,7 @@ public class AutomataOperations {
     return result;
   }
 
-  private static <State, Symbol> Set<Set<State>> quotientSet(DeterministicAutomaton<State, Symbol> automaton) {
+  private static <State, Symbol> Set<Set<State>> quotientSet(GraphDeterministicAutomaton<State, Symbol> automaton) {
     Set<MarkableSet<State>> P = new HashSet<>();
     Set<MarkableSet<State>> P2 = new HashSet<>();
     MarkableSet<State> X2;
@@ -130,7 +129,7 @@ public class AutomataOperations {
     return P.stream().map(MarkableSet::getElements).collect(Collectors.toSet());
   }
 
-  private static <State, Symbol> boolean equivalent(DeterministicAutomaton<State, Symbol> automaton, State e, State e2, Set<MarkableSet<State>> P) {
+  private static <State, Symbol> boolean equivalent(GraphDeterministicAutomaton<State, Symbol> automaton, State e, State e2, Set<MarkableSet<State>> P) {
     for(Symbol symbol : automaton.getAlphabet()) {
       Optional<State> t1 = automaton.delta(e, symbol);
       Optional<State> t2 = automaton.delta(e2, symbol);
@@ -152,10 +151,10 @@ public class AutomataOperations {
    * @param automaton2 a complete NFA
    * @return a NFA accepting the intersection of the languages of the input NFAs
  */
-  public static <A, B, Symbol> NonDeterministicAutomaton<Pair<A, B>, Symbol>
-  intersection(NonDeterministicAutomaton<A, Symbol> automaton1, NonDeterministicAutomaton<B, Symbol> automaton2) {
+  public static <A, B, Symbol> GraphNonDeterministicAutomaton<Pair<A, B>, Symbol>
+  intersection(GraphNonDeterministicAutomaton<A, Symbol> automaton1, GraphNonDeterministicAutomaton<B, Symbol> automaton2) {
     //Chequear que estén completos???
-    NonDeterministicAutomaton<Pair<A, B>, Symbol> result = new NonDeterministicAutomaton<>();
+    GraphNonDeterministicAutomaton<Pair<A, B>, Symbol> result = new GraphNonDeterministicAutomaton<>();
     Set<Pair<A, B>> unvisitedStates = new HashSet<>();
 
     // Initial state
@@ -199,9 +198,9 @@ public class AutomataOperations {
    * @param automaton2 a DFA
    * @return a NFA accepting the intersection of the languages of the input DFAs
    */
-  public static <A, B, Symbol> DeterministicAutomaton<Integer, Symbol>
-  intersection(DeterministicAutomaton<A, Symbol> automaton1, DeterministicAutomaton<B, Symbol> automaton2) {
-    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
+  public static <A, B, Symbol> GraphDeterministicAutomaton<Integer, Symbol>
+  intersection(GraphDeterministicAutomaton<A, Symbol> automaton1, GraphDeterministicAutomaton<B, Symbol> automaton2) {
+    GraphDeterministicAutomaton<Integer, Symbol> result = new GraphDeterministicAutomaton<>();
     Set<Pair<A, B>> unvisitedStates = new HashSet<>();
     Map<Pair<A, B>, Integer> indexMap = new HashMap<>();
     int lastIndex = 0;
@@ -247,13 +246,13 @@ public class AutomataOperations {
    * @return a DFA accepting the intersection of the languages of all DFA's
    * @param <Symbol> the type of the symbols
    */
-  public static <State, Symbol> DeterministicAutomaton<Integer, Symbol>
-  intersection(Set<DeterministicAutomaton<State, Symbol>> automata) {
+  public static <State, Symbol> GraphDeterministicAutomaton<Integer, Symbol>
+  intersection(Set<GraphDeterministicAutomaton<State, Symbol>> automata) {
     if (automata == null) throw new NullPointerException("null automata set");
     if (automata.isEmpty()) { throw new IllegalArgumentException("empty automata set"); }
 
-    Queue<DeterministicAutomaton<State, Symbol>> queue = new LinkedList<>(automata);
-    DeterministicAutomaton<Integer, Symbol> result = toIntegerStates(queue.remove());
+    Queue<GraphDeterministicAutomaton<State, Symbol>> queue = new LinkedList<>(automata);
+    GraphDeterministicAutomaton<Integer, Symbol> result = toIntegerStates(queue.remove());
 
     while (!queue.isEmpty()) {
       result = intersection(result, queue.remove());
@@ -269,9 +268,9 @@ public class AutomataOperations {
    * @return the same automaton as a DeterministicAutomaton
    * @throws IllegalStateException if the input is not directly determinizable
    */
-  public static <State, Symbol> DeterministicAutomaton<State, Symbol>
-  asDeterministic(NonDeterministicAutomaton<State, Symbol> nfa) {
-    DeterministicAutomaton<State, Symbol> dfa = new DeterministicAutomaton<>();
+  public static <State, Symbol> GraphDeterministicAutomaton<State, Symbol>
+  asDeterministic(GraphNonDeterministicAutomaton<State, Symbol> nfa) {
+    GraphDeterministicAutomaton<State, Symbol> dfa = new GraphDeterministicAutomaton<>();
     Set<State> nextStates;
 
     dfa.setInitialState(nfa.getInitialState());
@@ -303,9 +302,9 @@ public class AutomataOperations {
    * @param <State> the type of State of the input DFA
    * @param <Symbol> the type of Symbol
    */
-  public static <State, Symbol> DeterministicAutomaton<State, Symbol>
-  complement(DeterministicAutomaton<State, Symbol> dfa) {
-    DeterministicAutomaton<State, Symbol> result = dfa.clone();
+  public static <State, Symbol> GraphDeterministicAutomaton<State, Symbol>
+  complement(GraphDeterministicAutomaton<State, Symbol> dfa) {
+    GraphDeterministicAutomaton<State, Symbol> result = dfa.clone();
     result.finalStates.addAll(dfa.getStates());
     result.finalStates.removeAll(dfa.finalStates);
     return result;
@@ -318,9 +317,9 @@ public class AutomataOperations {
    * @param <State> the type of the input automaton states
    * @param <Symbol> the type of the symbols
    */
-  public static <State, Symbol> DeterministicAutomaton<Integer, Symbol>
-  toIntegerStates(DeterministicAutomaton<State, Symbol> automaton) {
-    DeterministicAutomaton<Integer, Symbol> result = new DeterministicAutomaton<>();
+  public static <State, Symbol> GraphDeterministicAutomaton<Integer, Symbol>
+  toIntegerStates(GraphDeterministicAutomaton<State, Symbol> automaton) {
+    GraphDeterministicAutomaton<Integer, Symbol> result = new GraphDeterministicAutomaton<>();
     Map<State, Integer> indexMap = new HashMap<>();
 
     for (State state: automaton.getStates()) {

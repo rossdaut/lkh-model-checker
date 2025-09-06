@@ -1,4 +1,4 @@
-package lkh.automata;
+package lkh.automata.impl;
 
 import lkh.graph.edge.Edge;
 import lombok.Data;

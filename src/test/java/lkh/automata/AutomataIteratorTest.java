@@ -1,5 +1,7 @@
 package lkh.automata;
 
+import lkh.automata.impl.AutomataIterator;
+import lkh.automata.impl.GraphDeterministicAutomaton;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -8,11 +10,11 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AutomataIteratorTest {
-  private DeterministicAutomaton<Integer, Character> automaton;
+  private GraphDeterministicAutomaton<Integer, Character> automaton;
 
   @BeforeEach
   void setUp() {
-    automaton = new DeterministicAutomaton<>();
+    automaton = new GraphDeterministicAutomaton<>();
 
     automaton.setInitialState(0);
     automaton.addFinalState(2);
@@ -76,7 +78,7 @@ class AutomataIteratorTest {
 
   @Test
   void testEmptyAutomaton() {
-    DeterministicAutomaton<Integer, Character> emptyAutomaton = new DeterministicAutomaton<>();
+    GraphDeterministicAutomaton<Integer, Character> emptyAutomaton = new GraphDeterministicAutomaton<>();
     emptyAutomaton.setInitialState(0);
 
     AutomataIterator<Integer, Character> iterator = new AutomataIterator<>(emptyAutomaton, 2);
@@ -87,7 +89,7 @@ class AutomataIteratorTest {
 
   @Test
   void testExcessiveLimit() {
-    DeterministicAutomaton<Integer, Character> automaton = new DeterministicAutomaton<>();
+    GraphDeterministicAutomaton<Integer, Character> automaton = new GraphDeterministicAutomaton<>();
     /* 0 -a-> [1] -b-> [2] -a-> 3 ─┐
                                 └──┘a/b */
     automaton.setInitialState(0);

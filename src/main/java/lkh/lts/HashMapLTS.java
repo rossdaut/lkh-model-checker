@@ -7,6 +7,14 @@ import lombok.NonNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * HashMap-based implementation of the Labeled Transition System (LTS) interface.
+ * This implementation uses a directed graph to store states and transitions,
+ * with additional mappings to maintain action sets and state labels.
+ * 
+ * @param <State> The type representing states in the LTS
+ * @param <Action> The type representing transition actions in the LTS
+ */
 public class HashMapLTS<State, Action> implements LTS<State, Action> {
   private final DirectedGraph<State, LTSEdge<State, Action>> graph = new HashMapDirectedGraph<>();
   private final Set<Action> actions = new HashSet<>();

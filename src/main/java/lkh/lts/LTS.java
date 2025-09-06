@@ -3,6 +3,17 @@ package lkh.lts;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Interface representing a Labeled Transition System (LTS).
+ * An LTS is a state transition system where each state is defined by a set of atomic propositions
+ * and transitions between states are labeled with distinct action identifiers.
+ *
+ * It provides methods for adding states and transitions, as well as querying the structure
+ * of the transition system.
+ *
+ * @param <State> The type representing states in the LTS
+ * @param <Action> The type representing transition actions in the LTS
+ */
 public interface LTS<State, Action> {
   /**
    * Add a state without labels to this LTS.
@@ -12,7 +23,7 @@ public interface LTS<State, Action> {
   void addState(State state);
 
   /**
-   * Add a states with labels to this LTS.
+   * Add a state with the given labels to this LTS.
    * @param state a non-null state
    * @param labels a non-null set of labels
    */

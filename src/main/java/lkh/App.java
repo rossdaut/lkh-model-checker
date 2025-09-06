@@ -8,13 +8,13 @@ import lkh.expression.Expression;
 import lkh.expression.parser.ParseException;
 import lkh.expression.ExpressionType;
 import lkh.lts.LTS;
-import lkh.modelchecker.ModelChecker;
-import lkh.pddl.PDDL;
+import lkh.modelchecker.AutomataModelChecker;
+import lkh.lts.builder.PDDL;
 
 public class App {
   private LTS<Integer, String> lts;
   private PDDL pddlParser;
-  private ModelChecker<Integer, String> modelChecker;
+  private AutomataModelChecker<Integer, String> modelChecker;
   private Scanner scanner = new Scanner(System.in);
 
   public void printMenu() {
@@ -75,8 +75,8 @@ public class App {
     String input = scanner.nextLine();
     pddlParser.setReduce(input.toLowerCase().charAt(0) != 'n');
 
-    lts = pddlParser.getLTS();
-    modelChecker = new ModelChecker<>(lts, pddlParser.getInitialState());
+    lts = pddlParser.buildLTS();
+    modelChecker = new AutomataModelChecker<>(lts, pddlParser.getInitialState());
   }
 
   private void writeLTS() {

@@ -1,14 +1,16 @@
 package lkh.dot;
 
-import lkh.automata.DeterministicAutomaton;
-import lkh.automata.NonDeterministicAutomaton;
+import lkh.automata.impl.GraphDeterministicAutomaton;
+import lkh.automata.impl.GraphNonDeterministicAutomaton;
+import lkh.expression.Expression;
 import lkh.lts.LTS;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 public class DotWriter {
-  public static <State, Symbol> void writeNFA(NonDeterministicAutomaton<State, Symbol> automaton, String filename) {
+  public static <State, Symbol> void writeNFA(GraphNonDeterministicAutomaton<State, Symbol> automaton, String filename) {
     PrintWriter writer;
     try {
       writer = new PrintWriter(filename);
@@ -46,7 +48,7 @@ public class DotWriter {
     writer.close();
   }
 
-  public static <State, Symbol> void writeDFA(DeterministicAutomaton<State, Symbol> automaton, String filename) {
+  public static <State, Symbol> void writeDFA(GraphDeterministicAutomaton<State, Symbol> automaton, String filename) {
     PrintWriter writer;
     try {
       writer = new PrintWriter(filename);
@@ -107,5 +109,38 @@ public class DotWriter {
 
     writer.println("}");
     writer.close();
+  }
+
+  public static void toDotFile(String filename, Expression expression) {
+    try {
+      PrintWriter f = new PrintWriter(filename);
+      f.print("digraph Tree{\n");
+      writeSons(f, expression, 0);
+      f.print("}");
+      f.close();
+    } catch (IOException e) {
+      System.out.println("An error occurred.");
+      e.printStackTrace();
+    }
+  }
+
+  private static void writeSons(PrintWriter f, Expression tree, int id) {
+    writeLabel(f,tree, id);
+    if(tree.getLeft() != null){
+      int left_id = id + 1;
+      f.printf("%d -> %d;\n", id, left_id);
+      writeSons(f, tree.getLeft(), left_id);
+    }
+    if(tree.getRight() != null){
+      int right_id = id + 1;
+      if (tree.getLeft() != null)
+        right_id += tree.getLeft().getSize();
+      f.printf("%d -> %d;\n", id, right_id);
+      writeSons(f, tree.getRight(), right_id);
+    }
+  }
+
+  private static void writeLabel(PrintWriter f, Expression tree, int id) {
+    f.printf("%d [label=\"%s\"];\n", id, tree.getName());
   }
 }

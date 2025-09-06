@@ -1,10 +1,10 @@
 package lkh.dot;
 
-import lkh.automata.NonDeterministicAutomaton;
+import lkh.automata.impl.GraphNonDeterministicAutomaton;
 
 public class WriteTest {
   public static void main(String[] args) {
-    NonDeterministicAutomaton<Integer, Character> a = new NonDeterministicAutomaton<>();
+    GraphNonDeterministicAutomaton<Integer, Character> a = new GraphNonDeterministicAutomaton<>();
 
     a.addTransition(0, 1, 'a');
     a.addTransition(0, 1, 'b');

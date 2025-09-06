@@ -1,6 +1,5 @@
 package lkh.modelchecker;
 
-import lkh.dot.DotWriter;
 import lkh.expression.Expression;
 import lkh.expression.parser.ParseException;
 import lkh.lts.HashMapLTS;
@@ -19,8 +18,8 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ModelCheckerKhTest {
-  static ModelChecker<Integer, Character> modelChecker;
+public class AutomataModelCheckerKhTest {
+  static AutomataModelChecker<Integer, Character> modelChecker;
 
   @BeforeEach
   void setUp() {
@@ -42,7 +41,7 @@ public class ModelCheckerKhTest {
     lts.addTransition(4, 5, 'a');
     lts.addTransition(5, 6, 'b');
 
-    modelChecker = new ModelChecker<>(lts, 0);
+    modelChecker = new AutomataModelChecker<>(lts, 0);
   }
 
   @ParameterizedTest

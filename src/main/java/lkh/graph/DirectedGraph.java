@@ -3,6 +3,15 @@ import lkh.graph.edge.Edge;
 
 import java.util.List;
 
+/**
+ * Represents a directed graph data structure where edges have a specific direction from source to target vertices.
+ * This interface extends the base Graph interface to provide specialized operations for directed graphs, including
+ * methods to handle incoming and outgoing edges, calculate in-degree and out-degree of vertices, and manage
+ * directional relationships between vertices.
+ *
+ * @param <V> The type of vertices in the directed graph
+ * @param <E> The type of edges in the directed graph, which must extend the Edge interface
+ */
 public interface DirectedGraph<V, E extends Edge<V>> extends Graph<V, E> {
 
     /**
