@@ -33,9 +33,10 @@ public class GraphNonDeterministicAutomaton<State, Symbol>
   public Set<State> delta(State source, Symbol symbol) {
     if (!containsState(source)) throw new IllegalArgumentException("source state not in states set");
 
-    return transitionsMap
-            .get(source)
-            .getOrDefault(symbol, new HashSet<>());
+    return new HashSet<>(graph.getOutgoingNeighbors(
+        source,
+        edge -> edge.hasSymbol(symbol)
+    ));
   }
 
   @Override
@@ -95,7 +96,7 @@ public class GraphNonDeterministicAutomaton<State, Symbol>
   @Override
   public void complete(State error) {
     if (error == null) throw new NullPointerException("null state");
-    if (transitionsMap.containsKey(error))
+    if (graph.containsVertex(error))
       throw new IllegalArgumentException("error state should not already be in the automaton");
 
     Set<Pair<State, Symbol>> pairsToAdd = new HashSet<>();

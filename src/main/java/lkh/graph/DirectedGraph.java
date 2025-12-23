@@ -50,6 +50,17 @@ public interface DirectedGraph<V, E extends Edge<V>> extends Graph<V, E> {
     List<V> getOutgoingNeighbors(V vertex);
 
     /**
+     * Retrieves a list of neighbors that represent the vertices directly reachable
+     * from the specified vertex (outgoing neighbors) filtered by the given edge predicate.
+     *
+     * @param vertex The vertex to find outgoing neighbors.
+     * @param edgePredicate A function that returns true for edges that should be considered.
+     * @return A list of vertices that are outgoing neighbors of the specified vertex
+     *         based on the provided edge predicate.
+     */
+    List<V> getOutgoingNeighbors(V vertex, java.util.function.Predicate<E> edgePredicate);
+
+    /**
      * Retrieves a list of neighbors that represent the vertices that can directly
      * reach the specified vertex (incoming neighbors).
      *
@@ -57,4 +68,20 @@ public interface DirectedGraph<V, E extends Edge<V>> extends Graph<V, E> {
      * @return A list of vertices that are incoming neighbors of the specified vertex.
      */
     List<V> getIncomingNeighbors(V vertex);
+
+    /**
+     * Removes an edge from the graph.
+     *
+     * @param edge The edge to be removed from the graph.
+     * @return true if the edge was removed, false if it was not found.
+     */
+    boolean removeEdge(E edge);
+
+    /**
+     * Removes all edges that match the given predicate from the specified vertex.
+     *
+     * @param vertex The source vertex from which to remove outgoing edges.
+     * @param predicate A function that returns true for edges that should be removed.
+     */
+    void removeOutgoingEdgesIf(V vertex, java.util.function.Predicate<E> predicate);
 }

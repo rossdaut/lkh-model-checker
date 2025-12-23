@@ -36,24 +36,22 @@ public class GraphDeterministicAutomaton<State, Symbol>
   /**
    * Remove a transition from the automaton
    * @param source the source state
-   * @param symbol the symbol of the transitio
+   * @param symbol the symbol of the transition
    */
   private void removeTransition(State source, Symbol symbol) {
-    Map<Symbol, Set<State>> sourceMap = transitionsMap.get(source);
-    if (sourceMap == null) return;
-
-    sourceMap.remove(symbol);
+    graph.removeOutgoingEdgesIf(source, edge ->
+      edge.getSymbol().equals(symbol)
+    );
   }
 
   @Override
   public Optional<State> delta(State source, Symbol symbol) {
-    Map<Symbol, Set<State>> sourceMap = transitionsMap.get(source);
-    if (sourceMap == null) return Optional.empty();
+    if (!graph.containsVertex(source)) return Optional.empty();
 
-    Set<State> targetStates = sourceMap.get(symbol);
-    if (targetStates == null) return Optional.empty();
-
-    return targetStates.stream().findAny();
+    return graph.getOutgoingEdges(source).stream()
+      .filter(edge -> (edge.getSymbol().equals(symbol)))
+      .map(edge -> edge.getTarget())
+      .findFirst();
   }
 
   @Override
@@ -71,7 +69,7 @@ public class GraphDeterministicAutomaton<State, Symbol>
   @Override
   public void complete(State error) {
     if (error == null) throw new NullPointerException("null state");
-    if (transitionsMap.containsKey(error))
+    if (graph.containsVertex(error))
       throw new IllegalArgumentException("error state should not already be in the automaton");
 
     Set<Pair<State, Symbol>> pairsToAdd = new HashSet<>();

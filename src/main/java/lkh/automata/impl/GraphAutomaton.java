@@ -1,16 +1,31 @@
   package lkh.automata.impl;
 
 import lkh.automata.Automaton;
+import lkh.graph.DirectedGraph;
+import lkh.graph.HashMapDirectedGraph;
 import lkh.utils.Pair;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.*;
 
+/**
+ * Abstract base class for graph-based automaton implementations.
+ * Uses the DirectedGraph from the graph package to represent the automaton structure,
+ * where vertices are states and edges are transitions labeled with symbols.
+ *
+ * @param <State> the type of the states
+ * @param <Symbol> the type of the symbols
+ */
 @EqualsAndHashCode(callSuper = false)
 public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, Symbol> {
-  // Map of transitions
-  protected final Map<State, Map<Symbol, Set<State>>> transitionsMap = new HashMap<>();
+  /**
+   * Directed graph representing the automaton structure.
+   * Vertices represent states and edges represent transitions labeled with symbols.
+   * The use of DirectedGraph delegates graph operations to the graph package,
+   * simplifying the automaton implementation.
+   */
+  protected final DirectedGraph<State, AutomatonEdge<State, Symbol>> graph = new HashMapDirectedGraph<>();
   @Getter
   protected State initialState;
   @Getter
@@ -20,13 +35,13 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
 
   @Override
   public void setInitialState(State initialState) {
-    addState(initialState);
+    graph.addVertex(initialState);
     this.initialState = initialState;
   }
 
   @Override
   public void addFinalState(State state) {
-    addState(state);
+    graph.addVertex(state);
     finalStates.add(state);
   }
 
@@ -39,25 +54,19 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
   public void addState(State state) {
     if (state == null) throw new NullPointerException("null state");
 
-    transitionsMap.putIfAbsent(state, new HashMap<>());
+    graph.addVertex(state);
   }
 
   @Override
   public void addTransition(State source, State target, Symbol symbol) {
-    addState(source);
-    addState(target);
-
-    transitionsMap.get(source).putIfAbsent(symbol, new HashSet<>());
-
-    transitionsMap
-      .get(source)
-      .get(symbol)
-      .add(target);
+    graph.addVertex(source);
+    graph.addVertex(target);
+    graph.addEdge(new AutomatonEdge<>(source, target, symbol));
   }
 
   @Override
   public Set<State> getStates() {
-    return transitionsMap.keySet();
+    return graph.getVertices();
   }
 
   @Override
@@ -69,7 +78,7 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
 
   @Override
   public boolean containsState(State state) {
-    return transitionsMap.containsKey(state);
+    return graph.containsVertex(state);
   }
 
   @Override
@@ -81,10 +90,8 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
   public Set<Pair<Symbol, State>> outgoingTransitions(State state) {
     Set<Pair<Symbol, State>> transitions = new HashSet<>();
 
-    for (var entry : transitionsMap.get(state).entrySet()) {
-      for (var target : entry.getValue()) {
-        transitions.add(new Pair<>(entry.getKey(), target));
-      }
+    for (var edge : graph.getOutgoingEdges(state)) {
+      transitions.add(new Pair<>(edge.getSymbol(), edge.getTarget()));
     }
 
     return transitions;

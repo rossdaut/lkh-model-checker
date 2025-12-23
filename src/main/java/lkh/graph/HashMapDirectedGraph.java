@@ -4,6 +4,7 @@ import lkh.graph.edge.Edge;
 import lombok.NonNull;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 
 /**
@@ -119,6 +120,17 @@ public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph
   }
 
   @Override
+  public List<V> getOutgoingNeighbors(V vertex, Predicate<E> edgePredicate) {
+    if (!map.containsKey(vertex))
+      throw new IllegalArgumentException("Vertex " + vertex + " does not exist");
+
+    return map.get(vertex).stream()
+      .filter(edgePredicate)
+      .map(E::getTarget)
+      .toList();
+  }
+
+  @Override
   public List<V> getIncomingNeighbors(V vertex) {
     List<V> neighbors = new ArrayList<>();
 
@@ -138,6 +150,21 @@ public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph
     if (obj == null || getClass() != obj.getClass()) return false;
     HashMapDirectedGraph<?, ?> that = (HashMapDirectedGraph<?, ?>) obj;
     return Objects.equals(map, that.map);
+  }
+
+  @Override
+  public boolean removeEdge(E edge) {
+    if (!map.containsKey(edge.getSource())) {
+      return false;
+    }
+    return map.get(edge.getSource()).remove(edge);
+  }
+
+  @Override
+  public void removeOutgoingEdgesIf(V vertex, java.util.function.Predicate<E> predicate) {
+    if (!map.containsKey(vertex)) return;
+
+    map.get(vertex).removeIf(predicate);
   }
 
   @Override
