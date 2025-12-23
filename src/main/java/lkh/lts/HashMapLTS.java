@@ -1,61 +1,60 @@
 package lkh.lts;
 
-import java.util.*;
+import lkh.graph.DirectedGraph;
+import lkh.graph.HashMapDirectedGraph;
+import lombok.NonNull;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * HashMap-based implementation of the Labeled Transition System (LTS) interface.
+ * This implementation uses a directed graph to store states and transitions,
+ * with additional mappings to maintain action sets and state labels.
+ * 
+ * @param <State> The type representing states in the LTS
+ * @param <Action> The type representing transition actions in the LTS
+ */
 public class HashMapLTS<State, Action> implements LTS<State, Action> {
-  private final Map<State, Map<Action, Set<State>>> map = new HashMap<>();
+  private final DirectedGraph<State, LTSEdge<State, Action>> graph = new HashMapDirectedGraph<>();
   private final Set<Action> actions = new HashSet<>();
   private final Map<State, Set<String>> labelMap = new HashMap<>();
 
   @Override
   public void addState(State state) {
-    if (state == null) throw new NullPointerException("null state");
-
-    map.putIfAbsent(state, new HashMap<>());
-    labelMap.putIfAbsent(state, new HashSet<>());
+    graph.addVertex(state);
+    labelMap.put(state, new HashSet<>());
   }
 
   @Override
-  public void addState(State state, Set<String> labels) {
-    if (labels == null) throw new NullPointerException("null labels");
-
+  public void addState(State state, @NonNull Set<String> labels) {
     addState(state);
     labelMap.put(state, new HashSet<>(labels));
   }
 
   @Override
-  public void addLabel(State state, String label) {
-    if (state == null) throw new NullPointerException("null state");
-    if (label == null) throw new NullPointerException("null label");
+  public void addLabel(@NonNull State state, @NonNull String label) {
     if (!getStates().contains(state)) throw new IllegalArgumentException("state not in LTS");
 
     labelMap.get(state).add(label);
   }
 
   @Override
-  public void addLabels(State state, Set<String> labels) {
-    if (state == null) throw new NullPointerException("null state");
-    if (labels == null) throw new NullPointerException("null labels");
+  public void addLabels(@NonNull State state, @NonNull Set<String> labels) {
     if (!getStates().contains(state)) throw new IllegalArgumentException("state not in LTS");
 
     labelMap.get(state).addAll(labels);
   }
 
   @Override
-  public void addTransition(State source, State target, Action action) {
-    if (action == null) throw new NullPointerException("null action");
-
-    addState(source);
-    addState(target);
+  public void addTransition(State source, State target, @NonNull Action action) {
     actions.add(action);
-
-    map.get(source).putIfAbsent(action, new HashSet<>());
-    map.get(source).get(action).add(target);
+    graph.addEdge(new LTSEdge<>(source, target, action));
   }
 
   @Override
   public Set<State> getStates() {
-    return map.keySet();
+    return graph.getVertices();
   }
 
   @Override
@@ -72,12 +71,12 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
   @Override
   public Set<Action> getActions(State state) {
     if (!containsState(state)) throw new IllegalArgumentException("state not in LTS");
-    return map.get(state).keySet();
+    return graph.getOutgoingEdges(state).stream().map(edge -> edge.getAction()).collect(Collectors.toSet());
   }
 
   @Override
   public boolean containsState(State state) {
-    return getStates().contains(state);
+    return graph.containsVertex(state);
   }
 
   @Override
@@ -85,7 +84,10 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
     if (!containsState(from))
       throw new IllegalArgumentException("lts doesn't contain the given state");
 
-    return map.get(from).getOrDefault(action, new HashSet<>());
+    return graph.getOutgoingEdges(from).stream()
+        .filter(edge -> edge.getAction().equals(action))
+        .map(LTSEdge::getTarget)
+        .collect(Collectors.toSet());
   }
 
   @Override

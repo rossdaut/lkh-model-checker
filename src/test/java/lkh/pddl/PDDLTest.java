@@ -1,14 +1,13 @@
 package lkh.pddl;
 
 import lkh.lts.LTS;
+import lkh.lts.builder.PDDL;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import java.io.FileNotFoundException;
 import java.util.Set;
-
-import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,7 +21,7 @@ public class PDDLTest {
     String domainFilename = resourcesPath + "/pddl/domain.pddl";
     String problemFilename = resourcesPath + "/pddl/problem.pddl";
     pddl = new PDDL(domainFilename, problemFilename);
-    lts = pddl.getLTS();
+    lts = pddl.buildLTS();
   }
 
   @ParameterizedTest

@@ -2,7 +2,7 @@ PARSER_BEGIN(Parser)
 
 package lkh.dot.parser;
 
-import lkh.automata.NonDeterministicAutomaton;import lkh.automata.parser.Token;
+import lkh.automata.impl.GraphNonDeterministicAutomaton;import lkh.automata.parser.Token;
 
 public class Parser {
   public static NonDeterministicAutomaton<String, String> nfa;

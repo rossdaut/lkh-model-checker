@@ -1,4 +1,4 @@
-package lkh.pddl;
+package lkh.lts.builder;
 
 import fr.uga.pddl4j.parser.DefaultParsedProblem;
 import fr.uga.pddl4j.parser.Parser;
@@ -19,7 +19,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PDDL {
+public class PDDL implements LTSBuilder {
   LTS<Integer, String> lts;
   Problem problem;
   @Setter
@@ -33,7 +33,7 @@ public class PDDL {
     problem.instantiate();
   }
 
-  public LTS<Integer, String> getLTS() {
+  public LTS<Integer, String> buildLTS() {
     if (lts == null)
       lts = buildLTS(problem);
 

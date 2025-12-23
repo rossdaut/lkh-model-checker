@@ -1,4 +1,4 @@
-package lkh.automata;
+package lkh.automata.impl;
 
 import lkh.utils.Pair;
 
@@ -6,11 +6,11 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class AutomataIterator<State, Symbol> implements Iterator<List<Symbol>> {
-  private final AbstractAutomaton<State, Symbol> automaton;
+  private final GraphAutomaton<State, Symbol> automaton;
   private final int limit;
   private final Queue<StateDescriptor<State, Symbol>> queue;
 
-  public AutomataIterator(AbstractAutomaton<State, Symbol> automaton, int limit) {
+  public AutomataIterator(GraphAutomaton<State, Symbol> automaton, int limit) {
     this.automaton = automaton;
     this.limit = limit;
     queue = new LinkedList<>();

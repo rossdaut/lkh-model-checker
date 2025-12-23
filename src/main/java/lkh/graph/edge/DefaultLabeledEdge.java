@@ -1,15 +1,16 @@
 package lkh.graph.edge;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = false)
-@Data
+@ToString
+@Getter
+@Setter
 public class DefaultLabeledEdge<V> extends DefaultEdge<V> implements Labeled {
   private String label;
 
-  @Override
-  public String getLabel() {
-    return label;
+  public DefaultLabeledEdge(V source, V target, String label) {
+    super(source, target);
+    this.label = label;
   }
 }

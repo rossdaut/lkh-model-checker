@@ -78,10 +78,13 @@ public interface Graph<V, E extends Edge<V>> {
      */
     Set<V> getNeighbors(V vertex);
 
+
     /**
-     * Retrieves all the vertices present in the graph.
+     * Retrieves all vertices currently present in the graph. This method provides access
+     * to the complete set of vertices that have been added to the graph.
      *
-     * @return A set containing all vertices in the graph.
+     * @return A set containing all vertices in the graph. Returns an empty set if the graph
+     * contains no vertices.
      */
     Set<V> getVertices();
 }

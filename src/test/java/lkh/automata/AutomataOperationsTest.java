@@ -1,8 +1,10 @@
 package lkh.automata;
 
+import lkh.automata.impl.AutomataOperations;
+import lkh.automata.impl.GraphDeterministicAutomaton;
+import lkh.automata.impl.GraphNonDeterministicAutomaton;
 import lkh.dot.DotReader;
 import lkh.dot.DotWriter;
-import lkh.utils.Pair;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -15,8 +17,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AutomataOperationsTest {
-  static NonDeterministicAutomaton<String, String> nfa;
-  static DeterministicAutomaton<String, String> dfa1, dfa2, dfa3, dfa4, min;
+  static GraphNonDeterministicAutomaton<String, String> nfa;
+  static GraphDeterministicAutomaton<String, String> dfa1, dfa2, dfa3, dfa4, min;
   static String resourcesPath = "src/test/resources";
 
   @BeforeAll
@@ -35,7 +37,7 @@ public class AutomataOperationsTest {
 
   @Test
   public void testDeterminize() {
-    DeterministicAutomaton<Integer, String> expected, actual;
+    GraphDeterministicAutomaton<Integer, String> expected, actual;
     expected = stringToInt(dfa1);
     actual = AutomataOperations.determinize(nfa);
     assertEquals(expected, actual);
@@ -43,9 +45,9 @@ public class AutomataOperationsTest {
 
   @Test
   public void asDeterministicTest() {
-    DeterministicAutomaton<String, String> actual, expected;
+    GraphDeterministicAutomaton<String, String> actual, expected;
     try {
-      NonDeterministicAutomaton<String, String> dfaAsNfa = DotReader.readNFA(resourcesPath + "/dfa.dot");
+      GraphNonDeterministicAutomaton<String, String> dfaAsNfa = DotReader.readNFA(resourcesPath + "/dfa.dot");
       actual = AutomataOperations.asDeterministic(dfaAsNfa);
       expected = dfa1;
       assertEquals(expected, actual);
@@ -57,7 +59,7 @@ public class AutomataOperationsTest {
   @ParameterizedTest
   @ValueSource(strings = {"", "b", "ac", "acacacacac", "bbbbb", "a", "aaa", "bbaa", "acba"})
   public void complementTest(String string) {
-    DeterministicAutomaton<String, String> completeDFA, complement;
+    GraphDeterministicAutomaton<String, String> completeDFA, complement;
     List<String> s = string.isEmpty() ? Collections.emptyList() : Arrays.asList(string.split(""));
     completeDFA = dfa1.clone();
     completeDFA.complete("");
@@ -72,7 +74,7 @@ public class AutomataOperationsTest {
   public void intersectionTest(String string, boolean expected) {
     //dfa1: (ac | b +)+   dfa2: (a+cb)+   intersection: (acb)+
     List<String> s = string.isEmpty() ? Collections.emptyList() : Arrays.asList(string.split(""));
-    DeterministicAutomaton<Integer, String> intersection = AutomataOperations.intersection(dfa1, dfa2);
+    GraphDeterministicAutomaton<Integer, String> intersection = AutomataOperations.intersection(dfa1, dfa2);
     assertEquals(expected, dfa1.evaluate(s) && dfa2.evaluate(s));
     assertEquals(expected, intersection.evaluate(s));
   }
@@ -83,9 +85,9 @@ public class AutomataOperationsTest {
     //dfa1: (ac | b +)+   dfa2: (a+cb)+   intersection: (acb)+
     //dfa3: acb  intersection: acb
     List<String> s = string.isEmpty() ? Collections.emptyList() : Arrays.asList(string.split(""));
-    Set<DeterministicAutomaton<String, String>> automata = Set.of(dfa1, dfa2, dfa3);
+    Set<GraphDeterministicAutomaton<String, String>> automata = Set.of(dfa1, dfa2, dfa3);
 
-    DeterministicAutomaton<Integer, String> result = AutomataOperations.intersection(automata);
+    GraphDeterministicAutomaton<Integer, String> result = AutomataOperations.intersection(automata);
 
     boolean actual = result.evaluate(s);
     assertEquals(dfa1.evaluate(s) && dfa2.evaluate(s) && dfa3.evaluate(s), actual);
@@ -94,15 +96,15 @@ public class AutomataOperationsTest {
 
   @Test
   public void minimizeTest() {
-    DeterministicAutomaton<Integer, String> actual = AutomataOperations.minimize(dfa4);
-    DeterministicAutomaton<Integer, String> expected = stringToInt(min);
+    GraphDeterministicAutomaton<Integer, String> actual = AutomataOperations.minimize(dfa4);
+    GraphDeterministicAutomaton<Integer, String> expected = stringToInt(min);
     DotWriter.writeDFA(actual, "minimized.dot");
     assertEquals(expected, actual);
   }
 
   // Pre: dfa states are strings of digits
-  private DeterministicAutomaton<Integer, String> stringToInt(DeterministicAutomaton<String, String> dfa) {
-    DeterministicAutomaton<Integer, String> result = new DeterministicAutomaton<>();
+  private GraphDeterministicAutomaton<Integer, String> stringToInt(GraphDeterministicAutomaton<String, String> dfa) {
+    GraphDeterministicAutomaton<Integer, String> result = new GraphDeterministicAutomaton<>();
 
     // Convert Transitions
     Map<String, Integer> map = new HashMap<>();
