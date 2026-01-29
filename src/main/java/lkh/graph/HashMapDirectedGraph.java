@@ -1,6 +1,7 @@
 package lkh.graph;
 
 import lkh.graph.edge.Edge;
+import logger.AbstractLoggable;
 import lombok.NonNull;
 
 import java.util.*;
@@ -15,12 +16,15 @@ import java.util.function.Predicate;
  * @param <V> The type of the vertices in the graph.
  * @param <E> The type of the edges in the graph, constrained to extend the Edge interface.
  */
-public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph<V, E> {
+public class HashMapDirectedGraph<V, E extends Edge<V>>
+    extends AbstractLoggable
+    implements DirectedGraph<V, E> {
   private final Map<V, Set<E>> map = new HashMap<>();
 
   @Override
   public void addVertex(@NonNull V vertex) {
     map.putIfAbsent(vertex, new HashSet<>());
+    log("add vertex");
   }
 
   @Override
@@ -28,6 +32,7 @@ public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph
     if (!map.containsKey(edge.getSource())) addVertex(edge.getSource());
     if (!map.containsKey(edge.getTarget())) addVertex(edge.getTarget());
     map.get(edge.getSource()).add(edge);
+    log("add edge");
   }
 
   @Override
