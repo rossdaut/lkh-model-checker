@@ -2,6 +2,8 @@ package lkh.graph;
 
 import lkh.graph.edge.Edge;
 import logger.AbstractLoggable;
+import logger.Logger;
+import logger.LoggerContext;
 import lombok.NonNull;
 
 import java.util.*;
@@ -21,10 +23,22 @@ public class HashMapDirectedGraph<V, E extends Edge<V>>
     implements DirectedGraph<V, E> {
   private final Map<V, Set<E>> map = new HashMap<>();
 
+  public HashMapDirectedGraph() {
+    // Automatically pick up logger from context if set
+    Logger contextLogger = LoggerContext.getLogger();
+    if (contextLogger != null) {
+      registerLogger(contextLogger);
+    }
+  }
+
+  public HashMapDirectedGraph(Logger logger) {
+    registerLogger(logger);
+  }
+
   @Override
   public void addVertex(@NonNull V vertex) {
-    map.putIfAbsent(vertex, new HashSet<>());
-    log("add vertex");
+    Set<E> old = map.putIfAbsent(vertex, new HashSet<>());
+    if (getLogger() != null && old == null) log("add vertex");
   }
 
   @Override
@@ -32,7 +46,7 @@ public class HashMapDirectedGraph<V, E extends Edge<V>>
     if (!map.containsKey(edge.getSource())) addVertex(edge.getSource());
     if (!map.containsKey(edge.getTarget())) addVertex(edge.getTarget());
     map.get(edge.getSource()).add(edge);
-    log("add edge");
+    if (getLogger() != null) log("add edge");
   }
 
   @Override

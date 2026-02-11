@@ -3,7 +3,7 @@ package logger;
 public interface Loggable {
   Logger getLogger();
 
-  void registerLogger(Logger logger);
+  void registerLogger(Logger ILogger);
 
   void log(String event);
 }

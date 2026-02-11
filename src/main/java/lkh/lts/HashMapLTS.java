@@ -2,6 +2,7 @@ package lkh.lts;
 
 import lkh.graph.DirectedGraph;
 import lkh.graph.HashMapDirectedGraph;
+import logger.Logger;
 import lombok.NonNull;
 
 import java.util.*;
@@ -16,9 +17,17 @@ import java.util.stream.Collectors;
  * @param <Action> The type representing transition actions in the LTS
  */
 public class HashMapLTS<State, Action> implements LTS<State, Action> {
-  private final DirectedGraph<State, LTSEdge<State, Action>> graph = new HashMapDirectedGraph<>();
+  private final DirectedGraph<State, LTSEdge<State, Action>> graph;
   private final Set<Action> actions = new HashSet<>();
   private final Map<State, Set<String>> labelMap = new HashMap<>();
+
+  public HashMapLTS() {
+    graph = new HashMapDirectedGraph<>();
+  }
+
+  public HashMapLTS(Logger logger) {
+    graph = new HashMapDirectedGraph<>(logger);
+  }
 
   @Override
   public void addState(State state) {

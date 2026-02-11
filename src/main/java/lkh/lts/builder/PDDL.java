@@ -13,6 +13,8 @@ import lkh.lts.LTS;
 import lkh.expression.Expression;
 import lkh.por.StratifiedReducer;
 import lkh.utils.Pair;
+import logger.Logger;
+import logger.LoggerContext;
 import lombok.Setter;
 
 import java.io.FileNotFoundException;
@@ -20,10 +22,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class PDDL implements LTSBuilder {
-  LTS<Integer, String> lts;
-  Problem problem;
+  private LTS<Integer, String> lts;
+  private Problem problem;
   @Setter
-  boolean reduce;
+  private boolean reduce;
 
   public PDDL(String domainFilename, String problemFilename) throws FileNotFoundException {
     Parser parser = new Parser();
@@ -31,6 +33,14 @@ public class PDDL implements LTSBuilder {
     DefaultParsedProblem parsedProblem = parser.parse(domainFilename, problemFilename);
     problem = new DefaultProblem(parsedProblem);
     problem.instantiate();
+  }
+
+  public LTS<Integer, String> buildLTS(Logger logger) {
+    LoggerContext.setLogger(logger);
+    buildLTS(logger);
+    LoggerContext.clearLogger();
+
+    return lts;
   }
 
   public LTS<Integer, String> buildLTS() {
@@ -74,6 +84,7 @@ public class PDDL implements LTSBuilder {
 
   private LTS<Integer, String> buildLTS(Problem problem) {
     LTS<Integer,String> lts = new HashMapLTS<>();
+
     State init = new State(problem.getInitialState());
 
     Queue<Pair<Action, State>> unvisitedStates = new LinkedList<>();

@@ -10,6 +10,9 @@ import lkh.expression.ExpressionType;
 import lkh.lts.LTS;
 import lkh.modelchecker.AutomataModelChecker;
 import lkh.lts.builder.PDDL;
+import logger.GraphLogger;
+import logger.Logger;
+import logger.LoggerContext;
 
 public class App {
   private LTS<Integer, String> lts;
@@ -75,7 +78,20 @@ public class App {
     String input = scanner.nextLine();
     pddlParser.setReduce(input.toLowerCase().charAt(0) != 'n');
 
-    lts = pddlParser.buildLTS();
+    System.out.println("Enable LTS Nodes/Edges logging? (y/n)");
+    boolean ltsLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
+
+
+    if (ltsLogging) {
+      Logger ltsLogger = new GraphLogger();
+      lts = pddlParser.buildLTS(ltsLogger);
+
+      System.out.println("LTS stats:" + lts.getStates().size() + " states and " + lts.getActions().size() + " actions.");
+      ltsLogger.printLog();
+    } else {
+      lts = pddlParser.buildLTS();
+    }
+
     modelChecker = new AutomataModelChecker<>(lts, pddlParser.getInitialState());
   }
 
@@ -110,7 +126,30 @@ public class App {
   private void checkExpression(String expressionString) throws ParseException {
     Expression expression = Expression.of(expressionString);
 
-    boolean result = modelChecker.check(expression);
+    boolean result;
+    GraphLogger automataLogger = null;
+    boolean automataLogging;
+
+    System.out.println("Enable KH-Automaton Nodes/Edges logging? (y/n)");
+    automataLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
+
+    if (automataLogging) {
+      automataLogger = new GraphLogger();
+      LoggerContext.setLogger(automataLogger);
+    }
+
+    try {
+      result = modelChecker.check(expression);
+    } finally {
+      if (automataLogging) {
+        LoggerContext.clearLogger();
+      }
+    }
+
+    if (automataLogging && automataLogger != null) {
+      System.out.println("KH-Automaton stats:");
+      automataLogger.printLog();
+    }
 
     String message = result ? "KH-Expression holds (:" : "KH-Expression fails :(";
     System.out.println(message + "\n");
@@ -155,7 +194,30 @@ public class App {
     Expression goal = pddlParser.getGoalExpression();
     Expression kh = Expression.kh(initial, goal);
 
-    boolean result = modelChecker.check(kh);
+    boolean result;
+    GraphLogger automataLogger = null;
+    boolean automataLogging;
+
+    System.out.println("Enable KH-Automaton Nodes/Edges logging? (y/n)");
+    automataLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
+
+    if (automataLogging) {
+      automataLogger = new GraphLogger();
+      LoggerContext.setLogger(automataLogger);
+    }
+
+    try {
+      result = modelChecker.check(kh);
+    } finally {
+      if (automataLogging) {
+        LoggerContext.clearLogger();
+      }
+    }
+
+    if (automataLogging) {
+      System.out.println("KH-Automaton stats:");
+      automataLogger.printLog();
+    }
 
     String message = result ? "KH-Expression holds (:" : "KH-Expression fails :(";
     System.out.println(message + "\n");
