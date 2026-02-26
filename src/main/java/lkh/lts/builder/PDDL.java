@@ -37,7 +37,7 @@ public class PDDL implements LTSBuilder {
 
   public LTS<Integer, String> buildLTS(Logger logger) {
     LoggerContext.setLogger(logger);
-    buildLTS(logger);
+    buildLTS();
     LoggerContext.clearLogger();
 
     return lts;

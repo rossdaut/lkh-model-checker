@@ -84,6 +84,7 @@ public class App {
 
     if (ltsLogging) {
       Logger ltsLogger = new GraphLogger();
+
       lts = pddlParser.buildLTS(ltsLogger);
 
       System.out.println("LTS stats:" + lts.getStates().size() + " states and " + lts.getActions().size() + " actions.");

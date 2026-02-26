@@ -19,4 +19,6 @@ public class AbstractLoggable implements Loggable {
       logger.log(event);
     }
   }
+
+
 }
