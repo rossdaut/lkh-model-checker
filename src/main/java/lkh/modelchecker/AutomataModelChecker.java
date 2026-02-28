@@ -5,6 +5,9 @@ import lkh.automata.impl.AutomataOperations;
 import lkh.automata.impl.GraphDeterministicAutomaton;
 import lkh.expression.Expression;
 import lkh.lts.LTS;
+import lkh.utils.Pair;
+import logger.Logger;
+import logger.LoggerContext;
 import lombok.NonNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,9 +98,19 @@ public class AutomataModelChecker<State, Action> implements ModelChecker<State, 
    */
   private GraphDeterministicAutomaton<Integer, Action> khAutomaton(Expression initExpr, Expression endExpr) {
     Expression key = Expression.kh(initExpr, endExpr);
-    return khAutomatonCache.computeIfAbsent(key,
-        k -> AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr))
-    );
+    return khAutomatonCache.computeIfAbsent(key, k -> {
+      GraphDeterministicAutomaton<Integer, Action> automaton = AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr));
+      logAutomatonSize(automaton);
+      return automaton;
+    });
+  }
+
+  private void logAutomatonSize(GraphDeterministicAutomaton<Integer, Action> automaton) {
+    Logger logger = LoggerContext.getLogger();
+    if (logger != null) {
+      Pair<Integer, Integer> size = automaton.getSize();
+      logger.log("KH Automaton size: " + size.key() + " states, " + size.value() + " transitions");
+    }
   }
 
   /**

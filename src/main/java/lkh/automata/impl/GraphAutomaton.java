@@ -113,4 +113,12 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
 
   @Override
   public abstract void complete(State error);
+
+  /**
+   * Get the size of the automaton (number of states and transitions)
+   * @return a Pair with (states, transitions)
+   */
+  public Pair<Integer, Integer> getSize() {
+    return graph.getSize();
+  }
 }
