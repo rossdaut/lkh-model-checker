@@ -3,7 +3,6 @@ package lkh.modelchecker;
 import lkh.automata.impl.AutomataIterator;
 import lkh.automata.impl.AutomataOperations;
 import lkh.automata.impl.GraphDeterministicAutomaton;
-import lkh.dot.DotWriter;
 import lkh.expression.Expression;
 import lkh.lts.LTS;
 import lombok.NonNull;
@@ -17,6 +16,7 @@ public class AutomataModelChecker<State, Action> implements ModelChecker<State, 
   private final LTS<State, Action> lts;
   private final State pointedState;
   @Getter @Setter private boolean minimize;
+  private final Map<Expression, GraphDeterministicAutomaton<Integer, Action>> khAutomatonCache = new HashMap<>();
 
   public AutomataModelChecker(@NonNull LTS<State, Action> lts, @NonNull State pointedState, boolean minimize) {
     if (!lts.containsState(pointedState))
@@ -87,15 +87,17 @@ public class AutomataModelChecker<State, Action> implements ModelChecker<State, 
   }
 
   /**
-   * Construct the KH automaton by first building the cond1 and cond2 automata and intersect them
+   * Construct the KH automaton by first building the cond1 and cond2 automata and intersect them.
+   * The result is cached so that repeated calls with the same expressions reuse the automaton.
    * @param initExpr initial expression
    * @param endExpr end expression
    * @return the KH automaton
    */
   private GraphDeterministicAutomaton<Integer, Action> khAutomaton(Expression initExpr, Expression endExpr) {
-    GraphDeterministicAutomaton<Integer, Action> khAutomaton = AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr));
-    DotWriter.writeDFA(khAutomaton, "khAutomaton" + (minimize ? "_min" : "") + ".dot");
-    return khAutomaton;
+    Expression key = Expression.kh(initExpr, endExpr);
+    return khAutomatonCache.computeIfAbsent(key,
+        k -> AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr))
+    );
   }
 
   /**

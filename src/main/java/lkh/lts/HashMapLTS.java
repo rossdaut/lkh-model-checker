@@ -2,6 +2,7 @@ package lkh.lts;
 
 import lkh.graph.DirectedGraph;
 import lkh.graph.HashMapDirectedGraph;
+import lkh.utils.Pair;
 import logger.Logger;
 import lombok.NonNull;
 
@@ -116,5 +117,10 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
   @Override
   public String toString(State state) {
     return state.toString() + "[" + String.join(", ", getLabels(state)) + "]";
+  }
+
+  @Override
+  public Pair<Integer, Integer> getSize() {
+    return graph.getSize();
   }
 }

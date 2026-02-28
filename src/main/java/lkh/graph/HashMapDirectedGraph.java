@@ -1,6 +1,7 @@
 package lkh.graph;
 
 import lkh.graph.edge.Edge;
+import lkh.utils.Pair;
 import logger.AbstractLoggable;
 import logger.Logger;
 import logger.LoggerContext;
@@ -184,6 +185,15 @@ public class HashMapDirectedGraph<V, E extends Edge<V>>
     if (!map.containsKey(vertex)) return;
 
     map.get(vertex).removeIf(predicate);
+  }
+
+  @Override
+  public Pair<Integer, Integer> getSize() {
+    int vertices = map.size();
+    int edges = map.values().stream()
+        .mapToInt(Set::size)
+        .sum();
+    return new Pair<>(vertices, edges);
   }
 
   @Override

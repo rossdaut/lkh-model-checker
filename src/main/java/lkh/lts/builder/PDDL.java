@@ -13,8 +13,6 @@ import lkh.lts.LTS;
 import lkh.expression.Expression;
 import lkh.por.StratifiedReducer;
 import lkh.utils.Pair;
-import logger.Logger;
-import logger.LoggerContext;
 import lombok.Setter;
 
 import java.io.FileNotFoundException;
@@ -33,14 +31,6 @@ public class PDDL implements LTSBuilder {
     DefaultParsedProblem parsedProblem = parser.parse(domainFilename, problemFilename);
     problem = new DefaultProblem(parsedProblem);
     problem.instantiate();
-  }
-
-  public LTS<Integer, String> buildLTS(Logger logger) {
-    LoggerContext.setLogger(logger);
-    buildLTS();
-    LoggerContext.clearLogger();
-
-    return lts;
   }
 
   public LTS<Integer, String> buildLTS() {

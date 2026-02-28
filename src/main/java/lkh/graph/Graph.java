@@ -1,6 +1,7 @@
 package lkh.graph;
 
 import lkh.graph.edge.Edge;
+import lkh.utils.Pair;
 
 import java.util.Set;
 
@@ -87,4 +88,11 @@ public interface Graph<V, E extends Edge<V>> {
      * contains no vertices.
      */
     Set<V> getVertices();
+
+    /**
+     * Retrieves the size of the graph as a pair of vertices and edges count.
+     *
+     * @return A Pair containing the number of vertices (key) and edges (value) in the graph.
+     */
+    Pair<Integer, Integer> getSize();
 }
