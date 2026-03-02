@@ -8,11 +8,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class GraphLogger implements Logger {
+  private final String name;
   private int totalNodes;
   private int totalEdges;
 
   private int nodes;
   private int edges;
+
+  public GraphLogger(String name) {
+    this.name = name;
+  }
 
   @Override
   public void log(String event) {
@@ -24,8 +29,9 @@ public class GraphLogger implements Logger {
 
   @Override
   public void printLog() {
-    System.out.println("During generation: " + totalNodes + " nodes y " + totalEdges + " edges.");
-    System.out.println("LTS size: " + nodes + " nodes and " + edges + " edges.");
+    System.out.println("=== " + name + " ===");
+    System.out.println("During generation: " + totalNodes + " nodes and " + totalEdges + " edges.");
+    System.out.println("Size: " + nodes + " nodes and " + edges + " edges.");
   }
 
   public void writeCSV(String filename) {

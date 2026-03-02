@@ -40,6 +40,11 @@
             <artifactId>pddl4j</artifactId>
             <version>4.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>3.24.1</version>
+        </dependency>
     </dependencies>
 
     <properties>

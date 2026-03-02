@@ -1,6 +1,7 @@
 package lkh;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 import lkh.dot.DotWriter;
@@ -11,14 +12,35 @@ import lkh.lts.LTS;
 import lkh.modelchecker.AutomataModelChecker;
 import lkh.lts.builder.PDDL;
 import logger.GraphLogger;
-import logger.Logger;
 import logger.LoggerContext;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.builtins.Completers.FileNameCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
 public class App {
   private LTS<Integer, String> lts;
   private PDDL pddlParser;
   private AutomataModelChecker<Integer, String> modelChecker;
   private Scanner scanner = new Scanner(System.in);
+  private LineReader lineReader;
+
+  public App() {
+    try {
+      Terminal terminal = TerminalBuilder.builder()
+          .system(true)
+          .build();
+      lineReader = LineReaderBuilder.builder()
+          .terminal(terminal)
+          .completer(new FileNameCompleter())
+          .option(LineReader.Option.AUTO_FRESH_LINE, true)
+          .build();
+    } catch (IOException e) {
+      System.err.println("Warning: File autocompletion not available: " + e.getMessage());
+      lineReader = null;
+    }
+  }
 
   public void printMenu() {
     System.out.println("1. Load LTS from PDDL");
@@ -33,6 +55,18 @@ public class App {
   public String getOption() {
     System.out.print("Enter option: ");
     return scanner.nextLine();
+  }
+
+  private String readFilename(String prompt) {
+    if (lineReader != null) {
+      try {
+        return lineReader.readLine(prompt).trim();
+      } catch (Exception e) {
+        // Fallback to scanner if jline fails
+      }
+    }
+    System.out.print(prompt);
+    return scanner.nextLine().trim();
   }
 
   public void dispatchOption(String option) throws ParseException, FileNotFoundException {
@@ -64,10 +98,8 @@ public class App {
   }
 
   private void loadLTS() throws FileNotFoundException {
-    System.out.print("Enter domain filename: ");
-    String domainFilename = scanner.nextLine();
-    System.out.print("Enter problem filename: ");
-    String problemFilename = scanner.nextLine();
+    String domainFilename = readFilename("Enter domain filename: ");
+    String problemFilename = readFilename("Enter problem filename: ");
 
     loadLTS(domainFilename, problemFilename);
   }
@@ -83,7 +115,7 @@ public class App {
 
 
     if (ltsLogging) {
-      GraphLogger ltsLogger = new GraphLogger();
+      GraphLogger ltsLogger = new GraphLogger("LTS");
 
       LoggerContext.setLogger(ltsLogger);
       lts = pddlParser.buildLTS();
@@ -101,9 +133,7 @@ public class App {
   }
 
   private void writeLTS() {
-    System.out.print("Enter output filename: ");
-    String outputFilename = scanner.nextLine();
-
+    String outputFilename = readFilename("Enter output filename: ");
     writeLTS(outputFilename);
   }
 
@@ -131,20 +161,20 @@ public class App {
   private void checkExpression(String expressionString) throws ParseException {
     Expression expression = Expression.of(expressionString);
 
-    boolean result;
     GraphLogger automataLogger = null;
-    boolean automataLogging;
-
     System.out.println("Enable KH-Automaton Nodes/Edges logging? (y/n)");
-    automataLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
+    boolean automataLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
 
     if (automataLogging) {
-      automataLogger = new GraphLogger();
+      automataLogger = new GraphLogger("KH Automaton");
       LoggerContext.setLogger(automataLogger);
-      result = modelChecker.check(expression);
+    }
+
+    boolean result = modelChecker.check(expression);
+
+    if (automataLogging) {
       automataLogger.printLog();
-    } else{
-      result = modelChecker.check(expression);
+      LoggerContext.clearLogger();
     }
 
     String message = result ? "KH-Expression holds (:" : "KH-Expression fails :(";
@@ -198,7 +228,7 @@ public class App {
     automataLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
 
     if (automataLogging) {
-      automataLogger = new GraphLogger();
+      automataLogger = new GraphLogger("KH Automaton");
       LoggerContext.setLogger(automataLogger);
     }
 
@@ -211,7 +241,6 @@ public class App {
     }
 
     if (automataLogging) {
-      System.out.println("KH-Automaton stats:");
       automataLogger.printLog();
     }
 
