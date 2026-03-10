@@ -42,6 +42,15 @@ public class Parser implements ParserConstants {
       jj_consume_token(14);
       stmt();
     }
+    // optional trailing semicolon
+    switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
+    case 14:
+      jj_consume_token(14);
+      break;
+    default:
+      jj_la1[1] = jj_gen;
+      break;
+    }
 }
 
   static final public void stmt() throws ParseException {Token id;

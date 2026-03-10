@@ -1,0 +1,21 @@
+digraph {
+    init_ [shape = "point"];
+    init_ -> 0;
+    3 [shape = "doublecircle"];
+
+    0 -> 1 [label = "a"];
+    0 -> error [label = "b"];
+    0 -> error [label = "c"];
+    1 -> error [label = "a"];
+    1 -> error [label = "b"];
+    1 -> 2 [label = "c"];
+    2 -> error [label = "a"];
+    2 -> 3 [label = "b"];
+    2 -> error [label = "c"];
+    3 -> error [label = "a"];
+    3 -> error [label = "b"];
+    3 -> error [label = "c"];
+    error -> error [label = "a"];
+    error -> error [label = "b"];
+    error -> error [label = "c"]
+}

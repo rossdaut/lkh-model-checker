@@ -25,7 +25,7 @@ public class AutomataTest {
   static void setUp() {
     try {
       resourcesPath = "src/test/resources";
-      nfa = DotReader.readNFA(resourcesPath + "/nfa.dot");
+      nfa = DotReader.readNFA(resourcesPath + "/automata/nfa.dot");
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -80,26 +80,6 @@ public class AutomataTest {
   @MethodSource("provideArgsForEvaluate")
   public void testEvaluate(List<String> string, boolean isAccepted) {
     assertEquals(isAccepted, nfa.evaluate(string));
-  }
-
-  @Test
-  public void testNFAComplete() {
-    GraphNonDeterministicAutomaton<String, String> nfa, nfac;
-    nfa = readNFA("nfa.dot");
-    nfac = readNFA("nfac.dot");
-
-    nfa.complete("error");
-    assertEquals(nfa, nfac);
-  }
-
-  @Test
-  public void testDFAComplete() {
-    GraphNonDeterministicAutomaton<String, String> dfa, dfac;
-    dfa = readNFA("dfa.dot");
-    dfac = readNFA("dfac.dot");
-
-    dfa.complete("error");
-    assertEquals(dfa, dfac);
   }
 
   private GraphNonDeterministicAutomaton<String, String> readNFA(String path) {
