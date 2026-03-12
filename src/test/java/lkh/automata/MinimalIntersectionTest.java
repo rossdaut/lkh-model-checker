@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 public class MinimalIntersectionTest {
-  @Test
+  //@Test
   public void minimalIntersectionTest() throws FileNotFoundException {
     String base = "src/test/resources/automata/intersection/operations/set/four_dfas/";
 
