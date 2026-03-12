@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 public class CompleteTest {
 
-  private static final String RESOURCES_PATH = "src/test/resources/automata/complete";
+  private static final String RESOURCES_PATH = "src/test/resources/automata/operations/complete";
 
   // ALPHABET: {a,b,c}
   // LANGUAGE: (ac|b+)+

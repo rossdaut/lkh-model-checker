@@ -11,7 +11,7 @@ import java.util.List;
 public class MinimalIntersectionTest {
   @Test
   public void minimalIntersectionTest() throws FileNotFoundException {
-    String base = "src/test/resources/automata/intersection/set/four_dfas/";
+    String base = "src/test/resources/automata/intersection/operations/set/four_dfas/";
 
     var dfaEvenA = DotReader.readDFA(base + "/dfa_even_a.dot");
     var dfaEvenB = DotReader.readDFA(base + "/dfa_even_b.dot");

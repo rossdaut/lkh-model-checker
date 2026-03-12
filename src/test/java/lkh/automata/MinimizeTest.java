@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class MinimizeTest {
 
-  private static final String RESOURCES_PATH = "src/test/resources/automata/minimize";
+  private static final String RESOURCES_PATH = "src/test/resources/automata/operations/minimize";
 
   // ALPHABET: {a,b}
   // LANGUAGE: a*

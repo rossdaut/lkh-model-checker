@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class ComplementTest {
 
-  private static final String RESOURCES_PATH = "src/test/resources/automata/complement";
+  private static final String RESOURCES_PATH = "src/test/resources/automata/operations/complement";
 
   // ALPHABET: {a,b}
   // LANGUAGE: a*  (zero or more 'a's)

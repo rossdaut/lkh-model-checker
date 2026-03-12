@@ -26,7 +26,7 @@ public class AutomataTest {
   void setUp() {
     try {
       resourcesPath = "src/test/resources";
-      nfa = DotReader.readNFA(resourcesPath + "/automata/nfa.dot");
+      nfa = DotReader.readNFA(resourcesPath + "/automata/non_deterministic/nfa.dot");
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }

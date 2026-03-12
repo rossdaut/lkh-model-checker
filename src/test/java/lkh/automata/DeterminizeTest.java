@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 public class DeterminizeTest {
 
-  private static final String RESOURCES_PATH = "src/test/resources/automata/determinize";
+  private static final String RESOURCES_PATH = "src/test/resources/automata/operations/determinize";
 
   // ALPHABET: {a,b}
   // LANGUAGE: {a,b}*abb  (string that end with "abb" )

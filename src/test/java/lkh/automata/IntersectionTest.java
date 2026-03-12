@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class IntersectionTest {
 
-  private static final String BASE = "src/test/resources/automata/intersection";
+  private static final String BASE = "src/test/resources/automata/operations/intersection";
 
   // intersection(DFA, DFA)
 
