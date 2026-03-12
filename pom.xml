@@ -75,6 +75,7 @@
                         <exclude>lkh/lts/parser/**</exclude>
                         <exclude>lkh/expression/parser/**</exclude>
                         <exclude>lkh/automata/parser/**</exclude>
+                        <exclude>lkh/App.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>
