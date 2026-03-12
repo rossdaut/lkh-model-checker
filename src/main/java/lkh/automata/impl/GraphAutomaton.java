@@ -100,6 +100,28 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
   @Override
   public abstract boolean evaluate(List<Symbol> string);
 
+  protected abstract boolean hasTransition(State source, Symbol symbol);
+
   @Override
-  public abstract void complete(State error);
+  public void complete(State error) {
+    if (error == null) throw new NullPointerException("null state");
+    if (graph.containsVertex(error))
+      throw new IllegalArgumentException("error state should not already be in the automaton");
+
+    Set<Pair<State, Symbol>> pairsToAdd = new HashSet<>();
+
+    addState(error);
+
+    for (State state : getStates()) {
+      for (Symbol symbol : getAlphabet()) {
+        if (!hasTransition(state, symbol)) {
+          pairsToAdd.add(new Pair<>(state, symbol));
+        }
+      }
+    }
+
+    for (Pair<State, Symbol> pair : pairsToAdd) {
+      addTransition(pair.key(), error, pair.value());
+    }
+  }
 }

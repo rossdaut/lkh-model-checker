@@ -2,7 +2,7 @@ package lkh.automata;
 
 import lkh.automata.impl.GraphNonDeterministicAutomaton;
 import lkh.dot.DotReader;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,13 +16,14 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AutomataTest {
   private static GraphNonDeterministicAutomaton<String, String> nfa;
   private static String resourcesPath;
 
-  @BeforeAll
-  static void setUp() {
+  @BeforeEach
+  void setUp() {
     try {
       resourcesPath = "src/test/resources";
       nfa = DotReader.readNFA(resourcesPath + "/automata/nfa.dot");
@@ -39,6 +40,27 @@ public class AutomataTest {
     ));
 
     assertEquals(expectedStates, actualStates);
+  }
+
+  @Test
+  public void testAddTransition() {
+    nfa.addTransition("q0", "a", "q1");
+    assertEquals(Set.of("q1"), nfa.delta("q0", "a"));
+  }
+
+  @Test
+  public void testAddNullTransitionThrows() {
+    assertThrows(NullPointerException.class, () -> {nfa.addTransition("q0", "a", null);});
+  }
+
+  @Test
+  public void testDeltaNonExistingStateThrows() {
+    assertThrows(IllegalArgumentException.class, () -> {nfa.delta("notAState", "a");});
+  }
+
+  @Test
+  public void testAddNullStateThrows() {
+    assertThrows(NullPointerException.class, () -> {nfa.addState(null);});
   }
 
   @ParameterizedTest

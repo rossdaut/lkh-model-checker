@@ -108,6 +108,28 @@ public class CompleteTest {
     assertEquals(expected, input);
   }
 
+  //Test that calling complete() with a null state throws a NullPointerException
+  @Test
+  public void completeNullStateThrows() throws FileNotFoundException {
+    var input = DotReader.readDFA(RESOURCES_PATH + "/acb_plus/input.dot");
+    assertThrows(NullPointerException.class, () -> input.complete(null));
+  }
+
+  // ALPHABET: {a,b}
+  // LANGUAGE: a
+  //
+  // input.dot    : incomplete NFA with duplicate transitions on 'a' from state 0
+  //                (0 -a-> 1 and 0 -a-> 2) and a lambda transition (2 -> 3)
+  // expected.dot : complete NFA with sink state "error" for all missing (state, symbol) pairs
+  // Verifies that the completed NFA is identical to the NFA written in expected.dot
+  @Test
+  public void abStarACompleteEquals() throws FileNotFoundException {
+    var input    = DotReader.readNFA(RESOURCES_PATH + "/a/input.dot");
+    var expected = DotReader.readNFA(RESOURCES_PATH + "/a/expected.dot");
+    input.complete("error");
+    assertEquals(expected, input);
+  }
+
   private List<String> toWord(String s) {
     return s.isEmpty() ? Collections.emptyList() : Arrays.asList(s.split(""));
   }
