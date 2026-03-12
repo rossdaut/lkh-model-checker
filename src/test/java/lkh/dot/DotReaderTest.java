@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -125,8 +126,59 @@ public class DotReaderTest {
     assertEquals(expected, nfa.evaluate(toWord(s)));
   }
 
-  // -- helpers --
+  // STATES: s0 (labels: p, q), s1 (labels: r), s2 (labels: p)
+  // ACTIONS: {a, b}
+  // TRANSITIONS: s0 -a-> s1, s1 -b-> s2, s2 -a-> s0
+  //
+  // lts_simple/automaton.dot : simple LTS with 3 states and 2 actions
 
+  // Verifies that readLTS correctly reads the states, labels and transitions
+  @Test
+  public void ltsSimpleStructure() throws Exception {
+    var lts = DotReader.readLTS(RESOURCES_PATH + "/lts_simple/lts.dot");
+
+    // Verifies states
+    assertEquals(3, lts.getStates().size());
+    assertTrue(lts.getStates().containsAll(Set.of("s0", "s1", "s2")));
+
+    // Verifies labels per state
+    assertEquals(Set.of("p", "q"), lts.getLabels("s0"));
+    assertEquals(Set.of("r"),      lts.getLabels("s1"));
+    assertEquals(Set.of("p"),      lts.getLabels("s2"));
+
+    // Verifies transitions
+    assertEquals(Set.of("s1"), lts.targets("s0", "a"));
+    assertEquals(Set.of("s2"), lts.targets("s1", "b"));
+    assertEquals(Set.of("s0"), lts.targets("s2", "a"));
+  }
+
+  // -- error cases --
+
+  // invalid/automaton.dot : file with content that cannot be parsed as a dot graph
+  // All three readers wrap the underlying ParseException in a RuntimeException
+
+  // Verifies that readNFA wraps a parse error in RuntimeException
+  @Test
+  public void readNFAInvalidDotThrows() {
+    assertThrows(RuntimeException.class,
+        () -> DotReader.readNFA(RESOURCES_PATH + "/invalid/automaton.dot"));
+  }
+
+  // Verifies that readDFA wraps a parse error in RuntimeException
+  @Test
+  public void readDFAInvalidDotThrows() {
+    assertThrows(RuntimeException.class,
+        () -> DotReader.readDFA(RESOURCES_PATH + "/invalid/automaton.dot"));
+  }
+
+  // Verifies that readLTS wraps a parse error in RuntimeException
+  @Test
+  public void readLTSInvalidDotThrows() {
+    assertThrows(RuntimeException.class,
+        () -> DotReader.readLTS(RESOURCES_PATH + "/invalid/lts.dot"));
+  }
+
+  // -- helpers --
   private List<String> toWord(String s) {
     return s.isEmpty() ? Collections.emptyList() : Arrays.asList(s.split(""));
   }

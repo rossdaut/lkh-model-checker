@@ -3,6 +3,7 @@ package lkh.dot;
 import lkh.automata.impl.AutomataOperations;
 import lkh.automata.impl.GraphDeterministicAutomaton;
 import lkh.automata.impl.GraphNonDeterministicAutomaton;
+import lkh.lts.HashMapLTS;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * within each test via a temp path.
  */
 public class DotWriterTest {
+
+  // --------------------* writeDFA *--------------------
 
   // ALPHABET: {a, b}
   // LANGUAGE: (a+b)*a+
@@ -59,6 +63,8 @@ public class DotWriterTest {
     assertEquals(expected, read.evaluate(toWord(s)));
     Files.deleteIfExists(tmp);
   }
+
+  // --------------------* writeNFA *--------------------
 
   // ALPHABET: {a, b}
   // LANGUAGE: ((a|b)b)* (a|b)a
@@ -113,6 +119,49 @@ public class DotWriterTest {
     Files.deleteIfExists(tmp);
   }
 
+
+  // --------------------* writeLTS *--------------------
+  // STATES: s0 (labels: p, q), s1 (labels: r), s2 (labels: p)
+  // ACTIONS: {a, b}
+  // TRANSITIONS: s0 -a-> s1, s1 -b-> s2, s2 -a-> s0
+  //
+  // Builds an LTS programmatically, writes it to a temp file,
+  // reads it back with DotReader and checks structural equality
+
+  // Verifies that writeLTS preserves states, labels and transitions after a round-trip
+  @Test
+  public void ltsSimpleRoundTripEquals() throws IOException {
+    var lts = buildLtsSimple();
+    Path tmp = tempFile();
+    DotWriter.writeLTS(lts, tmp.toString());
+    var read = DotReader.readLTS(tmp.toString());
+    assertEquals(lts, read);
+    Files.deleteIfExists(tmp);
+  }
+
+  // -- error cases --
+
+  // Verifies that each writer wraps FileNotFoundException in RuntimeException
+  // when the output path does not exist
+
+  @Test
+  public void writeNFAInvalidPathThrows() {
+    assertThrows(RuntimeException.class,
+        () -> DotWriter.writeNFA(buildNfaSimple(), "/nonexistent/dir/out.dot"));
+  }
+
+  @Test
+  public void writeDFAInvalidPathThrows() {
+    assertThrows(RuntimeException.class,
+        () -> DotWriter.writeDFA(buildDfaSimple(), "/nonexistent/dir/out.dot"));
+  }
+
+  @Test
+  public void writeLTSInvalidPathThrows() {
+    assertThrows(RuntimeException.class,
+        () -> DotWriter.writeLTS(buildLtsSimple(), "/nonexistent/dir/out.dot"));
+  }
+
   // -- helpers --
 
   private GraphDeterministicAutomaton<Integer, String> buildDfaSimple() {
@@ -145,6 +194,17 @@ public class DotWriterTest {
     nfa.addTransition("0", "1", "b");
     nfa.addEmptyTransition("1", "0");
     return nfa;
+  }
+
+  private HashMapLTS<String, String> buildLtsSimple() {
+    var lts = new HashMapLTS<String, String>();
+    lts.addState("s0", Set.of("p", "q"));
+    lts.addState("s1", Set.of("r"));
+    lts.addState("s2", Set.of("p"));
+    lts.addTransition("s0", "s1", "a");
+    lts.addTransition("s1", "s2", "b");
+    lts.addTransition("s2", "s0", "a");
+    return lts;
   }
 
   private Path tempFile() throws IOException {

@@ -9,9 +9,9 @@ public class LTSParser implements LTSParserConstants {
 
   final public HashMapLTS<String, String> LTS() throws ParseException {lts = new HashMapLTS<>();
     jj_consume_token(DIGRAPH);
-    jj_consume_token(9);
+    jj_consume_token(12);
     stmtList();
-    jj_consume_token(10);
+    jj_consume_token(13);
     jj_consume_token(0);
 {if ("" != null) return lts;}
     throw new Error("Missing return statement in function");
@@ -22,7 +22,7 @@ public class LTSParser implements LTSParserConstants {
     label_1:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
-      case 11:{
+      case 14:{
         ;
         break;
         }
@@ -30,7 +30,7 @@ public class LTSParser implements LTSParserConstants {
         jj_la1[0] = jj_gen;
         break label_1;
       }
-      jj_consume_token(11);
+      jj_consume_token(14);
       stmt();
     }
 }
@@ -48,7 +48,7 @@ public class LTSParser implements LTSParserConstants {
       rTransitionStmt(lid, rid);
       break;
       }
-    case 12:{
+    case 15:{
       l = label();
 lts.addState(lid.image);
       String[] labels = l.split(",");
@@ -70,13 +70,13 @@ lts.addTransition(lid.image, rid.image, l);
 }
 
   final public String label() throws ParseException {Token id;
-    jj_consume_token(12);
-    jj_consume_token(LABEL);
-    jj_consume_token(13);
-    jj_consume_token(14);
-    id = jj_consume_token(ID);
-    jj_consume_token(14);
     jj_consume_token(15);
+    jj_consume_token(LABEL);
+    jj_consume_token(16);
+    jj_consume_token(OPEN_QUOTE);
+    id = jj_consume_token(QUOTED_ID);
+    jj_consume_token(CLOSE_QUOTE);
+    jj_consume_token(17);
 {if ("" != null) return id.image;}
     throw new Error("Missing return statement in function");
 }
@@ -96,7 +96,7 @@ lts.addTransition(lid.image, rid.image, l);
 	   jj_la1_init_0();
 	}
 	private static void jj_la1_init_0() {
-	   jj_la1_0 = new int[] {0x800,0x1040,};
+	   jj_la1_0 = new int[] {0x4000,0x8040,};
 	}
 
   /** Constructor with InputStream. */

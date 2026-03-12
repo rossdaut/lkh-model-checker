@@ -1,0 +1,8 @@
+digraph {
+    s0 [label = "p, q"];
+    s1 [label = "r"];
+    s2 [lael = "p"];
+    s0 -> s1 [label = "a"];
+    s1 -> s2 [label = "b"];
+    s2 -> s0 [label = "a"]
+}
