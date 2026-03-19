@@ -35,6 +35,7 @@ public class App {
           .terminal(terminal)
           .completer(new FileNameCompleter())
           .option(LineReader.Option.AUTO_FRESH_LINE, true)
+          .option(LineReader.Option.ERASE_LINE_ON_FINISH, true)
           .build();
     } catch (IOException e) {
       System.err.println("Warning: File autocompletion not available: " + e.getMessage());

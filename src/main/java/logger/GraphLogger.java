@@ -8,12 +8,19 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class GraphLogger implements Logger {
+  private static final long PROGRESS_INTERVAL_MS = 1000;
+
   private final String name;
   private int totalNodes;
   private int totalEdges;
 
   private int nodes;
   private int edges;
+
+  private long lastPrintTime = System.currentTimeMillis();
+  private boolean progressPrinted = false;
+  private int eventCount = 0;
+  private static final int CLOCK_CHECK_MASK = 0xFF; // check clock every 256 events
 
   public GraphLogger(String name) {
     this.name = name;
@@ -23,12 +30,25 @@ public class GraphLogger implements Logger {
   public void log(String event) {
     switch (event) {
       case "add vertex" -> totalNodes++;
-      case "add edge" -> totalEdges++;
+      case "add edge"   -> totalEdges++;
+    }
+    maybePrintLiveProgress();
+  }
+
+  private void maybePrintLiveProgress() {
+    if ((++eventCount & CLOCK_CHECK_MASK) != 0) return;
+    long now = System.currentTimeMillis();
+    if (now - lastPrintTime >= PROGRESS_INTERVAL_MS) {
+      lastPrintTime = now;
+      progressPrinted = true;
+      System.out.print("\rGenerating: " + totalNodes + " nodes and " + totalEdges + " edges.");
+      System.out.flush();
     }
   }
 
   @Override
   public void printLog() {
+    if (progressPrinted) System.out.println(); // clear the live progress line
     System.out.println("=== " + name + " ===");
     System.out.println("During generation: " + totalNodes + " nodes and " + totalEdges + " edges.");
     System.out.println("Size: " + nodes + " nodes and " + edges + " edges.");
