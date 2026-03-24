@@ -67,7 +67,8 @@ public class StratifiedReducer {
       for (String fluent2 : causalGraph.getVertices()) {
         if (fluent.equals(fluent2)) continue;
         for (SASAction action : actionsMap.values()) {
-          if ((action.transition.contains(fluent) && action.dependent.contains(fluent2)) || (action.affected.contains(fluent) && action.transition.contains(fluent2))) {
+          if ((action.transition.contains(fluent) && action.dependent.contains(fluent2))
+              || (action.affected.contains(fluent) && action.transition.contains(fluent2))) {
             causalGraph.addEdge(new DefaultEdge<>(fluent, fluent2));
           }
         }
@@ -78,6 +79,7 @@ public class StratifiedReducer {
   private void buildContractedGraph() {
     contractedGraph = new HashMapDirectedGraph<>();
     Set<Set<String>> SCCs = DirectedGraphOperations.getSCCs(causalGraph);
+    contractedGraph.addVertices(SCCs);
 
     for(Set<String> SCC : SCCs) {
       for(Set<String> SCC2 : SCCs) {
@@ -101,7 +103,7 @@ public class StratifiedReducer {
 
     for(Set<String> SCC : DirectedGraphOperations.getTopologicalSort(contractedGraph)) {
       for(Set<String> SCC2 : contractedGraph.getIncomingNeighbors(SCC)) {
-        sccsLayer.put(SCC, Math.max(sccsLayer.get(SCC), sccsLayer.get(SCC2)) + 1);
+        sccsLayer.put(SCC, Math.max(sccsLayer.get(SCC), sccsLayer.get(SCC2) + 1));
       }
     }
 
