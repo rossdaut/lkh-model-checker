@@ -1,57 +1,44 @@
 package lkh.por;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import fr.uga.pddl4j.problem.Fluent;
-import fr.uga.pddl4j.problem.Problem;
-import fr.uga.pddl4j.problem.State;
-import fr.uga.pddl4j.problem.operator.Action;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import lkh.graph.DirectedGraph;
 import lkh.graph.DirectedGraphOperations;
 import lkh.graph.HashMapDirectedGraph;
 import lkh.graph.edge.DefaultEdge;
-
+import lkh.planning.Action;
+import lkh.planning.Fluent;
+import lkh.planning.Problem;
+import lkh.planning.State;
 import lkh.utils.Pair;
-import lombok.EqualsAndHashCode;
 
 public class StratifiedReducer {
   private final Problem problem;
-  private final Map<Action, SASAction> actionsMap;
-  private final Map<Fluent, String> fluentsMap;
-  private DirectedGraph<String, DefaultEdge<String>> causalGraph;
-  private DirectedGraph<Set<String>, DefaultEdge<Set<String>>> contractedGraph;
+  private DirectedGraph<Fluent, DefaultEdge<Fluent>> causalGraph;
+  private DirectedGraph<Set<Fluent>, DefaultEdge<Set<Fluent>>> contractedGraph;
   private Map<Action, Integer> layer;
 
   public StratifiedReducer(Problem problem) {
     this.problem = problem;
-
-    fluentsMap = problem.getFluents().stream()
-        .collect(Collectors.toMap(
-            fluent -> fluent,
-            problem::toString
-        ));
-
-    actionsMap = problem.getActions().stream()
-        .collect(Collectors.toMap(
-            action -> action,
-            action -> new SASAction(problem, action)
-        ));
-
     buildCausalGraph();
     buildContractedGraph();
     stratify();
   }
 
-  public Set<Pair<Action,State>> stratifiedExpansion(Action action, State state) {
-    if (state == null) { throw new IllegalArgumentException("Null state"); }
-    Set<Pair<Action,State>> result = new HashSet<>();
+  public Set<Pair<Action, State>> stratifiedExpansion(Action action, State state) {
+    if (state == null) {
+      throw new IllegalArgumentException("Null state");
+    }
+    Set<Pair<Action, State>> result = new HashSet<>();
 
-    for (Action action2 : problem.getActions().stream().filter(a -> a.isApplicable(state)).collect(Collectors.toSet())) {
+    for (Action action2 : problem.getActions().stream().filter(candidate -> candidate.isApplicable(state)).toList()) {
       if (layer.get(action2) >= layer.get(action) || followUpAction(action, action2)) {
-        State nextState = new State(state);
-        nextState.apply(action2.getConditionalEffects());
+        State nextState = state.copy();
+        nextState.apply(action2);
         result.add(new Pair<>(action2, nextState));
       }
     }
@@ -61,15 +48,21 @@ public class StratifiedReducer {
 
   private void buildCausalGraph() {
     causalGraph = new HashMapDirectedGraph<>();
-    causalGraph.addVertices(new HashSet<>(fluentsMap.values()));
+    causalGraph.addVertices(new HashSet<>(problem.getFluents()));
 
-    for (String fluent : causalGraph.getVertices()) {
-      for (String fluent2 : causalGraph.getVertices()) {
-        if (fluent.equals(fluent2)) continue;
-        for (SASAction action : actionsMap.values()) {
-          if ((action.transition.contains(fluent) && action.dependent.contains(fluent2))
-              || (action.affected.contains(fluent) && action.transition.contains(fluent2))) {
-            causalGraph.addEdge(new DefaultEdge<>(fluent, fluent2));
+    for (Action action : problem.getActions()) {
+      AnalyzableAction analyzableAction = toAnalyzableAction(action);
+      for (Fluent transition : analyzableAction.getTransitionFluents()) {
+        for (Fluent dependent : analyzableAction.getDependentFluents()) {
+          if (!transition.equals(dependent)) {
+            causalGraph.addEdge(new DefaultEdge<>(transition, dependent));
+          }
+        }
+      }
+      for (Fluent affected : analyzableAction.getAffectedFluents()) {
+        for (Fluent transition : analyzableAction.getTransitionFluents()) {
+          if (!affected.equals(transition)) {
+            causalGraph.addEdge(new DefaultEdge<>(affected, transition));
           }
         }
       }
@@ -78,16 +71,18 @@ public class StratifiedReducer {
 
   private void buildContractedGraph() {
     contractedGraph = new HashMapDirectedGraph<>();
-    Set<Set<String>> SCCs = DirectedGraphOperations.getSCCs(causalGraph);
-    contractedGraph.addVertices(SCCs);
+    Set<Set<Fluent>> stronglyConnectedComponents = DirectedGraphOperations.getSCCs(causalGraph);
+    contractedGraph.addVertices(stronglyConnectedComponents);
 
-    for(Set<String> SCC : SCCs) {
-      for(Set<String> SCC2 : SCCs) {
-        if(SCC.equals(SCC2)) continue;
+    for (Set<Fluent> sourceComponent : stronglyConnectedComponents) {
+      for (Set<Fluent> targetComponent : stronglyConnectedComponents) {
+        if (sourceComponent.equals(targetComponent)) {
+          continue;
+        }
 
-        for(String fluent : SCC) {
-          if(causalGraph.getNeighbors(fluent).stream().anyMatch(SCC2::contains)) {
-            contractedGraph.addEdge(new DefaultEdge<>(SCC, SCC2));
+        for (Fluent fluent : sourceComponent) {
+          if (causalGraph.getNeighbors(fluent).stream().anyMatch(targetComponent::contains)) {
+            contractedGraph.addEdge(new DefaultEdge<>(sourceComponent, targetComponent));
           }
         }
       }
@@ -95,32 +90,33 @@ public class StratifiedReducer {
   }
 
   private void stratify() {
-    Map<Set<String>, Integer> sccsLayer = new HashMap<>();
+    Map<Set<Fluent>, Integer> componentLayer = new HashMap<>();
 
-    for(Set<String> SCC : contractedGraph.getVertices()) {
-      sccsLayer.put(SCC, 1);
+    for (Set<Fluent> component : contractedGraph.getVertices()) {
+      componentLayer.put(component, 1);
     }
 
-    for(Set<String> SCC : DirectedGraphOperations.getTopologicalSort(contractedGraph)) {
-      for(Set<String> SCC2 : contractedGraph.getIncomingNeighbors(SCC)) {
-        sccsLayer.put(SCC, Math.max(sccsLayer.get(SCC), sccsLayer.get(SCC2) + 1));
+    for (Set<Fluent> component : DirectedGraphOperations.getTopologicalSort(contractedGraph)) {
+      for (Set<Fluent> predecessor : contractedGraph.getIncomingNeighbors(component)) {
+        componentLayer.put(component, Math.max(componentLayer.get(component), componentLayer.get(predecessor) + 1));
       }
     }
 
-    actionLayer(sccsLayer);
+    actionLayer(componentLayer);
   }
 
-  private void actionLayer(Map<Set<String>, Integer> sccsLayer) {
+  private void actionLayer(Map<Set<Fluent>, Integer> componentLayer) {
     layer = new HashMap<>();
     layer.put(null, 0);
-    for(Action action : problem.getActions()) {
-      String fluent = actionsMap.get(action).transition.stream().findFirst().orElse(null);
+    for (Action action : problem.getActions()) {
+      Collection<Fluent> transitions = toAnalyzableAction(action).getTransitionFluents();
+      Fluent fluent = transitions.stream().findFirst().orElse(null);
       if (fluent == null) {
         layer.put(action, Integer.MAX_VALUE);
       } else {
-        for (Set<String> SCC : contractedGraph.getVertices()) {
-          if (SCC.contains(fluent)) {
-            layer.put(action, sccsLayer.get(SCC));
+        for (Set<Fluent> component : contractedGraph.getVertices()) {
+          if (component.contains(fluent)) {
+            layer.put(action, componentLayer.get(component));
             break;
           }
         }
@@ -128,54 +124,25 @@ public class StratifiedReducer {
     }
   }
 
-  private boolean followUpAction(Action a, Action b) {
-    SASAction action1 = actionsMap.get(a);
-    SASAction action2 = actionsMap.get(b);
+  private boolean followUpAction(Action first, Action second) {
+    AnalyzableAction firstAction = toAnalyzableAction(first);
+    AnalyzableAction secondAction = toAnalyzableAction(second);
 
-    Set<String> firstCond = new HashSet<>(action1.affected);
-    firstCond.retainAll(action2.dependent);
+    Set<Fluent> firstCondition = new HashSet<>(firstAction.getAffectedFluents());
+    firstCondition.retainAll(secondAction.getDependentFluents());
+    if (!firstCondition.isEmpty()) {
+      return true;
+    }
 
-    if(!firstCond.isEmpty()) return true;
-
-    Set<String> secondCond = new HashSet<>(action1.affected);
-    secondCond.retainAll(action2.affected);
-
-    return !secondCond.isEmpty();
+    Set<Fluent> secondCondition = new HashSet<>(firstAction.getAffectedFluents());
+    secondCondition.retainAll(secondAction.getAffectedFluents());
+    return !secondCondition.isEmpty();
   }
 
-  @EqualsAndHashCode
-  public static class SASAction {
-    private final String name;
-    private final HashSet<String> dependent;
-    private HashSet<String> transition;
-    private final HashSet<String> affected;
-
-    public SASAction(Problem problem, Action pddlAction) {
-
-      // Build the argument list as a string
-      List<String> args = new LinkedList<>();
-      for (int id : pddlAction.getInstantiations()) {
-        args.add(problem.getConstantSymbols().get(id));
-      }
-
-      // Print the formatted action name with parameters
-      this.name = "(" + pddlAction.getName() + " " + String.join(" ", args) + ")";
-      this.dependent = new HashSet<>();
-      this.transition = new HashSet<>();
-      this.affected = new HashSet<>();
-
-      List<Fluent> fluents = problem.getFluents();
-      //dep
-      pddlAction.getPrecondition().getPositiveFluents().stream().forEach(fluentIdx -> dependent.add(problem.toString(fluents.get(fluentIdx))));
-      pddlAction.getPrecondition().getNegativeFluents().stream().forEach(fluentIdx -> dependent.add(problem.toString(fluents.get(fluentIdx))));
-
-      //aff
-      pddlAction.getUnconditionalEffect().getPositiveFluents().stream().forEach(fluentIdx -> affected.add(problem.toString(fluents.get(fluentIdx))));
-      pddlAction.getUnconditionalEffect().getNegativeFluents().stream().forEach(fluentIdx -> affected.add(problem.toString(fluents.get(fluentIdx))));
-
-      //trans
-      transition = new HashSet<>(affected);
-      transition.retainAll(dependent);
+  private static AnalyzableAction toAnalyzableAction(Action action) {
+    if (!(action instanceof AnalyzableAction analyzableAction)) {
+      throw new IllegalArgumentException("Action must implement AnalyzableAction");
     }
+    return analyzableAction;
   }
 }
