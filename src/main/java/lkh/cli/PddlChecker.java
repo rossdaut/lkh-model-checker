@@ -42,9 +42,13 @@ public class PddlChecker {
       System.out.println("[2/4] Building LTS...");
       // Build LTS while logging
       GraphLogger ltsLogger = new GraphLogger("LTS");
-      LoggerContext.setLogger(ltsLogger);
-      LTS<Integer, String> lts = pddl.buildLTS();
-      LoggerContext.clearLogger();
+      LTS<Integer, String> lts;
+      try {
+        LoggerContext.setLogger(ltsLogger);
+        lts = pddl.buildLTS();
+      } finally {
+        LoggerContext.clearLogger();
+      }
 
       ltsLogger.setSize(lts.getSize());
       ltsLogger.printLog();
@@ -59,9 +63,13 @@ public class PddlChecker {
       Expression kh = Expression.kh(initial, goal);
 
       GraphLogger khLogger = new GraphLogger("KH Automaton");
-      LoggerContext.setLogger(khLogger);
-      boolean result = mc.check(kh);
-      LoggerContext.clearLogger();
+      boolean result;
+      try {
+        LoggerContext.setLogger(khLogger);
+        result = mc.check(kh);
+      } finally {
+        LoggerContext.clearLogger();
+      }
 
       khLogger.printLog();
 
@@ -90,4 +98,3 @@ public class PddlChecker {
     System.exit(run(args));
   }
 }
-

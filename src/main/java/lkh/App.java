@@ -117,10 +117,12 @@ public class App {
 
     if (ltsLogging) {
       GraphLogger ltsLogger = new GraphLogger("LTS");
-
-      LoggerContext.setLogger(ltsLogger);
-      lts = pddlParser.buildLTS();
-      LoggerContext.clearLogger();
+      try {
+        LoggerContext.setLogger(ltsLogger);
+        lts = pddlParser.buildLTS();
+      } finally {
+        LoggerContext.clearLogger();
+      }
 
       // Get and log LTS size
       ltsLogger.setSize(lts.getSize());
@@ -171,11 +173,17 @@ public class App {
       LoggerContext.setLogger(automataLogger);
     }
 
-    boolean result = modelChecker.check(expression);
+    boolean result;
+    try {
+      result = modelChecker.check(expression);
+    } finally {
+      if (automataLogging) {
+        LoggerContext.clearLogger();
+      }
+    }
 
     if (automataLogging) {
       automataLogger.printLog();
-      LoggerContext.clearLogger();
     }
 
     String message = result ? "KH-Expression holds (:" : "KH-Expression fails :(";
