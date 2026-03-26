@@ -46,8 +46,9 @@ public class HashMapDirectedGraph<V, E extends Edge<V>>
   public void addEdge(@NonNull E edge) {
     if (!map.containsKey(edge.getSource())) addVertex(edge.getSource());
     if (!map.containsKey(edge.getTarget())) addVertex(edge.getTarget());
-    map.get(edge.getSource()).add(edge);
-    if (getLogger() != null) log("add edge");
+    boolean added = map.get(edge.getSource()).add(edge);
+
+    if (getLogger() != null && added) log("add edge");
   }
 
   @Override
