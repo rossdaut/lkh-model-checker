@@ -71,11 +71,11 @@ public class StratifiedReducer {
 
   private void buildContractedGraph() {
     contractedGraph = new HashMapDirectedGraph<>();
-    Set<Set<Fluent>> stronglyConnectedComponents = DirectedGraphOperations.getSCCs(causalGraph);
-    contractedGraph.addVertices(stronglyConnectedComponents);
+    Set<Set<Fluent>> SCCs = DirectedGraphOperations.getSCCs(causalGraph);
+    contractedGraph.addVertices(SCCs);
 
-    for (Set<Fluent> sourceComponent : stronglyConnectedComponents) {
-      for (Set<Fluent> targetComponent : stronglyConnectedComponents) {
+    for (Set<Fluent> sourceComponent : SCCs) {
+      for (Set<Fluent> targetComponent : SCCs) {
         if (sourceComponent.equals(targetComponent)) {
           continue;
         }
