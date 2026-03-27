@@ -3,6 +3,7 @@ package lkh.graph;
 import lkh.graph.edge.Edge;
 import lkh.utils.Pair;
 import logger.AbstractLoggable;
+import logger.LogEvent;
 import logger.Logger;
 import logger.LoggerContext;
 import lombok.NonNull;
@@ -39,7 +40,7 @@ public class HashMapDirectedGraph<V, E extends Edge<V>>
   @Override
   public void addVertex(@NonNull V vertex) {
     Set<E> old = map.putIfAbsent(vertex, new HashSet<>());
-    if (getLogger() != null && old == null) log("add vertex");
+    if (getLogger() != null && old == null) log(LogEvent.ADD_VERTEX);
   }
 
   @Override
@@ -48,7 +49,7 @@ public class HashMapDirectedGraph<V, E extends Edge<V>>
     if (!map.containsKey(edge.getTarget())) addVertex(edge.getTarget());
     boolean added = map.get(edge.getSource()).add(edge);
 
-    if (getLogger() != null && added) log("add edge");
+    if (getLogger() != null && added) log(LogEvent.ADD_EDGE);
   }
 
   @Override
@@ -215,4 +216,3 @@ public class HashMapDirectedGraph<V, E extends Edge<V>>
     return builder.toString();
   }
 }
-

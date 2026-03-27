@@ -109,7 +109,7 @@ public class AutomataModelChecker<State, Action> implements ModelChecker<State, 
     Logger logger = LoggerContext.getLogger();
     if (logger != null) {
       Pair<Integer, Integer> size = automaton.getSize();
-      logger.log("KH Automaton size: " + size.key() + " states, " + size.value() + " transitions");
+      logger.setSize(size);
     }
   }
 

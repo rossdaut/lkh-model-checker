@@ -5,5 +5,5 @@ public interface Loggable {
 
   void registerLogger(Logger ILogger);
 
-  void log(String event);
+  void log(LogEvent event);
 }

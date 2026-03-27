@@ -16,6 +16,12 @@ package logger;
 public final class LoggerContext {
     private static final ThreadLocal<Logger> CURRENT_LOGGER = new ThreadLocal<>();
 
+    @FunctionalInterface
+    public interface Scope extends AutoCloseable {
+        @Override
+        void close();
+    }
+
     private LoggerContext() {
     }
 
@@ -37,7 +43,7 @@ public final class LoggerContext {
      * @param logger the logger to use inside the scope
      * @return an autocloseable scope that restores the previous logger
      */
-    public static AutoCloseable withLogger(Logger logger) {
+    public static Scope withLogger(Logger logger) {
         Logger previousLogger = CURRENT_LOGGER.get();
         setLogger(logger);
         return () -> {

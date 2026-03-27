@@ -14,11 +14,9 @@ public class AbstractLoggable implements Loggable {
   }
 
   @Override
-  public void log(String event) {
+  public void log(LogEvent event) {
     if (logger != null) {
       logger.log(event);
     }
   }
-
-
 }

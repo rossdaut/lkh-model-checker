@@ -27,10 +27,10 @@ public class GraphLogger implements Logger {
   }
 
   @Override
-  public void log(String event) {
+  public void log(LogEvent event) {
     switch (event) {
-      case "add vertex" -> totalNodes++;
-      case "add edge"   -> totalEdges++;
+      case ADD_VERTEX -> totalNodes++;
+      case ADD_EDGE -> totalEdges++;
     }
     maybePrintLiveProgress();
   }
