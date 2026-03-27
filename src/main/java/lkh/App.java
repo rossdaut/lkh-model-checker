@@ -117,11 +117,8 @@ public class App {
 
     if (ltsLogging) {
       GraphLogger ltsLogger = new GraphLogger("LTS");
-      try {
-        LoggerContext.setLogger(ltsLogger);
+      try (var scope = LoggerContext.withLogger(ltsLogger)) {
         lts = pddlParser.buildLTS();
-      } finally {
-        LoggerContext.clearLogger();
       }
 
       // Get and log LTS size
@@ -170,16 +167,11 @@ public class App {
 
     if (automataLogging) {
       automataLogger = new GraphLogger("KH Automaton");
-      LoggerContext.setLogger(automataLogger);
     }
 
     boolean result;
-    try {
+    try (var scope = automataLogging ? LoggerContext.withLogger(automataLogger) : null) {
       result = modelChecker.check(expression);
-    } finally {
-      if (automataLogging) {
-        LoggerContext.clearLogger();
-      }
     }
 
     if (automataLogging) {
@@ -238,15 +230,10 @@ public class App {
 
     if (automataLogging) {
       automataLogger = new GraphLogger("KH Automaton");
-      LoggerContext.setLogger(automataLogger);
     }
 
-    try {
+    try (var scope = automataLogging ? LoggerContext.withLogger(automataLogger) : null) {
       result = modelChecker.check(kh);
-    } finally {
-      if (automataLogging) {
-        LoggerContext.clearLogger();
-      }
     }
 
     if (automataLogging) {

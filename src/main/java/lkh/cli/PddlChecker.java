@@ -43,11 +43,8 @@ public class PddlChecker {
       // Build LTS while logging
       GraphLogger ltsLogger = new GraphLogger("LTS");
       LTS<Integer, String> lts;
-      try {
-        LoggerContext.setLogger(ltsLogger);
+      try (var scope = LoggerContext.withLogger(ltsLogger)) {
         lts = pddl.buildLTS();
-      } finally {
-        LoggerContext.clearLogger();
       }
 
       ltsLogger.setSize(lts.getSize());
@@ -64,11 +61,8 @@ public class PddlChecker {
 
       GraphLogger khLogger = new GraphLogger("KH Automaton");
       boolean result;
-      try {
-        LoggerContext.setLogger(khLogger);
+      try (var scope = LoggerContext.withLogger(khLogger)) {
         result = mc.check(kh);
-      } finally {
-        LoggerContext.clearLogger();
       }
 
       khLogger.printLog();
