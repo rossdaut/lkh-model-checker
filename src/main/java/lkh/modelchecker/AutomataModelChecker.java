@@ -98,11 +98,12 @@ public class AutomataModelChecker<State, Action> implements ModelChecker<State, 
    */
   private GraphDeterministicAutomaton<Integer, Action> khAutomaton(Expression initExpr, Expression endExpr) {
     Expression key = Expression.kh(initExpr, endExpr);
-    return khAutomatonCache.computeIfAbsent(key, k -> {
-      GraphDeterministicAutomaton<Integer, Action> automaton = AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr));
-      logAutomatonSize(automaton);
-      return automaton;
-    });
+    GraphDeterministicAutomaton<Integer, Action> automaton = khAutomatonCache.computeIfAbsent(
+        key,
+        k -> AutomataOperations.intersection(cond1(initExpr), cond2(initExpr, endExpr))
+    );
+    logAutomatonSize(automaton);
+    return automaton;
   }
 
   private void logAutomatonSize(GraphDeterministicAutomaton<Integer, Action> automaton) {
