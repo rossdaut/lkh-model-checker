@@ -2,6 +2,7 @@ package lkh.automata.impl;
 
 import lkh.automata.NonDeterministicAutomaton;
 import lkh.utils.Pair;
+import logger.Logger;
 
 import java.util.*;
 
@@ -15,6 +16,13 @@ public class GraphNonDeterministicAutomaton<State, Symbol>
     extends GraphAutomaton<State, Symbol>
     implements NonDeterministicAutomaton<State, Symbol> {
 
+  public GraphNonDeterministicAutomaton() {
+    super();
+  }
+
+  public GraphNonDeterministicAutomaton(Logger logger) {
+    super(logger);
+  }
 
   @Override
   public void addTransition(State source, State target, Symbol symbol) {

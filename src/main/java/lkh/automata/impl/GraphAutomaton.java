@@ -4,6 +4,8 @@ import lkh.automata.Automaton;
 import lkh.graph.DirectedGraph;
 import lkh.graph.HashMapDirectedGraph;
 import lkh.utils.Pair;
+import logger.Logger;
+import logger.LoggerContext;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -25,13 +27,22 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
    * The use of DirectedGraph delegates graph operations to the graph package,
    * simplifying the automaton implementation.
    */
-  protected final DirectedGraph<State, AutomatonEdge<State, Symbol>> graph = new HashMapDirectedGraph<>();
+  protected final DirectedGraph<State, AutomatonEdge<State, Symbol>> graph;
   @Getter
   protected State initialState;
   @Getter
   protected final Set<State> finalStates = new HashSet<>();
   @Getter
   protected final Set<Symbol> alphabet = new HashSet<>();
+
+  public GraphAutomaton() {
+      // HashMapDirectedGraph will automatically pick up logger from LoggerContext
+      this.graph = new HashMapDirectedGraph<>();
+  }
+
+  public GraphAutomaton(Logger logger) {
+      this.graph = new HashMapDirectedGraph<>(logger);
+  }
 
   @Override
   public void setInitialState(State initialState) {
@@ -102,4 +113,12 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
 
   @Override
   public abstract void complete(State error);
+
+  /**
+   * Get the size of the automaton (number of states and transitions)
+   * @return a Pair with (states, transitions)
+   */
+  public Pair<Integer, Integer> getSize() {
+    return graph.getSize();
+  }
 }
