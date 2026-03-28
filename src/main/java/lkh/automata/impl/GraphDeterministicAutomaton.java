@@ -2,6 +2,7 @@ package lkh.automata.impl;
 
 import lkh.automata.DeterministicAutomaton;
 import lkh.utils.Pair;
+import logger.Logger;
 
 import java.util.*;
 
@@ -14,6 +15,14 @@ import java.util.*;
 public class GraphDeterministicAutomaton<State, Symbol>
     extends GraphAutomaton<State, Symbol>
     implements DeterministicAutomaton<State, Symbol> {
+
+  public GraphDeterministicAutomaton() {
+    super();
+  }
+
+  public GraphDeterministicAutomaton(Logger logger) {
+    super(logger);
+  }
 
   public static <Action> GraphDeterministicAutomaton<Integer, Action> empty() {
     GraphDeterministicAutomaton<Integer, Action> empty = new GraphDeterministicAutomaton<>();

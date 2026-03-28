@@ -1,5 +1,7 @@
 package lkh.lts;
 
+import lkh.utils.Pair;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -108,4 +110,11 @@ public interface LTS<State, Action> {
    * @return a string with the state labels
    */
   String toString(State state);
+
+  /**
+   * Retrieves the size of the LTS as a pair of states and transitions count.
+   *
+   * @return A Pair containing the number of states (key) and transitions (value) in the LTS.
+   */
+  Pair<Integer, Integer> getSize();
 }

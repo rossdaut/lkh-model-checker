@@ -17,10 +17,10 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class PDDL implements LTSBuilder {
-  LTS<Integer, String> lts;
-  Problem problem;
+  private LTS<Integer, String> lts;
+  private Problem problem;
   @Setter
-  boolean reduce;
+  private boolean reduce;
 
   public PDDL(String domainFilename, String problemFilename) throws FileNotFoundException {
     problem = new Pddl4jProblem(domainFilename, problemFilename);
