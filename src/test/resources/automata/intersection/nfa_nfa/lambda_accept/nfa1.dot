@@ -1,0 +1,10 @@
+digraph {
+    init_ [shape = "point"];
+    init_ -> q0;
+
+    q2 [shape = "doublecircle"];
+
+    q0 -> q1 [label = "a"];
+    q1 -> q1 [label = "a"];
+    q1 -> q2 [label = "b"]
+}

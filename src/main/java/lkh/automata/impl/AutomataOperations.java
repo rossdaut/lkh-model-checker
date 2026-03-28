@@ -32,6 +32,9 @@ public class AutomataOperations {
       s = unvisitedStates.stream().findAny().get();
       unvisitedStates.remove(s);
 
+      if (automaton.finalStates.stream().anyMatch(s::contains))
+        result.addFinalState(indexMap.get(s));
+
       for (Symbol symbol : automaton.alphabet) {
         m = automaton.lambdaClosure(automaton.move(s, symbol));
         // comment the following for complete automaton
@@ -42,9 +45,6 @@ public class AutomataOperations {
         if (!indexMap.containsKey(m)) {
           unvisitedStates.add(m);
           indexMap.put(m, lastIndex++);
-
-          if (automaton.finalStates.stream().anyMatch(m::contains))
-            result.addFinalState(indexMap.get(m));
         }
 
         result.addTransition(indexMap.get(s), indexMap.get(m), symbol);
@@ -146,46 +146,59 @@ public class AutomataOperations {
   }
 
   /**
-   * NFA intersection.
-   * @param automaton1 a complete NFA
-   * @param automaton2 a complete NFA
-   * @return a NFA accepting the intersection of the languages of the input NFAs
- */
-  public static <A, B, Symbol> GraphNonDeterministicAutomaton<Pair<A, B>, Symbol>
+   * NFA intersection via subset construction on the product automaton.
+   * Each state of the result represents a pair of state-sets (S1, S2), both lambda-closed,
+   * mirroring how {@link #determinize} works but on the product of two NFAs.
+   * The resulting DFA has states of type Integer. The content of the states of the input
+   * automata is not preserved. The symbols will remain the same type.
+   * @param automaton1 a NFA
+   * @param automaton2 a NFA
+   * @return a DFA accepting the intersection of the languages of the input NFAs
+   * @param <A> the type of State of the first NFA
+   * @param <B> the type of State of the second NFA
+   * @param <Symbol> the type of Symbol
+   */
+  public static <A, B, Symbol> GraphDeterministicAutomaton<Integer, Symbol>
   intersection(GraphNonDeterministicAutomaton<A, Symbol> automaton1, GraphNonDeterministicAutomaton<B, Symbol> automaton2) {
-    //Chequear que estén completos???
-    GraphNonDeterministicAutomaton<Pair<A, B>, Symbol> result = new GraphNonDeterministicAutomaton<>();
-    Set<Pair<A, B>> unvisitedStates = new HashSet<>();
+    GraphDeterministicAutomaton<Integer, Symbol> result = new GraphDeterministicAutomaton<>();
+    Set<Pair<Set<A>, Set<B>>> unvisitedStates = new HashSet<>();
+    Map<Pair<Set<A>, Set<B>>, Integer> indexMap = new HashMap<>();
+    int lastIndex = 0;
 
-    // Initial state
-    Pair<A, B> initial = new Pair<>(automaton1.initialState, automaton2.initialState);
+    // Initial state: lambda-closure of each initial state
+    Set<A> initS1 = automaton1.lambdaClosure(automaton1.initialState);
+    Set<B> initS2 = automaton2.lambdaClosure(automaton2.initialState);
+    Pair<Set<A>, Set<B>> initial = new Pair<>(initS1, initS2);
+
+    indexMap.put(initial, lastIndex++);
     unvisitedStates.add(initial);
-    result.setInitialState(initial);
+    result.setInitialState(indexMap.get(initial));
 
-    // Transition map
-    while(!unvisitedStates.isEmpty()) {
-      Pair<A, B> pair = unvisitedStates.stream().findAny().get();
+    // Subset construction on the product: each (S1, S2) pair is already lambda-closed,
+    // so a single symbol step produces exactly one successor pair — giving a DFA.
+    while (!unvisitedStates.isEmpty()) {
+      Pair<Set<A>, Set<B>> pair = unvisitedStates.stream().findAny().get();
       unvisitedStates.remove(pair);
 
+      if (pair.key().stream().anyMatch(automaton1::isFinal) &&
+          pair.value().stream().anyMatch(automaton2::isFinal)) {
+        result.addFinalState(indexMap.get(pair));
+      }
+
       for (Symbol symbol : automaton1.alphabet) {
-        Set<A> s1 = automaton1.lambdaClosure(automaton1.delta(pair.key(), symbol));
-        Set<B> s2 = automaton2.lambdaClosure(automaton2.delta(pair.value(), symbol));
+        Set<A> next1 = automaton1.lambdaClosure(automaton1.move(pair.key(), symbol));
+        Set<B> next2 = automaton2.lambdaClosure(automaton2.move(pair.value(), symbol));
 
-        for (A state1 : s1) {
-          for (B state2 : s2) {
-            Pair<A, B> next = new Pair<>(state1, state2);
-            if (!result.getStates().contains(next)) {
-              unvisitedStates.add(next);
-              result.addState(next);
+        if (next1.isEmpty() || next2.isEmpty()) continue;
 
-              if (automaton1.isFinal(state1) && automaton2.isFinal(state2)) {
-                result.addFinalState(next);
-              }
-            }
+        Pair<Set<A>, Set<B>> next = new Pair<>(next1, next2);
 
-            result.addTransition(pair, next, symbol);
-          }
+        if (!indexMap.containsKey(next)) {
+          indexMap.put(next, lastIndex++);
+          unvisitedStates.add(next);
         }
+
+        result.addTransition(indexMap.get(pair), indexMap.get(next), symbol);
       }
     }
 
@@ -241,15 +254,17 @@ public class AutomataOperations {
   }
 
   /**
-   * Set of DeterministicAutomaton intersection.
-   * @param automata a set of DFAs
+   * Collection of DeterministicAutomaton intersection.
+   * Accepts any {@link Collection} (List, Set, …) of DFAs.
+   * @param automata a non-null, non-empty collection of DFAs
    * @return a DFA accepting the intersection of the languages of all DFA's
+   * @param <State> the type of the states
    * @param <Symbol> the type of the symbols
    */
   public static <State, Symbol> GraphDeterministicAutomaton<Integer, Symbol>
-  intersection(Set<GraphDeterministicAutomaton<State, Symbol>> automata) {
-    if (automata == null) throw new NullPointerException("null automata set");
-    if (automata.isEmpty()) { throw new IllegalArgumentException("empty automata set"); }
+  intersection(Collection<GraphDeterministicAutomaton<State, Symbol>> automata) {
+    if (automata == null) throw new NullPointerException("null automata collection");
+    if (automata.isEmpty()) throw new IllegalArgumentException("empty automata collection");
 
     Queue<GraphDeterministicAutomaton<State, Symbol>> queue = new LinkedList<>(automata);
     GraphDeterministicAutomaton<Integer, Symbol> result = toIntegerStates(queue.remove());

@@ -1,0 +1,13 @@
+digraph {
+    init_ [shape="point"];
+    init_ -> 0;
+
+    0 [shape = "doublecircle"];
+
+    0 -> 0 [label = "b"];
+    0 -> dead [label = "a"];
+    0 -> dead [label = "c"];
+    dead -> dead [label = "a"];
+    dead -> dead [label = "b"];
+    dead -> dead [label = "c"]
+}

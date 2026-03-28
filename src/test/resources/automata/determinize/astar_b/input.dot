@@ -1,0 +1,12 @@
+digraph NFA {
+    init_ [shape = "point"];
+    init_ -> q0;
+
+    q3 [shape = "doublecircle"];
+
+    q0 -> q0 [label = "a"];
+    q0 -> q0 [label = "b"];
+    q0 -> q1 [label = "a"];
+    q1 -> q2 [label = "b"];
+    q2 -> q3 [label = "b"]
+}

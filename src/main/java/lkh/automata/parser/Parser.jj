@@ -39,7 +39,7 @@ NonDeterministicAutomaton<String, String> Graph() :
 void stmtList() :
 {}
 {
-  stmt() (";" stmt())*
+  stmt() (";" stmt())* (";")?
 }
 
 void stmt() :
