@@ -1,6 +1,11 @@
 package lkh.graph;
 
 import lkh.graph.edge.Edge;
+import lkh.utils.Pair;
+import logger.AbstractLoggable;
+import logger.LogEvent;
+import logger.Logger;
+import logger.LoggerContext;
 import lombok.NonNull;
 
 import java.util.*;
@@ -15,19 +20,36 @@ import java.util.function.Predicate;
  * @param <V> The type of the vertices in the graph.
  * @param <E> The type of the edges in the graph, constrained to extend the Edge interface.
  */
-public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph<V, E> {
+public class HashMapDirectedGraph<V, E extends Edge<V>>
+    extends AbstractLoggable
+    implements DirectedGraph<V, E> {
   private final Map<V, Set<E>> map = new HashMap<>();
+
+  public HashMapDirectedGraph() {
+    // Automatically pick up logger from context if set
+    Logger contextLogger = LoggerContext.getLogger();
+    if (contextLogger != null) {
+      registerLogger(contextLogger);
+    }
+  }
+
+  public HashMapDirectedGraph(Logger logger) {
+    registerLogger(logger);
+  }
 
   @Override
   public void addVertex(@NonNull V vertex) {
-    map.putIfAbsent(vertex, new HashSet<>());
+    Set<E> old = map.putIfAbsent(vertex, new HashSet<>());
+    if (getLogger() != null && old == null) log(LogEvent.ADD_VERTEX);
   }
 
   @Override
   public void addEdge(@NonNull E edge) {
     if (!map.containsKey(edge.getSource())) addVertex(edge.getSource());
     if (!map.containsKey(edge.getTarget())) addVertex(edge.getTarget());
-    map.get(edge.getSource()).add(edge);
+    boolean added = map.get(edge.getSource()).add(edge);
+
+    if (getLogger() != null && added) log(LogEvent.ADD_EDGE);
   }
 
   @Override
@@ -173,6 +195,15 @@ public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph
   }
 
   @Override
+  public Pair<Integer, Integer> getSize() {
+    int vertices = map.size();
+    int edges = map.values().stream()
+        .mapToInt(Set::size)
+        .sum();
+    return new Pair<>(vertices, edges);
+  }
+
+  @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
 
@@ -190,4 +221,3 @@ public class HashMapDirectedGraph<V, E extends Edge<V>> implements DirectedGraph
     return builder.toString();
   }
 }
-

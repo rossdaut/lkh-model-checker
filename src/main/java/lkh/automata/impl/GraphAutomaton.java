@@ -4,6 +4,8 @@ import lkh.automata.Automaton;
 import lkh.graph.DirectedGraph;
 import lkh.graph.HashMapDirectedGraph;
 import lkh.utils.Pair;
+import logger.Logger;
+import logger.LoggerContext;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -25,13 +27,22 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
    * The use of DirectedGraph delegates graph operations to the graph package,
    * simplifying the automaton implementation.
    */
-  protected final DirectedGraph<State, AutomatonEdge<State, Symbol>> graph = new HashMapDirectedGraph<>();
+  protected final DirectedGraph<State, AutomatonEdge<State, Symbol>> graph;
   @Getter
   protected State initialState;
   @Getter
   protected final Set<State> finalStates = new HashSet<>();
   @Getter
   protected final Set<Symbol> alphabet = new HashSet<>();
+
+  public GraphAutomaton() {
+      // HashMapDirectedGraph will automatically pick up logger from LoggerContext
+      this.graph = new HashMapDirectedGraph<>();
+  }
+
+  public GraphAutomaton(Logger logger) {
+      this.graph = new HashMapDirectedGraph<>(logger);
+  }
 
   @Override
   public void setInitialState(State initialState) {
@@ -100,28 +111,14 @@ public abstract class GraphAutomaton<State, Symbol> implements Automaton<State, 
   @Override
   public abstract boolean evaluate(List<Symbol> string);
 
-  protected abstract boolean hasTransition(State source, Symbol symbol);
-
   @Override
-  public void complete(State error) {
-    if (error == null) throw new NullPointerException("null state");
-    if (graph.containsVertex(error))
-      throw new IllegalArgumentException("error state should not already be in the automaton");
+  public abstract void complete(State error);
 
-    Set<Pair<State, Symbol>> pairsToAdd = new HashSet<>();
-
-    addState(error);
-
-    for (State state : getStates()) {
-      for (Symbol symbol : getAlphabet()) {
-        if (!hasTransition(state, symbol)) {
-          pairsToAdd.add(new Pair<>(state, symbol));
-        }
-      }
-    }
-
-    for (Pair<State, Symbol> pair : pairsToAdd) {
-      addTransition(pair.key(), error, pair.value());
-    }
+  /**
+   * Get the size of the automaton (number of states and transitions)
+   * @return a Pair with (states, transitions)
+   */
+  public Pair<Integer, Integer> getSize() {
+    return graph.getSize();
   }
 }

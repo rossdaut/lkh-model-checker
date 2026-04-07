@@ -2,7 +2,9 @@ package lkh.pddl;
 
 import lkh.lts.LTS;
 import lkh.lts.builder.PDDL;
+import lkh.planning.pddl4j.Pddl4jProblem;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -10,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PDDLTest {
@@ -35,5 +38,14 @@ public class PDDLTest {
   @CsvSource({"0, 1, 'a'", "0, 2, 'b'", "0, 0, 'c'", "0, 0, 'd'", "1, 1, 'a'", "1, 0, 'c'", "2, 2, 'b'", "2, 0, 'd'"})
   public void testTransitions(int from, int to, String label) {
     assertTrue(lts.targets(from, label).contains(to));
+  }
+
+  @Test
+  public void testRejectConditionalEffects() {
+    String resourcesPath = "src/test/resources/pddl";
+    String domainFilename = resourcesPath + "/conditional-domain.pddl";
+    String problemFilename = resourcesPath + "/conditional-problem.pddl";
+
+    assertThrows(IllegalArgumentException.class, () -> new Pddl4jProblem(domainFilename, problemFilename));
   }
 }

@@ -3,6 +3,8 @@ package lkh.lts;
 import lkh.graph.DirectedGraph;
 import lkh.graph.HashMapDirectedGraph;
 import lombok.EqualsAndHashCode;
+import lkh.utils.Pair;
+import logger.Logger;
 import lombok.NonNull;
 
 import java.util.*;
@@ -18,9 +20,17 @@ import java.util.stream.Collectors;
  */
 @EqualsAndHashCode
 public class HashMapLTS<State, Action> implements LTS<State, Action> {
-  private final DirectedGraph<State, LTSEdge<State, Action>> graph = new HashMapDirectedGraph<>();
+  private final DirectedGraph<State, LTSEdge<State, Action>> graph;
   private final Set<Action> actions = new HashSet<>();
   private final Map<State, Set<String>> labelMap = new HashMap<>();
+
+  public HashMapLTS() {
+    graph = new HashMapDirectedGraph<>();
+  }
+
+  public HashMapLTS(Logger logger) {
+    graph = new HashMapDirectedGraph<>(logger);
+  }
 
   @Override
   public void addState(State state) {
@@ -109,5 +119,10 @@ public class HashMapLTS<State, Action> implements LTS<State, Action> {
   @Override
   public String toString(State state) {
     return state.toString() + "[" + String.join(", ", getLabels(state)) + "]";
+  }
+
+  @Override
+  public Pair<Integer, Integer> getSize() {
+    return graph.getSize();
   }
 }

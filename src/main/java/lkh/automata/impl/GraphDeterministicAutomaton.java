@@ -1,6 +1,9 @@
 package lkh.automata.impl;
 
 import lkh.automata.DeterministicAutomaton;
+import lkh.utils.Pair;
+import logger.Logger;
+
 import java.util.*;
 
 /**
@@ -12,6 +15,14 @@ import java.util.*;
 public class GraphDeterministicAutomaton<State, Symbol>
     extends GraphAutomaton<State, Symbol>
     implements DeterministicAutomaton<State, Symbol> {
+
+  public GraphDeterministicAutomaton() {
+    super();
+  }
+
+  public GraphDeterministicAutomaton(Logger logger) {
+    super(logger);
+  }
 
   public static <Action> GraphDeterministicAutomaton<Integer, Action> empty() {
     GraphDeterministicAutomaton<Integer, Action> empty = new GraphDeterministicAutomaton<>();
@@ -65,8 +76,26 @@ public class GraphDeterministicAutomaton<State, Symbol>
   }
 
   @Override
-  protected boolean hasTransition(State source, Symbol symbol) {
-    return delta(source, symbol).isPresent();
+  public void complete(State error) {
+    if (error == null) throw new NullPointerException("null state");
+    if (graph.containsVertex(error))
+      throw new IllegalArgumentException("error state should not already be in the automaton");
+
+    Set<Pair<State, Symbol>> pairsToAdd = new HashSet<>();
+
+    addState(error);
+
+    for (State state : getStates()) {
+      for (Symbol symbol : getAlphabet()) {
+        if (delta(state, symbol).isEmpty()) {
+          pairsToAdd.add(new Pair<>(state, symbol));
+        }
+      }
+    }
+
+    for (Pair<State, Symbol> pair : pairsToAdd) {
+      addTransition(pair.key(), error, pair.value());
+    }
   }
 
   @Override
