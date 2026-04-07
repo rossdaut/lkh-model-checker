@@ -33,10 +33,13 @@ public class DotReader {
     }
   }
 
-  public static HashMapLTS<String, String> readLTS(String filename) throws FileNotFoundException, lkh.lts.parser.ParseException {
+  public static HashMapLTS<String, String> readLTS(String filename) throws FileNotFoundException {
     BufferedReader reader = new BufferedReader(new FileReader(filename));
-
-    LTSParser parser = new LTSParser(reader);
-    return parser.LTS();
+    try {
+      LTSParser parser = new LTSParser(reader);
+      return parser.LTS();
+    } catch (lkh.lts.parser.ParseException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

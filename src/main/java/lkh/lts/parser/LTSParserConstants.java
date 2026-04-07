@@ -18,9 +18,17 @@ public interface LTSParserConstants {
   int LABEL = 7;
   /** RegularExpression Id. */
   int ID = 8;
+  /** RegularExpression Id. */
+  int OPEN_QUOTE = 9;
+  /** RegularExpression Id. */
+  int QUOTED_ID = 10;
+  /** RegularExpression Id. */
+  int CLOSE_QUOTE = 11;
 
   /** Lexical state. */
   int DEFAULT = 0;
+  /** Lexical state. */
+  int IN_LABEL = 1;
 
   /** Literal token values. */
   String[] tokenImage = {
@@ -33,12 +41,14 @@ public interface LTSParserConstants {
     "\"->\"",
     "\"label\"",
     "<ID>",
+    "\"\\\"\"",
+    "<QUOTED_ID>",
+    "\"\\\"\"",
     "\"{\"",
     "\"}\"",
     "\";\"",
     "\"[\"",
     "\"=\"",
-    "\"\\\"\"",
     "\"]\"",
   };
 

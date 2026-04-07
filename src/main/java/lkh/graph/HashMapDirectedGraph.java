@@ -175,6 +175,11 @@ public class HashMapDirectedGraph<V, E extends Edge<V>>
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hashCode(map);
+  }
+
+  @Override
   public boolean removeEdge(E edge) {
     if (!map.containsKey(edge.getSource())) {
       return false;

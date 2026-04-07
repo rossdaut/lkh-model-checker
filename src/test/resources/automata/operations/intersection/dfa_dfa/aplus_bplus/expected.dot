@@ -1,0 +1,4 @@
+digraph {
+    init_ [shape = "point"];
+    init_ -> 0
+}

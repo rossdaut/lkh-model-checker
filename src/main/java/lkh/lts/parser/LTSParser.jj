@@ -24,7 +24,18 @@ TOKEN :
   < DIGRAPH : "digraph" > |
   < RARROW : "->" > |
   < LABEL : "label" > |
-  < ID : (["a"-"z", "A"-"Z", "_", ",", "0"-"9"])+ >
+  < ID : (["a"-"z", "A"-"Z", "_", "0"-"9"])+ >
+}
+
+TOKEN :
+{
+  < OPEN_QUOTE : "\"" > : IN_LABEL
+}
+
+<IN_LABEL> TOKEN :
+{
+  < QUOTED_ID : (~["\""])+ >
+| < CLOSE_QUOTE : "\"" > : DEFAULT
 }
 
 HashMapLTS<String, String> LTS() :
@@ -71,6 +82,6 @@ void rTransitionStmt(Token lid, Token rid) :
 String label() :
 { Token id; }
 {
-  "[" <LABEL> "=" "\""id=<ID>"\"" "]"
+  "[" <LABEL> "=" <OPEN_QUOTE> id=<QUOTED_ID> <CLOSE_QUOTE> "]"
   { return id.image; }
 }
