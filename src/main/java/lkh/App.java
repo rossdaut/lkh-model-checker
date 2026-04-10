@@ -49,7 +49,6 @@ public class App {
     System.out.println("3. Check KH expression");
     System.out.println("4. Check Goal expression");
     System.out.println("5. Start simulation");
-    System.out.println("6. Toggle minimize");
     System.out.println("0. Exit");
   }
 
@@ -86,9 +85,6 @@ public class App {
         break;
       case "5":
         simulate();
-        break;
-      case "6":
-        toggleMinimize();
         break;
       case "0":
         System.exit(0);
@@ -286,10 +282,6 @@ public class App {
 
       currentState = availableStates.get(option-1);
     }
-  }
-
-  private void toggleMinimize() {
-    modelChecker.setMinimize(!modelChecker.isMinimize());
   }
 
   private boolean isGoal(int state) {
