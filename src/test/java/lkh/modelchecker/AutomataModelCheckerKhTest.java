@@ -5,14 +5,17 @@ import lkh.expression.parser.ParseException;
 import lkh.lts.HashMapLTS;
 import lkh.lts.LTS;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -65,6 +68,26 @@ public class AutomataModelCheckerKhTest {
     assertEquals(expectedWitnesses, actualWitnesses);
   }
 
+  @Test
+  void setMinimizeClearsCacheWhenValueChanges() throws ParseException, ReflectiveOperationException {
+    modelChecker.check(Expression.of("kh(p, p)"));
+    assertEquals(1, khAutomatonCache().size());
+
+    modelChecker.setMinimize(true);
+
+    assertEquals(0, khAutomatonCache().size());
+  }
+
+  @Test
+  void setMinimizeKeepsCacheWhenValueDoesNotChange() throws ParseException, ReflectiveOperationException {
+    modelChecker.check(Expression.of("kh(p, p)"));
+    assertEquals(1, khAutomatonCache().size());
+
+    modelChecker.setMinimize(false);
+
+    assertEquals(1, khAutomatonCache().size());
+  }
+
   private static Stream<Arguments> witnessesTestProvider() {
     return Stream.of(
         Arguments.of("p and q", "s or t", 3, Set.of(List.of('a', 'b'))),
@@ -72,5 +95,12 @@ public class AutomataModelCheckerKhTest {
         Arguments.of("q and r", "r", 6, Set.of(List.of()))
         //Arguments.of("u", "q")
     );
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<Expression, ?> khAutomatonCache() throws ReflectiveOperationException {
+    Field field = AbstractAutomataModelChecker.class.getDeclaredField("khAutomatonCache");
+    field.setAccessible(true);
+    return (Map<Expression, ?>) field.get(modelChecker);
   }
 }

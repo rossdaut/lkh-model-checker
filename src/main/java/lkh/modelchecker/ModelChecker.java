@@ -43,18 +43,4 @@ public interface ModelChecker<State, Action> {
      * @return an iterator over the witness plans
      */
     Iterator<List<Action>> witnesses(Expression initExpression, Expression endExpression, int lengthLimit);
-
-    /**
-     * Set whether automata should be minimized during computation.
-     * 
-     * @param minimize true to enable minimization, false otherwise
-     */
-    void setMinimize(boolean minimize);
-
-    /**
-     * Get the current minimization setting.
-     * 
-     * @return true if minimization is enabled, false otherwise
-     */
-    boolean isMinimize();
 }
