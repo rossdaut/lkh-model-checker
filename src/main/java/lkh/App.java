@@ -9,8 +9,11 @@ import lkh.expression.Expression;
 import lkh.expression.parser.ParseException;
 import lkh.expression.ExpressionType;
 import lkh.lts.LTS;
+import lkh.lts.builder.DefaultActionSelectionStrategy;
 import lkh.modelchecker.AutomataModelChecker;
 import lkh.lts.builder.PDDL;
+import lkh.por.StrongStubbornSetActionSelectionStrategy;
+import lkh.por.StratifiedActionSelectionStrategy;
 import logger.GraphLogger;
 import logger.LoggerContext;
 import org.jline.reader.LineReader;
@@ -102,30 +105,38 @@ public class App {
   }
 
   protected void loadLTS(String domainFilename, String problemFilename) throws FileNotFoundException {
-    pddlParser = new PDDL(domainFilename, problemFilename);
-    System.out.println("Enable Partial Order Reduction? (y/n)");
-    String input = scanner.nextLine();
-    pddlParser.setReduce(input.toLowerCase().charAt(0) != 'n');
+    pddlParser = new PDDL(domainFilename, problemFilename, selectActionSelectionStrategy());
 
-    System.out.println("Enable LTS Nodes/Edges logging? (y/n)");
-    boolean ltsLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
-
-
-    if (ltsLogging) {
-      GraphLogger ltsLogger = new GraphLogger("LTS");
-      try (var scope = LoggerContext.withLogger(ltsLogger)) {
-        lts = pddlParser.buildLTS();
-      }
-
-      // Get and log LTS size
-      ltsLogger.setSize(lts.getSize());
-
-      ltsLogger.printLog();
-    } else {
+    GraphLogger ltsLogger = new GraphLogger("LTS");
+    try (var scope = LoggerContext.withLogger(ltsLogger)) {
       lts = pddlParser.buildLTS();
     }
 
+    ltsLogger.setSize(lts.getSize());
+    ltsLogger.printLog();
+
     modelChecker = new AutomataModelChecker<>(lts, pddlParser.getInitialState());
+  }
+
+  private lkh.lts.builder.ActionSelectionStrategy selectActionSelectionStrategy() {
+    while (true) {
+      System.out.println("Select POR type:");
+      System.out.println("1. None");
+      System.out.println("2. Stratified");
+      System.out.println("3. Strong Stubborn Sets (SSS)");
+      String input = scanner.nextLine().trim();
+
+      switch (input) {
+        case "1":
+          return new DefaultActionSelectionStrategy();
+        case "2":
+          return new StratifiedActionSelectionStrategy();
+        case "3":
+          return new StrongStubbornSetActionSelectionStrategy();
+        default:
+          System.out.println("Invalid option");
+      }
+    }
   }
 
   private void writeLTS() {
@@ -157,22 +168,14 @@ public class App {
   private void checkExpression(String expressionString) throws ParseException {
     Expression expression = Expression.of(expressionString);
 
-    GraphLogger automataLogger = null;
-    System.out.println("Enable KH-Automaton Nodes/Edges logging? (y/n)");
-    boolean automataLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
-
-    if (automataLogging) {
-      automataLogger = new GraphLogger("KH Automaton");
-    }
+    GraphLogger automataLogger = new GraphLogger("KH Automaton");
 
     boolean result;
-    try (var scope = automataLogging ? LoggerContext.withLogger(automataLogger) : null) {
+    try (var scope = LoggerContext.withLogger(automataLogger)) {
       result = modelChecker.check(expression);
     }
 
-    if (automataLogging) {
-      automataLogger.printLog();
-    }
+    automataLogger.printLog();
 
     String message = result ? "KH-Expression holds (:" : "KH-Expression fails :(";
     System.out.println(message + "\n");
@@ -218,23 +221,13 @@ public class App {
     Expression kh = Expression.kh(initial, goal);
 
     boolean result;
-    GraphLogger automataLogger = null;
-    boolean automataLogging;
+    GraphLogger automataLogger = new GraphLogger("KH Automaton");
 
-    System.out.println("Enable KH-Automaton Nodes/Edges logging? (y/n)");
-    automataLogging = scanner.nextLine().toLowerCase().charAt(0) == 'y';
-
-    if (automataLogging) {
-      automataLogger = new GraphLogger("KH Automaton");
-    }
-
-    try (var scope = automataLogging ? LoggerContext.withLogger(automataLogger) : null) {
+    try (var scope = LoggerContext.withLogger(automataLogger)) {
       result = modelChecker.check(kh);
     }
 
-    if (automataLogging) {
-      automataLogger.printLog();
-    }
+    automataLogger.printLog();
 
     String message = result ? "KH-Expression holds (:" : "KH-Expression fails :(";
     System.out.println(message + "\n");
