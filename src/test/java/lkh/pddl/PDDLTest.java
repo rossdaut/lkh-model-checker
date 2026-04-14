@@ -1,6 +1,8 @@
 package lkh.pddl;
 
+import java.util.List;
 import lkh.lts.LTS;
+import lkh.lts.builder.ActionSelectionStrategy;
 import lkh.lts.builder.PDDL;
 import lkh.planning.pddl4j.Pddl4jProblem;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,5 +50,24 @@ public class PDDLTest {
     String problemFilename = resourcesPath + "/conditional-problem.pddl";
 
     assertThrows(IllegalArgumentException.class, () -> new Pddl4jProblem(domainFilename, problemFilename));
+  }
+
+  @Test
+  public void testSetActionSelectionStrategyInvalidatesCachedLts() throws FileNotFoundException {
+    String resourcesPath = "src/test/resources";
+    String domainFilename = resourcesPath + "/pddl/domain.pddl";
+    String problemFilename = resourcesPath + "/pddl/problem.pddl";
+    PDDL builder = new PDDL(domainFilename, problemFilename);
+
+    LTS<Integer, String> initialLts = builder.buildLTS();
+
+    ActionSelectionStrategy noActionsStrategy = (previousAction, state, problem) -> List.of();
+
+    builder.setActionSelectionStrategy(noActionsStrategy);
+    LTS<Integer, String> rebuiltLts = builder.buildLTS();
+
+    assertNotSame(initialLts, rebuiltLts);
+    assertEquals(Set.of(0), rebuiltLts.getStates());
+    assertEquals(Set.of(), rebuiltLts.getActions());
   }
 }
