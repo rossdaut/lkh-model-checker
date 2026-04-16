@@ -1,0 +1,20 @@
+digraph {
+    0 [label = "at(flat, axle), tire(flat), at(spare, trunk), tire(spare)"];
+    1 [label = "at(flat, axle), at(spare, ground), tire(flat), tire(spare)"];
+    2 [label = "at(flat, ground), tire(flat), at(spare, trunk), tire(spare)"];
+    3 [label = "at(flat, ground), at(spare, ground), tire(flat), tire(spare)"];
+    4 [label = "at(flat, ground), at(spare, axle), tire(flat), tire(spare)"];
+    0 -> 1 [label = "remove(spare, trunk)"];
+    0 -> 2 [label = "remove(flat, axle)"];
+    1 -> 1 [label = "remove(spare, ground)"];
+    1 -> 3 [label = "remove(flat, axle)"];
+    2 -> 3 [label = "remove(spare, trunk)"];
+    2 -> 0 [label = "put-on(flat)"];
+    2 -> 2 [label = "remove(flat, ground)"];
+    3 -> 4 [label = "put-on(spare)"];
+    3 -> 3 [label = "remove(spare, ground)"];
+    3 -> 1 [label = "put-on(flat)"];
+    3 -> 3 [label = "remove(flat, ground)"];
+    4 -> 3 [label = "remove(spare, axle)"];
+    4 -> 4 [label = "remove(flat, ground)"]
+}

@@ -5,25 +5,26 @@ import lkh.lts.LTS;
 import lkh.expression.Expression;
 import lkh.planning.Action;
 import lkh.planning.Condition;
-import lkh.planning.Fluent;
 import lkh.planning.Problem;
 import lkh.planning.State;
 import lkh.planning.pddl4j.Pddl4jProblem;
-import lkh.por.StratifiedReducer;
 import lkh.utils.Pair;
-import lombok.Setter;
 
 import java.io.FileNotFoundException;
 import java.util.*;
 
 public class PDDL implements LTSBuilder {
   private LTS<Integer, String> lts;
-  private Problem problem;
-  @Setter
-  private boolean reduce;
+  private final Problem problem;
+  private ActionSelectionStrategy actionSelectionStrategy;
 
   public PDDL(String domainFilename, String problemFilename) throws FileNotFoundException {
-    problem = new Pddl4jProblem(domainFilename, problemFilename);
+    this(domainFilename, problemFilename, new DefaultActionSelectionStrategy());
+  }
+
+  public PDDL(String domainFilename, String problemFilename, ActionSelectionStrategy actionSelectionStrategy) throws FileNotFoundException {
+    this.problem = new Pddl4jProblem(domainFilename, problemFilename);
+    setActionSelectionStrategy(actionSelectionStrategy);
   }
 
   public LTS<Integer, String> buildLTS() {
@@ -57,6 +58,11 @@ public class PDDL implements LTSBuilder {
     }
   }
 
+  public void setActionSelectionStrategy(ActionSelectionStrategy actionSelectionStrategy) {
+    this.actionSelectionStrategy = Objects.requireNonNull(actionSelectionStrategy, "actionSelectionStrategy");
+    this.lts = null;
+  }
+
   private LTS<Integer, String> buildLTS(Problem problem) {
     LTS<Integer,String> lts = new HashMapLTS<>();
     State init = problem.getInitialState();
@@ -71,15 +77,9 @@ public class PDDL implements LTSBuilder {
       State state = pair.value();
       Action action = pair.key();
 
-      lts.addState(indexMap.get(state), labels(state, problem));
+      lts.addState(indexMap.get(state), labels(state));
 
-      Set<Pair<Action, State>> nextStates;
-      if (reduce) {
-        StratifiedReducer por = new StratifiedReducer(problem);
-        nextStates = por.stratifiedExpansion(action, state);
-      } else {
-        nextStates = defaultExpand(state);
-      }
+      Set<Pair<Action, State>> nextStates = expand(action, state, problem);
 
       for (Pair<Action, State> nextPair : nextStates) {
         State nextState = nextPair.value();
@@ -99,10 +99,10 @@ public class PDDL implements LTSBuilder {
     return lts;
   }
 
-  private Set<Pair<Action, State>> defaultExpand(State state) {
+  private Set<Pair<Action, State>> expand(Action previousAction, State state, Problem problem) {
     Set<Pair<Action, State>> result = new HashSet<>();
 
-    for (Action action : problem.getActions().stream().filter(candidate -> candidate.isApplicable(state)).toList()) {
+    for (Action action : actionSelectionStrategy.selectActions(previousAction, state, problem)) {
       State nextState = state.copy();
       nextState.apply(action);
       result.add(new Pair<>(action, nextState));
@@ -111,7 +111,7 @@ public class PDDL implements LTSBuilder {
     return result;
   }
 
-  private static Set<String> labels(State state, Problem problem) {
+  private static Set<String> labels(State state) {
     Set<String> result = new HashSet<>();
     state.getFluents().forEach(fluent -> result.add(fluent.toString()));
 

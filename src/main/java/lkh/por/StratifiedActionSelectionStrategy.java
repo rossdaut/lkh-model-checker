@@ -5,45 +5,53 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import lkh.graph.DirectedGraph;
 import lkh.graph.DirectedGraphOperations;
 import lkh.graph.HashMapDirectedGraph;
 import lkh.graph.edge.DefaultEdge;
+import lkh.lts.builder.ActionSelectionStrategy;
 import lkh.planning.Action;
 import lkh.planning.Fluent;
 import lkh.planning.Problem;
 import lkh.planning.State;
-import lkh.utils.Pair;
 
-public class StratifiedReducer {
-  private final Problem problem;
+public class StratifiedActionSelectionStrategy implements ActionSelectionStrategy {
+  private Problem problem;
   private DirectedGraph<Fluent, DefaultEdge<Fluent>> causalGraph;
   private DirectedGraph<Set<Fluent>, DefaultEdge<Set<Fluent>>> contractedGraph;
   private Map<Action, Integer> layer;
 
-  public StratifiedReducer(Problem problem) {
-    this.problem = problem;
-    buildCausalGraph();
-    buildContractedGraph();
-    stratify();
-  }
-
-  public Set<Pair<Action, State>> stratifiedExpansion(Action action, State state) {
+  @Override
+  public Collection<? extends Action> selectActions(Action previousAction, State state, Problem problem) {
     if (state == null) {
       throw new IllegalArgumentException("Null state");
     }
-    Set<Pair<Action, State>> result = new HashSet<>();
+    if (problem == null) {
+      throw new IllegalArgumentException("Null problem");
+    }
 
-    for (Action action2 : problem.getActions().stream().filter(candidate -> candidate.isApplicable(state)).toList()) {
-      if (layer.get(action2) >= layer.get(action) || followUpAction(action, action2)) {
-        State nextState = state.copy();
-        nextState.apply(action2);
-        result.add(new Pair<>(action2, nextState));
+    ensureInitialized(problem);
+    int previousLayer = layer.getOrDefault(previousAction, 0);
+    Set<Action> result = new HashSet<>();
+
+    for (Action candidate : problem.getApplicableActions(state)) {
+      if (layer.get(candidate) >= previousLayer || followUpAction(previousAction, candidate)) {
+        result.add(candidate);
       }
     }
 
     return result;
+  }
+
+  private void ensureInitialized(Problem problem) {
+    if (this.problem == problem) {
+      return;
+    }
+
+    this.problem = problem;
+    buildCausalGraph();
+    buildContractedGraph();
+    stratify();
   }
 
   private void buildCausalGraph() {
@@ -71,11 +79,11 @@ public class StratifiedReducer {
 
   private void buildContractedGraph() {
     contractedGraph = new HashMapDirectedGraph<>();
-    Set<Set<Fluent>> SCCs = DirectedGraphOperations.getSCCs(causalGraph);
-    contractedGraph.addVertices(SCCs);
+    Set<Set<Fluent>> sccs = DirectedGraphOperations.getSCCs(causalGraph);
+    contractedGraph.addVertices(sccs);
 
-    for (Set<Fluent> sourceComponent : SCCs) {
-      for (Set<Fluent> targetComponent : SCCs) {
+    for (Set<Fluent> sourceComponent : sccs) {
+      for (Set<Fluent> targetComponent : sccs) {
         if (sourceComponent.equals(targetComponent)) {
           continue;
         }
@@ -102,10 +110,10 @@ public class StratifiedReducer {
       }
     }
 
-    actionLayer(componentLayer);
+    assignActionLayers(componentLayer);
   }
 
-  private void actionLayer(Map<Set<Fluent>, Integer> componentLayer) {
+  private void assignActionLayers(Map<Set<Fluent>, Integer> componentLayer) {
     layer = new HashMap<>();
     layer.put(null, 0);
     for (Action action : problem.getActions()) {
@@ -125,6 +133,10 @@ public class StratifiedReducer {
   }
 
   private boolean followUpAction(Action first, Action second) {
+    if (first == null) {
+      return false;
+    }
+
     AnalyzableAction firstAction = toAnalyzableAction(first);
     AnalyzableAction secondAction = toAnalyzableAction(second);
 
