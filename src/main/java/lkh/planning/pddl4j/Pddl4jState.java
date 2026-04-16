@@ -4,11 +4,13 @@ import java.util.Collection;
 import java.util.Objects;
 import lkh.planning.Action;
 import lkh.planning.Fluent;
+import lkh.planning.Literal;
 import lkh.planning.State;
 
 final class Pddl4jState implements State {
   private final fr.uga.pddl4j.problem.State delegate;
   private final Pddl4jProblem problem;
+  private Collection<Fluent> fluents;
 
   Pddl4jState(fr.uga.pddl4j.problem.State delegate, Pddl4jProblem problem) {
     this.delegate = delegate;
@@ -21,7 +23,19 @@ final class Pddl4jState implements State {
 
   @Override
   public Collection<Fluent> getFluents() {
-    return problem.wrapFluents(delegate);
+    if (fluents == null) {
+      fluents = problem.wrapFluents(delegate);
+    }
+    return fluents;
+  }
+
+  @Override
+  public boolean holds(Literal literal) {
+    if (literal.fluent() instanceof Pddl4jFluent fluent) {
+      boolean present = delegate.get(fluent.index());
+      return literal.positive() ? present : !present;
+    }
+    return State.super.holds(literal);
   }
 
   @Override
@@ -35,6 +49,7 @@ final class Pddl4jState implements State {
       throw new IllegalArgumentException("Action must be a Pddl4jAction");
     }
     delegate.apply(pddl4jAction.unwrap().getUnconditionalEffect());
+    fluents = null;
   }
 
   @Override

@@ -5,9 +5,15 @@ import lkh.planning.Fluent;
 
 final class Pddl4jFluent implements Fluent {
   private final String name;
+  private final int index;
 
-  Pddl4jFluent(String name) {
+  Pddl4jFluent(String name, int index) {
     this.name = name;
+    this.index = index;
+  }
+
+  int index() {
+    return index;
   }
 
   @Override

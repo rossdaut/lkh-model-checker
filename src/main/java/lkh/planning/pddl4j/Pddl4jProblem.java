@@ -21,6 +21,9 @@ public class Pddl4jProblem implements Problem {
   private final fr.uga.pddl4j.problem.Problem delegate;
   private final List<Pddl4jFluent> fluents;
   private final List<Pddl4jAction> actions;
+  private final List<? extends Fluent> unmodifiableFluents;
+  private final List<? extends Action> unmodifiableActions;
+  private final Condition goalCondition;
 
   public Pddl4jProblem(String domainFilename, String problemFilename) throws FileNotFoundException {
     Parser parser = new Parser();
@@ -31,6 +34,9 @@ public class Pddl4jProblem implements Problem {
     validateNoConditionalEffects();
     fluents = buildFluents(delegate);
     actions = buildActions(delegate);
+    unmodifiableFluents = Collections.unmodifiableList(fluents);
+    unmodifiableActions = Collections.unmodifiableList(actions);
+    goalCondition = new Pddl4jCondition(delegate.getGoal(), this);
   }
 
   fr.uga.pddl4j.problem.Problem unwrap() {
@@ -39,12 +45,12 @@ public class Pddl4jProblem implements Problem {
 
   @Override
   public List<? extends Fluent> getFluents() {
-    return Collections.unmodifiableList(fluents);
+    return unmodifiableFluents;
   }
 
   @Override
   public List<? extends Action> getActions() {
-    return Collections.unmodifiableList(actions);
+    return unmodifiableActions;
   }
 
   @Override
@@ -54,7 +60,7 @@ public class Pddl4jProblem implements Problem {
 
   @Override
   public Condition getGoalCondition() {
-    return new Pddl4jCondition(delegate.getGoal(), this);
+    return goalCondition;
   }
 
   Collection<Fluent> wrapFluents(BitVector bitVector) {
@@ -71,8 +77,10 @@ public class Pddl4jProblem implements Problem {
 
   private List<Pddl4jFluent> buildFluents(fr.uga.pddl4j.problem.Problem problem) {
     List<Pddl4jFluent> wrapped = new ArrayList<>();
+    int index = 0;
     for (fr.uga.pddl4j.problem.Fluent fluent : problem.getFluents()) {
-      wrapped.add(new Pddl4jFluent(renderFluent(fluent, problem)));
+      wrapped.add(new Pddl4jFluent(renderFluent(fluent, problem), index));
+      index++;
     }
     return wrapped;
   }

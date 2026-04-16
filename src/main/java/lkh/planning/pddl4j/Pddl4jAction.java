@@ -13,16 +13,18 @@ import lkh.por.AnalyzableAction;
 
 final class Pddl4jAction implements AnalyzableAction {
   private final fr.uga.pddl4j.problem.operator.Action delegate;
-  private final Pddl4jProblem problem;
   private final String name;
+  private final Condition precondition;
+  private final Effect effects;
   private Collection<Fluent> dependentFluents;
   private Collection<Fluent> affectedFluents;
   private Collection<Fluent> transitionFluents;
 
   Pddl4jAction(fr.uga.pddl4j.problem.operator.Action delegate, Pddl4jProblem problem) {
     this.delegate = delegate;
-    this.problem = problem;
     this.name = buildName(delegate, problem.unwrap());
+    this.precondition = new Pddl4jCondition(delegate.getPrecondition(), problem);
+    this.effects = new Pddl4jEffect(delegate.getUnconditionalEffect(), problem);
   }
 
   private static String buildName(fr.uga.pddl4j.problem.operator.Action action, fr.uga.pddl4j.problem.Problem problem) {
@@ -47,12 +49,12 @@ final class Pddl4jAction implements AnalyzableAction {
 
   @Override
   public Condition getPrecondition() {
-    return new Pddl4jCondition(delegate.getPrecondition(), problem);
+    return precondition;
   }
 
   @Override
   public Effect getEffects() {
-    return new Pddl4jEffect(delegate.getUnconditionalEffect(), problem);
+    return effects;
   }
 
   @Override
