@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -76,6 +78,24 @@ public class Expression {
   public static Expression of(String expression) throws ParseException {
     Parser parser = new Parser(new StringReader(expression));
     return parser.Expression();
+  }
+
+  public Set<String> propositionNames() {
+    LinkedHashSet<String> propositions = new LinkedHashSet<>();
+    collectPropositionNames(propositions);
+    return Set.copyOf(propositions);
+  }
+
+  private void collectPropositionNames(Set<String> propositions) {
+    if (tokenType == ExpressionType.PROP && name != null) {
+      propositions.add(name);
+    }
+    if (left != null) {
+      left.collectPropositionNames(propositions);
+    }
+    if (right != null) {
+      right.collectPropositionNames(propositions);
+    }
   }
 
 }
