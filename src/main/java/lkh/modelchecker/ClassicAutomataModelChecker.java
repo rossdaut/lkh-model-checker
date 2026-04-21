@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
-public class ClassicAutomataModelChecker<State, Action> extends AbstractAutomataModelChecker<State, Action> {
+public class ClassicAutomataModelChecker<State, Action> extends AutomataModelChecker<State, Action> {
   @Getter private boolean minimize;
 
   public ClassicAutomataModelChecker(@NonNull LTS<State, Action> lts, @NonNull State pointedState, boolean minimize) {

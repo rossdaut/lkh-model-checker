@@ -14,9 +14,9 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class KhAutomataModelCheckerTest {
-  protected AbstractAutomataModelChecker<Integer, Character> modelChecker;
+  protected AutomataModelChecker<Integer, Character> modelChecker;
 
-  protected abstract AbstractAutomataModelChecker<Integer, Character> createModelChecker(LTS<Integer, Character> lts);
+  protected abstract AutomataModelChecker<Integer, Character> createModelChecker(LTS<Integer, Character> lts);
 
   @BeforeEach
   void setUp() {

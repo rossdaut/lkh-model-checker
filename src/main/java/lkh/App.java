@@ -20,7 +20,7 @@ import lkh.lts.LTS;
 import lkh.lts.builder.ActionSelectionStrategy;
 import lkh.lts.builder.DefaultActionSelectionStrategy;
 import lkh.lts.builder.PDDL;
-import lkh.modelchecker.AutomataModelChecker;
+import lkh.modelchecker.DirectAutomataModelChecker;
 import lkh.modelchecker.ClassicAutomataModelChecker;
 import lkh.modelchecker.ModelChecker;
 import lkh.por.StratifiedActionSelectionStrategy;
@@ -423,7 +423,7 @@ public class App {
   }
 
   private void useDirectChecker() {
-    modelChecker = hasLts() ? new AutomataModelChecker<>(lts, pointedState) : null;
+    modelChecker = hasLts() ? new DirectAutomataModelChecker<>(lts, pointedState) : null;
   }
 
   private void useClassicChecker() {

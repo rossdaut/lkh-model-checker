@@ -13,7 +13,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AutomataModelCheckerTest {
-  private static AutomataModelChecker<String, String> modelChecker;
+  private static DirectAutomataModelChecker<String, String> modelChecker;
 
   @BeforeEach
   void setUp() {
@@ -22,7 +22,7 @@ class AutomataModelCheckerTest {
     lts.addState("A", Set.of("p", "q"));
     lts.addState("B", Set.of("r"));
 
-    modelChecker = new AutomataModelChecker<>(lts, "A");
+    modelChecker = new DirectAutomataModelChecker<>(lts, "A");
   }
 
   @ParameterizedTest

@@ -3,7 +3,7 @@ package lkh.cli;
 import lkh.expression.Expression;
 import lkh.lts.LTS;
 import lkh.lts.builder.PDDL;
-import lkh.modelchecker.AutomataModelChecker;
+import lkh.modelchecker.DirectAutomataModelChecker;
 import logger.GraphLogger;
 import logger.LoggerContext;
 
@@ -52,7 +52,7 @@ public class PddlChecker {
 
       System.out.println("[3/4] Building KH automaton and checking expression...");
       // Prepare model checker
-      AutomataModelChecker<Integer, String> mc = new AutomataModelChecker<>(lts, pddl.getInitialState());
+      DirectAutomataModelChecker<Integer, String> mc = new DirectAutomataModelChecker<>(lts, pddl.getInitialState());
 
       // Build and check KH expression while logging KH automaton generation
       Expression initial = pddl.getInitialExpression();

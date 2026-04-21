@@ -2,7 +2,7 @@ package lkh.modelchecker.classic;
 
 import lkh.expression.Expression;
 import lkh.expression.parser.ParseException;
-import lkh.modelchecker.AbstractAutomataModelChecker;
+import lkh.modelchecker.AutomataModelChecker;
 import lkh.modelchecker.ClassicAutomataModelChecker;
 import lkh.modelchecker.KhAutomataModelCheckerTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ClassicKhModelCheckerCacheTest {
+class ClassicModelCheckerCacheTest {
   private ClassicAutomataModelChecker<Integer, Character> modelChecker;
 
   @BeforeEach
@@ -43,7 +43,7 @@ class ClassicKhModelCheckerCacheTest {
 
   @SuppressWarnings("unchecked")
   private Map<Expression, ?> khAutomatonCache() throws ReflectiveOperationException {
-    Field field = AbstractAutomataModelChecker.class.getDeclaredField("khAutomatonCache");
+    Field field = AutomataModelChecker.class.getDeclaredField("khAutomatonCache");
     field.setAccessible(true);
     return (Map<Expression, ?>) field.get(modelChecker);
   }

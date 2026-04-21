@@ -3,7 +3,7 @@ package lkh.modelchecker.comparison;
 import lkh.expression.Expression;
 import lkh.expression.parser.ParseException;
 import lkh.lts.LTS;
-import lkh.modelchecker.AutomataModelChecker;
+import lkh.modelchecker.DirectAutomataModelChecker;
 import lkh.modelchecker.ClassicAutomataModelChecker;
 import lkh.modelchecker.KhAutomataModelCheckerTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,13 +16,13 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class KhModelCheckerEquivalenceTest {
-  private AutomataModelChecker<Integer, Character> directModelChecker;
+  private DirectAutomataModelChecker<Integer, Character> directModelChecker;
   private ClassicAutomataModelChecker<Integer, Character> classicModelChecker;
 
   @BeforeEach
   void setUp() {
     LTS<Integer, Character> lts = KhAutomataModelCheckerTest.buildLts();
-    directModelChecker = new AutomataModelChecker<>(lts, 0);
+    directModelChecker = new DirectAutomataModelChecker<>(lts, 0);
     classicModelChecker = new ClassicAutomataModelChecker<>(lts, 0);
   }
 
