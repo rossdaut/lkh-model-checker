@@ -156,7 +156,7 @@ public class ParserTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"p(x)", "'p(y, z)'"})
+  @CsvSource({"p(x)", "'p(y, z)'", "'pointing(satellite-0, phenomenon-6)'", "'stacked-in(sheet-1, finisher-1-tray)'"})
   public void fluentTest(String expression) throws ParseException {
     Expression expected, actual;
     parser.ReInit(new StringReader(expression));
