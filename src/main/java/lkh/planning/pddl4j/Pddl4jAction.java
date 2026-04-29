@@ -13,29 +13,30 @@ import lkh.por.AnalyzableAction;
 
 final class Pddl4jAction implements AnalyzableAction {
   private final fr.uga.pddl4j.problem.operator.Action delegate;
+  private final Pddl4jFluentRegistry fluents;
   private final String name;
-  private final Condition precondition;
-  private final Effect effects;
   private Collection<Fluent> dependentFluents;
   private Collection<Fluent> affectedFluents;
   private Collection<Fluent> transitionFluents;
 
-  Pddl4jAction(fr.uga.pddl4j.problem.operator.Action delegate, Pddl4jProblem problem) {
+  Pddl4jAction(
+      fr.uga.pddl4j.problem.operator.Action delegate,
+      fr.uga.pddl4j.problem.Problem problem,
+      Pddl4jFluentRegistry fluents) {
     this.delegate = delegate;
-    this.name = buildName(delegate, problem.unwrap());
-    this.precondition = new Pddl4jCondition(delegate.getPrecondition(), problem);
-    this.effects = new Pddl4jEffect(delegate.getUnconditionalEffect(), problem);
+    this.fluents = fluents;
+    this.name = buildName(delegate, problem);
   }
 
   private static String buildName(fr.uga.pddl4j.problem.operator.Action action, fr.uga.pddl4j.problem.Problem problem) {
-    List<String> args = new ArrayList<>();
+    List<String> arguments = new ArrayList<>();
     for (int id : action.getInstantiations()) {
-      args.add(problem.getConstantSymbols().get(id));
+      arguments.add(problem.getConstantSymbols().get(id));
     }
-    if (args.isEmpty()) {
+    if (arguments.isEmpty()) {
       return action.getName();
     }
-    return action.getName() + "(" + String.join(", ", args) + ")";
+    return action.getName() + "(" + String.join(", ", arguments) + ")";
   }
 
   fr.uga.pddl4j.problem.operator.Action unwrap() {
@@ -49,12 +50,16 @@ final class Pddl4jAction implements AnalyzableAction {
 
   @Override
   public Condition getPrecondition() {
-    return precondition;
+    return new Pddl4jLiteralSet(
+        fluents.wrap(delegate.getPrecondition().getPositiveFluents()),
+        fluents.wrap(delegate.getPrecondition().getNegativeFluents()));
   }
 
   @Override
   public Effect getEffects() {
-    return effects;
+    return new Pddl4jLiteralSet(
+        fluents.wrap(delegate.getUnconditionalEffect().getPositiveFluents()),
+        fluents.wrap(delegate.getUnconditionalEffect().getNegativeFluents()));
   }
 
   @Override

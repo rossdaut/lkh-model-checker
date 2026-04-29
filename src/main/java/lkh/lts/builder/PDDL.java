@@ -39,7 +39,12 @@ public class PDDL implements LTSBuilder {
   }
 
   public Expression getInitialExpression() {
-    Expression[] props = lts.getLabels(getInitialState()).stream().map(Expression::prop).toArray(Expression[]::new);
+    State initial = problem.getInitialState();
+    Expression[] props = problem.getFluents().stream()
+        .map(fluent -> initial.holds(lkh.planning.Literal.positive(fluent))
+            ? Expression.prop(fluent.toString())
+            : Expression.not(Expression.prop(fluent.toString())))
+        .toArray(Expression[]::new);
     return Expression.and(props);
   }
 

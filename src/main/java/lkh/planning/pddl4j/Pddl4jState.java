@@ -9,12 +9,12 @@ import lkh.planning.State;
 
 final class Pddl4jState implements State {
   private final fr.uga.pddl4j.problem.State delegate;
-  private final Pddl4jProblem problem;
-  private Collection<Fluent> fluents;
+  private final Pddl4jFluentRegistry fluentRegistry;
+  private Collection<Fluent> cachedFluents;
 
-  Pddl4jState(fr.uga.pddl4j.problem.State delegate, Pddl4jProblem problem) {
+  Pddl4jState(fr.uga.pddl4j.problem.State delegate, Pddl4jFluentRegistry fluentRegistry) {
     this.delegate = delegate;
-    this.problem = problem;
+    this.fluentRegistry = fluentRegistry;
   }
 
   fr.uga.pddl4j.problem.State unwrap() {
@@ -23,24 +23,24 @@ final class Pddl4jState implements State {
 
   @Override
   public Collection<Fluent> getFluents() {
-    if (fluents == null) {
-      fluents = problem.wrapFluents(delegate);
+    if (cachedFluents == null) {
+      cachedFluents = fluentRegistry.wrap(delegate);
     }
-    return fluents;
+    return cachedFluents;
   }
 
   @Override
   public boolean holds(Literal literal) {
     if (literal.fluent() instanceof Pddl4jFluent fluent) {
       boolean present = delegate.get(fluent.index());
-      return literal.positive() ? present : !present;
+      return literal.positive() == present;
     }
     return State.super.holds(literal);
   }
 
   @Override
   public State copy() {
-    return new Pddl4jState(new fr.uga.pddl4j.problem.State(delegate), problem);
+    return new Pddl4jState(new fr.uga.pddl4j.problem.State(delegate), fluentRegistry);
   }
 
   @Override
@@ -49,7 +49,7 @@ final class Pddl4jState implements State {
       throw new IllegalArgumentException("Action must be a Pddl4jAction");
     }
     delegate.apply(pddl4jAction.unwrap().getUnconditionalEffect());
-    fluents = null;
+    cachedFluents = null;
   }
 
   @Override
