@@ -11,6 +11,7 @@ public class GraphLogger implements Logger {
   private static final long PROGRESS_INTERVAL_MS = 1000;
 
   private final String name;
+  private final boolean printEnabled;
   private int totalNodes;
   private int totalEdges;
 
@@ -23,7 +24,12 @@ public class GraphLogger implements Logger {
   private static final int CLOCK_CHECK_MASK = 0xFF; // check clock every 256 events
 
   public GraphLogger(String name) {
+    this(name, true);
+  }
+
+  public GraphLogger(String name, boolean printEnabled) {
     this.name = name;
+    this.printEnabled = printEnabled;
   }
 
   @Override
@@ -36,6 +42,7 @@ public class GraphLogger implements Logger {
   }
 
   private void maybePrintLiveProgress() {
+    if (!printEnabled) return;
     if ((++eventCount & CLOCK_CHECK_MASK) != 0) return;
     long now = System.currentTimeMillis();
     if (now - lastPrintTime >= PROGRESS_INTERVAL_MS) {
@@ -84,6 +91,14 @@ public class GraphLogger implements Logger {
 
   public int getEdgesCant() {
       return edges;
+  }
+
+  public int getGeneratedNodesCant() {
+      return totalNodes;
+  }
+
+  public int getGeneratedEdgesCant() {
+      return totalEdges;
   }
 
   public void setSize(Pair<Integer, Integer> size) {
