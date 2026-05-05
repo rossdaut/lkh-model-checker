@@ -7,7 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lkh.lts.builder.ActionSelectionStrategy;
+import lkh.lts.builder.pddl.ActionSelectionStrategy;
 import lkh.planning.Action;
 import lkh.planning.Problem;
 import lkh.planning.State;

@@ -1,4 +1,4 @@
-package lkh.lts.builder;
+package lkh.lts.builder.pddl;
 
 import java.util.Collection;
 import lkh.planning.Action;

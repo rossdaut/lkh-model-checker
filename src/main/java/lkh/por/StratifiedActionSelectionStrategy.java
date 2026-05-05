@@ -9,7 +9,7 @@ import lkh.graph.DirectedGraph;
 import lkh.graph.DirectedGraphOperations;
 import lkh.graph.HashMapDirectedGraph;
 import lkh.graph.edge.DefaultEdge;
-import lkh.lts.builder.ActionSelectionStrategy;
+import lkh.lts.builder.pddl.ActionSelectionStrategy;
 import lkh.planning.Action;
 import lkh.planning.Fluent;
 import lkh.planning.Problem;

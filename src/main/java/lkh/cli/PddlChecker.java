@@ -2,7 +2,7 @@ package lkh.cli;
 
 import lkh.expression.Expression;
 import lkh.lts.LTS;
-import lkh.lts.builder.PDDL;
+import lkh.lts.builder.pddl.PDDL;
 import lkh.modelchecker.DirectAutomataModelChecker;
 import logger.GraphLogger;
 import logger.LoggerContext;

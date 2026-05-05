@@ -1,8 +1,9 @@
-package lkh.lts.builder;
+package lkh.lts.builder.pddl;
 
 import lkh.lts.HashMapLTS;
 import lkh.lts.LTS;
 import lkh.expression.Expression;
+import lkh.lts.builder.LTSBuilder;
 import lkh.planning.Action;
 import lkh.planning.Condition;
 import lkh.planning.Problem;

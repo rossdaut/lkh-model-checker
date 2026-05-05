@@ -2,8 +2,8 @@ package lkh.pddl;
 
 import java.util.List;
 import lkh.lts.LTS;
-import lkh.lts.builder.ActionSelectionStrategy;
-import lkh.lts.builder.PDDL;
+import lkh.lts.builder.pddl.ActionSelectionStrategy;
+import lkh.lts.builder.pddl.PDDL;
 import lkh.planning.pddl4j.Pddl4jProblem;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
