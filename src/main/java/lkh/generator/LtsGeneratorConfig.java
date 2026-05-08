@@ -2,6 +2,8 @@ package lkh.generator;
 
 import lkh.expression.Expression;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public record LtsGeneratorConfig(
@@ -50,6 +52,22 @@ public record LtsGeneratorConfig(
     validateExpressionVocabulary(initialCondition, propositionCount);
     validateExpressionVocabulary(goalCondition, propositionCount);
     validateWitnessCapacity(actionCount, minWitnessActionCount, witnessCount);
+  }
+
+  public List<String> actions() {
+    List<String> result = new ArrayList<>(actionCount);
+    for (int i = 0; i < actionCount; i++) {
+      result.add("a" + i);
+    }
+    return List.copyOf(result);
+  }
+
+  public List<String> propositions() {
+    List<String> result = new ArrayList<>(propositionCount);
+    for (int i = 0; i < propositionCount; i++) {
+      result.add("p" + i);
+    }
+    return List.copyOf(result);
   }
 
   private static void validateExpressionVocabulary(Expression expression, int propositionCount) {

@@ -18,10 +18,9 @@ public final class GeneratorCli {
   }
 
   public static GeneratedLts run(Path configPath) throws IOException, ParseException {
-    GeneratorConfigReader fileConfig = new GeneratorConfigReader();
-    fileConfig.load(configPath);
+    GeneratorFileConfig fileConfig = GeneratorFileConfig.from(configPath);
     GeneratedLts generated = new RandomLtsGenerator(fileConfig.generatorConfig()).generate();
-    GeneratedLtsWriter.write(generated, fileConfig.dotOutputPath(), fileConfig.witnessOutputPath());
+    generated.writeTo(fileConfig.dotOutputPath(), fileConfig.witnessOutputPath());
 
     System.out.println("LTS written to: " + fileConfig.dotOutputPath().toAbsolutePath());
     System.out.println("Witnesses written to: " + fileConfig.witnessOutputPath().toAbsolutePath());

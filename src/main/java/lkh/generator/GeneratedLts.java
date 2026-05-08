@@ -1,7 +1,12 @@
 package lkh.generator;
 
+import lkh.dot.DotWriter;
 import lkh.lts.HashMapLTS;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +33,26 @@ public record GeneratedLts(
     }
     if (goalStates == null) {
       throw new IllegalArgumentException("goalStates must not be null");
+    }
+  }
+
+  public void writeTo(Path dotOutputPath, Path witnessOutputPath) throws IOException {
+    createParentDirectories(dotOutputPath);
+    createParentDirectories(witnessOutputPath);
+    DotWriter.writeLTS(lts, dotOutputPath.toString());
+    Files.write(witnessOutputPath, witnessLines(), StandardCharsets.UTF_8);
+  }
+
+  private List<String> witnessLines() {
+    return implantedWitnesses.stream()
+        .map(witness -> String.join(" ", witness))
+        .toList();
+  }
+
+  private static void createParentDirectories(Path path) throws IOException {
+    Path parent = path.toAbsolutePath().getParent();
+    if (parent != null) {
+      Files.createDirectories(parent);
     }
   }
 
