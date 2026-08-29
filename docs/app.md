@@ -31,16 +31,16 @@ LTS size, and the POR strategy when applicable).
 
 From the main menu:
 
-- **Cargar LTS desde PDDL** — build the LTS from a planning problem.
+- **Load LTS from PDDL** — build the LTS from a planning problem.
   - *Manual*: you are prompted for the domain and problem file paths.
-  - *Ejemplos PDDL incluidos*: pick one of the bundled examples (Tire, Logistics).
+  - *Included PDDL examples*: pick one of the bundled examples (Tire, Logistics).
   - After choosing the source you select a **Partial Order Reduction** strategy
-    (`Ninguno`, `Stratified`, or `Strong Stubborn Sets`). The LTS is then built and its
+    (`None`, `Stratified`, or `Strong Stubborn Sets`). The LTS is then built and its
     size reported.
 
-- **Cargar LTS desde DOT** — load a model that already exists as a graph.
-  - *Archivo .dot*: read an LTS from a `.dot` file.
-  - *Generar desde configuracion*: generate a random LTS from a configuration file
+- **Load LTS from DOT** — load a model that already exists as a graph.
+  - *.dot file*: read an LTS from a `.dot` file.
+  - *Generate from configuration*: generate a random LTS from a configuration file
     (the same generator used by `RandomBenchmarkCli`), useful for experimenting with
     initial-state uncertainty.
 
@@ -50,28 +50,28 @@ Once a model is loaded the application switches to the **session menu**.
 
 The session menu offers:
 
-- **Chequear goal del problema** (PDDL only) — checks `Kh(initial, goal)` for the
+- **Check problem goal** (PDDL only) — checks `Kh(initial, goal)` for the
   problem's own initial condition and goal, i.e. whether the planning goal is reachable
   in the `Knowing-How` sense. If it holds, you can page through witness plans.
 
-- **Chequear expresion** — type any `L_Kh` expression (for example
+- **Check expression** — type any `L_Kh` expression (for example
   `kh(p0 & p1, p2)`); the application parses it, evaluates it against the model, and
   reports whether it holds. For a top-level `Kh` expression that holds, you can inspect
   witness plans interactively.
 
-- **Cambiar checker** — switch the model-checking algorithm:
+- **Change checker** — switch the model-checking algorithm:
   - *Direct* — the direct `A^kh` construction (this project's algorithm).
   - *Classic (Fervari)* — the classic construction, with or without minimization.
 
-- **Exportar LTS a .dot** — write the current LTS to a `.dot` file for visualization or
+- **Export LTS to .dot** — write the current LTS to a `.dot` file for visualization or
   reuse.
 
-- **Simular** — step through the LTS by hand: from the current state, pick one of the
+- **Simulate** — step through the LTS by hand: from the current state, pick one of the
   available actions and move to a successor. Non-deterministic actions prompt you to
   choose the target state. Goal states are flagged. This is helpful for understanding the
   structure of a model or debugging an unexpected checking result.
 
-- **Limpiar LTS y volver al menu principal** — drop the loaded model and start over.
+- **Clear LTS and return to main menu** — drop the loaded model and start over.
 
 ## Relationship to the benchmarks
 

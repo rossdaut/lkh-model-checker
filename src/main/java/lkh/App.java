@@ -74,52 +74,52 @@ public class App {
 
   private void initializeMenus() {
     homeMenu = new Menu(
-        "Menu principal",
-        "Opcion: ",
-        new MenuOption("Salir", this::exitApp),
-        new MenuOption("Cargar LTS desde PDDL", () -> openMenu(pddlSourcesMenu)),
-        new MenuOption("Cargar LTS desde DOT", () -> openMenu(dotSourcesMenu)));
+        "Main menu",
+        "Option: ",
+        new MenuOption("Exit", this::exitApp),
+        new MenuOption("Load LTS from PDDL", () -> openMenu(pddlSourcesMenu)),
+        new MenuOption("Load LTS from DOT", () -> openMenu(dotSourcesMenu)));
 
     pddlSourcesMenu = new Menu(
-        "Cargar PDDL",
-        "Fuente PDDL: ",
-        new MenuOption("Volver", this::goBack),
-        new MenuOption("Manual (archivos domain/problem)", this::selectManualPddlFiles),
-        new MenuOption("Ejemplos PDDL incluidos", () -> openMenu(pddlExamplesMenu)));
+        "Load PDDL",
+        "PDDL source: ",
+        new MenuOption("Back", this::goBack),
+        new MenuOption("Manual (domain/problem files)", this::selectManualPddlFiles),
+        new MenuOption("Included PDDL examples", () -> openMenu(pddlExamplesMenu)));
 
     pddlExamplesMenu = new Menu(
-        "Ejemplos PDDL",
-        "Ejemplo: ",
-        new MenuOption("Volver", this::goBack),
+        "PDDL examples",
+        "Example: ",
+        new MenuOption("Back", this::goBack),
         new MenuOption("Tire", () -> selectPddlFiles(PDDL_EXAMPLES_DIR + "ia-modern-aproach/tire/domain.pddl", PDDL_EXAMPLES_DIR + "ia-modern-aproach/tire/problem.pddl")),
         new MenuOption("Logistics", () -> selectPddlFiles(PDDL_EXAMPLES_DIR + "ia-modern-aproach/logistics/domain.pddl", PDDL_EXAMPLES_DIR + "ia-modern-aproach/logistics/problem.pddl")));
 
     dotSourcesMenu = new Menu(
-        "Cargar DOT",
-        "Fuente DOT: ",
-        new MenuOption("Volver", this::goBack),
-        new MenuOption("Archivo .dot", this::loadDot),
-        new MenuOption("Generar desde configuracion", this::loadGeneratedDot));
+        "Load DOT",
+        "DOT source: ",
+        new MenuOption("Back", this::goBack),
+        new MenuOption(".dot file", this::loadDot),
+        new MenuOption("Generate from configuration", this::loadGeneratedDot));
 
     porMenu = new Menu(
-        "Seleccionar POR",
+        "Select POR",
         "POR: ",
-        new MenuOption("Volver", this::goBack),
+        new MenuOption("Back", this::goBack),
         new MenuOption(PorMode.NONE.label(), () -> loadPddlLts(PorMode.NONE)),
         new MenuOption(PorMode.STRATIFIED.label(), () -> loadPddlLts(PorMode.STRATIFIED)),
         new MenuOption(PorMode.STRONG_STUBBORN_SETS.label(), () -> loadPddlLts(PorMode.STRONG_STUBBORN_SETS)));
 
     checkerMenu = new Menu(
-        "Cambiar checker",
+        "Change checker",
         "Checker: ",
-        new MenuOption("Volver", this::goBack),
+        new MenuOption("Back", this::goBack),
         new MenuOption( ModelCheckerMode.DIRECT.label(), () -> updateChecker(ModelCheckerMode.DIRECT)),
         new MenuOption("Classic (Fervari)", () -> openMenu(classicMenu)));
 
     classicMenu = new Menu(
         "Classic (Fervari)",
-        "Modo: ",
-        new MenuOption("Volver", this::goBack),
+        "Mode: ",
+        new MenuOption("Back", this::goBack),
         new MenuOption(ModelCheckerMode.CLASSIC.label(), () -> updateChecker(ModelCheckerMode.CLASSIC)),
         new MenuOption(ModelCheckerMode.CLASSIC_MINIMIZED.label(), () -> updateChecker(ModelCheckerMode.CLASSIC_MINIMIZED)));
 
@@ -129,16 +129,16 @@ public class App {
 
   private Menu sessionMenu(boolean includeGoalCheck) {
     List<MenuOption> options = new ArrayList<>();
-    options.add(new MenuOption("Salir", this::exitApp));
+    options.add(new MenuOption("Exit", this::exitApp));
     if (includeGoalCheck) {
-      options.add(new MenuOption("Chequear goal del problema", this::checkGoal));
+      options.add(new MenuOption("Check problem goal", this::checkGoal));
     }
-    options.add(new MenuOption("Chequear expresion", this::checkExpression));
-    options.add(new MenuOption("Cambiar checker", () -> openMenu(checkerMenu)));
-    options.add(new MenuOption("Exportar LTS a .dot", this::exportLts));
-    options.add(new MenuOption("Simular", this::simulateCurrent));
-    options.add(new MenuOption("Limpiar LTS y volver al menu principal", this::clearLoadedData));
-    return new Menu("Menu principal", "Opcion: ", options.toArray(MenuOption[]::new));
+    options.add(new MenuOption("Check expression", this::checkExpression));
+    options.add(new MenuOption("Change checker", () -> openMenu(checkerMenu)));
+    options.add(new MenuOption("Export LTS to .dot", this::exportLts));
+    options.add(new MenuOption("Simulate", this::simulateCurrent));
+    options.add(new MenuOption("Clear LTS and return to main menu", this::clearLoadedData));
+    return new Menu("Main menu", "Option: ", options.toArray(MenuOption[]::new));
   }
 
   private void handleMenu(Menu menu) throws Exception {
@@ -175,10 +175,10 @@ public class App {
   }
 
   private void selectManualPddlFiles() {
-    showPage("Cargar PDDL", "Carga manual de archivos");
+    showPage("Load PDDL", "Load files manually");
     selectPddlFiles(
-        ui.readExistingFilename("Archivo de dominio: "),
-        ui.readExistingFilename("Archivo de problema: "));
+        ui.readExistingFilename("Domain file: "),
+        ui.readExistingFilename("Problem file: "));
   }
 
   private void selectPddlFiles(String domain, String problem) {
@@ -188,11 +188,11 @@ public class App {
 
   private void loadPddlLts(PorMode porMode) throws FileNotFoundException {
     if (pendingPddlFiles == null) {
-      throw new IllegalStateException("No hay archivos PDDL seleccionados.");
+      throw new IllegalStateException("No PDDL files selected.");
     }
 
     try {
-      showPage("Cargando PDDL...");
+      showPage("Loading PDDL...");
       ActionSelectionStrategy strategy = porMode.create();
       PDDL parser = new PDDL(pendingPddlFiles[0], pendingPddlFiles[1], strategy);
       GraphLogger logger = new GraphLogger("LTS");
@@ -223,10 +223,10 @@ public class App {
 
   private void loadDot() throws FileNotFoundException {
     try {
-      showPage("Cargar DOT");
-      String filename = ui.readExistingFilename("Archivo .dot del LTS: ");
+      showPage("Load DOT");
+      String filename = ui.readExistingFilename("LTS .dot file: ");
 
-      showPage("Cargando LTS desde DOT...");
+      showPage("Loading LTS from DOT...");
       GraphLogger logger = new GraphLogger("LTS");
       LTS<String, String> loadedLts;
       try (var scope = LoggerContext.withLogger(logger)) {
@@ -245,7 +245,7 @@ public class App {
           filename,
           null);
       setRootMenu(dotSessionMenu);
-      System.out.println("Estado apuntado por defecto: " + session.pointedState());
+      System.out.println("Default pointed state: " + session.pointedState());
     } catch (Throwable t) {
       clearLoadedData();
       throw t;
@@ -254,8 +254,8 @@ public class App {
 
   private void loadGeneratedDot() throws IOException, ParseException {
     try {
-      showPage("Generar DOT");
-      String configFilename = ui.readExistingFilename("Archivo de configuracion: ");
+      showPage("Generate DOT");
+      String configFilename = ui.readExistingFilename("Configuration file: ");
       GeneratedLts generated = GeneratorCli.run(Path.of(configFilename));
       session.activate(
           generated.lts(),
@@ -274,29 +274,29 @@ public class App {
 
   private void updateChecker(ModelCheckerMode mode) {
     session.selectChecker(mode);
-    showPage("Checker actualizado a: " + mode.label());
+    showPage("Checker changed to: " + mode.label());
     ui.pause();
     setRootMenu(currentSessionMenu());
   }
 
   private void exportLts() {
-    showPage("Exportar LTS a .dot");
-    String filename = ui.readFilename("Archivo de salida .dot: ");
+    showPage("Export LTS to .dot");
+    String filename = ui.readFilename("Output .dot file: ");
     DotWriter.writeLTS(session.lts(), filename);
-    showPage("LTS exportado a: " + filename);
+    showPage("LTS exported to: " + filename);
   }
 
   private void checkExpression() throws ParseException {
-    showPage("Chequear expresion");
-    String expressionText = ui.readInput("Expresion: ");
+    showPage("Check expression");
+    String expressionText = ui.readInput("Expression: ");
     Expression expression = Expression.of(expressionText);
 
-    showPage("Chequeando expresion: " + expressionText);
+    showPage("Checking expression: " + expressionText);
     boolean result = check(expression);
     if (!containsKh(expression)) {
-      System.out.println("Chequeo sobre el estado apuntado " + session.pointedState() + ".");
+      System.out.println("Checked at pointed state " + session.pointedState() + ".");
     }
-    System.out.println(result ? "La expresion vale :)" : "La expresion no vale :(");
+    System.out.println(result ? "The expression holds :)" : "The expression does not hold :(");
 
     if (result && expression.getTokenType() == ExpressionType.KH) {
       showWitnesses(expression.getLeft(), expression.getRight());
@@ -305,7 +305,7 @@ public class App {
   }
 
   private void checkGoal() {
-    showPage("Chequeando goal del problema...");
+    showPage("Checking problem goal...");
     System.out.println("Goal: " + session.pddlParser().getGoalExpression());
 
     Expression initial = session.pddlParser().getInitialExpression();
@@ -313,7 +313,7 @@ public class App {
     boolean result = check(Expression.kh(initial, goal));
 
     System.out.println();
-    System.out.println(result ? "El goal es alcanzable via KH." : "El goal no es alcanzable via KH.");
+    System.out.println(result ? "The goal is reachable via KH." : "The goal is not reachable via KH.");
     if (result) {
       showWitnesses(initial, goal);
     }
@@ -333,7 +333,7 @@ public class App {
 
   private void showWitnesses(Expression init, Expression end) {
     System.out.println();
-    if (startsWithIgnoreCase(ui.readInput("Mostrar witnesses? (Y/n): "), "n")) {
+    if (startsWithIgnoreCase(ui.readInput("Show witnesses? (Y/n): "), "n")) {
       return;
     }
 
@@ -341,7 +341,7 @@ public class App {
     while (witnesses.hasNext()) {
       System.out.println(witnesses.next());
       System.out.println();
-      if (startsWithIgnoreCase(ui.readInput("Siguiente? (y/n): "), "n")) {
+      if (startsWithIgnoreCase(ui.readInput("Next? (y/n): "), "n")) {
         return;
       }
     }
@@ -356,7 +356,7 @@ public class App {
       session.setPointedState(selectedInitialState);
       session.selectChecker(ModelCheckerMode.DIRECT);
     }
-    simulate("Simulacion", session.pointedState(), session.lts(), session.goalPredicate());
+    simulate("Simulation", session.pointedState(), session.lts(), session.goalPredicate());
   }
 
   private <S> void simulate(String title, S currentState, LTS<S, String> currentLts, Predicate<S> isGoal) {
@@ -364,23 +364,23 @@ public class App {
 
     while (true) {
       String prefix = isGoal.test(currentState) ? "[GOAL] - " : "";
-      System.out.println("Estado actual: " + prefix + currentLts.toString(currentState));
+      System.out.println("Current state: " + prefix + currentLts.toString(currentState));
 
       List<String> actions = sorted(currentLts.getActions(currentState));
       if (actions.isEmpty()) {
-        System.out.println("No hay acciones disponibles. Fin de la simulacion.");
+        System.out.println("No actions available. Simulation finished.");
         break;
       }
 
       printActions(actions);
-      String input = ui.readInput("Elegi una accion: ");
+      String input = ui.readInput("Choose an action: ");
       if (startsWithIgnoreCase(input, "x")) {
         break;
       }
 
       Integer action = parseMenuIndex(input, actions.size());
       if (action == null) {
-        System.out.println("Opcion invalida.");
+        System.out.println("Invalid option.");
         continue;
       }
 
@@ -401,7 +401,7 @@ public class App {
 
   private String defaultPointedState(LTS<String, String> currentLts) {
     if (currentLts.getStates().isEmpty()) {
-      throw new IllegalArgumentException("El LTS cargado no tiene estados.");
+      throw new IllegalArgumentException("The loaded LTS has no states.");
     }
     return currentLts.containsState("0") ? "0" : sorted(currentLts.getStates()).get(0);
   }
@@ -414,27 +414,27 @@ public class App {
   }
 
   private void printActions(List<String> actions) {
-    System.out.println("Acciones disponibles:");
+    System.out.println("Available actions:");
     for (int i = 0; i < actions.size(); i++) {
       System.out.printf("\t%d. %s%n", i + 1, actions.get(i));
     }
-    System.out.println("\tX. Terminar simulacion");
+    System.out.println("\tX. End simulation");
   }
 
   private <S> Integer chooseTarget(String action, List<S> targets, LTS<S, String> currentLts) {
     if (targets.isEmpty()) {
-      System.out.println("La accion no tiene destinos.");
+      System.out.println("The action has no targets.");
       return null;
     }
     if (targets.size() == 1) {
       return 0;
     }
 
-    System.out.println("No determinismo detectado:");
+    System.out.println("Nondeterminism detected:");
     for (int i = 0; i < targets.size(); i++) {
       System.out.printf("\t%d. %s -> %s%n", i + 1, action, currentLts.toString(targets.get(i)));
     }
-    return parseMenuIndex(ui.readInput("Elegi el estado destino: "), targets.size());
+    return parseMenuIndex(ui.readInput("Choose the target state: "), targets.size());
   }
 
   private Integer parseMenuIndex(String input, int size) {
@@ -470,10 +470,10 @@ public class App {
       for (int i = 0; i < initialStates.size(); i++) {
         lines[i] = (i + 1) + ". " + generated.lts().toString(initialStates.get(i));
       }
-      lines[initialStates.size()] = "0. Volver al menu principal";
-      showPage("Seleccionar estado inicial", lines);
+      lines[initialStates.size()] = "0. Return to main menu";
+      showPage("Select initial state", lines);
 
-      String input = ui.readInput("Estado inicial: ");
+      String input = ui.readInput("Initial state: ");
       if ("0".equals(input)) {
         return null;
       }
@@ -486,19 +486,19 @@ public class App {
   }
 
   private enum ModelCheckerMode {
-    DIRECT("Direct (algoritmo propio)") {
+    DIRECT("Direct (custom algorithm)") {
       @Override
       ModelChecker<Object, String> create(LTS<Object, String> lts, Object pointedState) {
         return new DirectAutomataModelChecker<>(lts, pointedState);
       }
     },
-    CLASSIC("Classic (Fervari, sin minimizacion)") {
+    CLASSIC("Classic (Fervari, without minimization)") {
       @Override
       ModelChecker<Object, String> create(LTS<Object, String> lts, Object pointedState) {
         return new ClassicAutomataModelChecker<>(lts, pointedState, false);
       }
     },
-    CLASSIC_MINIMIZED("Classic (Fervari, con minimizacion)") {
+    CLASSIC_MINIMIZED("Classic (Fervari, with minimization)") {
       @Override
       ModelChecker<Object, String> create(LTS<Object, String> lts, Object pointedState) {
         return new ClassicAutomataModelChecker<>(lts, pointedState, true);
@@ -519,7 +519,7 @@ public class App {
   }
 
   private enum PorMode {
-    NONE("Ninguno") {
+    NONE("None") {
       @Override
       ActionSelectionStrategy create() {
         return new DefaultActionSelectionStrategy();
@@ -668,15 +668,15 @@ public class App {
 
     private List<String> summaryLines() {
       if (!hasLts()) {
-        return List.of("Sesion actual: sin LTS cargado");
+        return List.of("Current session: no LTS loaded");
       }
 
       Pair<Integer, Integer> size = lts.getSize();
       List<String> lines = new ArrayList<>();
-      lines.add("LTS cargado");
-      lines.add("Fuente: " + sourceSummary());
+      lines.add("LTS loaded");
+      lines.add("Source: " + sourceSummary());
       lines.add("Checker: " + checkerMode.label());
-      lines.add("Tamanio: " + size.key() + " estados y " + size.value() + " transiciones");
+      lines.add("Size: " + size.key() + " states and " + size.value() + " transitions");
       if (pddlWasLoaded()) {
         lines.add("POR: " + (porMode == null ? "-" : porMode.label()));
       }
@@ -742,7 +742,7 @@ public class App {
         if (new File(filename).exists()) {
           return filename;
         }
-        System.out.println("El archivo no existe: " + filename);
+        System.out.println("File not found: " + filename);
       }
     }
 
@@ -752,7 +752,7 @@ public class App {
 
     private void pause() {
       System.out.println();
-      readLine("Presiona Enter para continuar...");
+      readLine("Press Enter to continue...");
     }
 
     private void showErrorAndPause(Throwable t) {
