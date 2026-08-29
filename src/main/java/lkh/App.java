@@ -91,8 +91,8 @@ public class App {
         "Ejemplos PDDL",
         "Ejemplo: ",
         new MenuOption("Volver", this::goBack),
-        new MenuOption("Tire", () -> selectPddlFiles(PDDL_EXAMPLES_DIR + "tire-domain.pddl", PDDL_EXAMPLES_DIR + "tire-problem.pddl")),
-        new MenuOption("Logistics", () -> selectPddlFiles(PDDL_EXAMPLES_DIR + "logistics-domain.pddl", PDDL_EXAMPLES_DIR + "logistics-problem.pddl")));
+        new MenuOption("Tire", () -> selectPddlFiles(PDDL_EXAMPLES_DIR + "ia-modern-aproach/tire/domain.pddl", PDDL_EXAMPLES_DIR + "ia-modern-aproach/tire/problem.pddl")),
+        new MenuOption("Logistics", () -> selectPddlFiles(PDDL_EXAMPLES_DIR + "ia-modern-aproach/logistics/domain.pddl", PDDL_EXAMPLES_DIR + "ia-modern-aproach/logistics/problem.pddl")));
 
     dotSourcesMenu = new Menu(
         "Cargar DOT",

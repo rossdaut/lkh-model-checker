@@ -1,13 +1,14 @@
 package lkh.modelchecker;
 
-import lkh.automata.impl.AutomataOperations;
 import lkh.automata.impl.GraphDeterministicAutomaton;
 import lkh.expression.Expression;
 import lkh.lts.LTS;
 import lombok.NonNull;
 
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -21,11 +22,13 @@ public class DirectAutomataModelChecker<State, Action> extends AutomataModelChec
     Set<State> initialStates = statesHolding(initExpr);
     Set<State> goalStates = statesHolding(endExpr);
 
-    GraphDeterministicAutomaton<Set<State>, Action> automaton = new GraphDeterministicAutomaton<>();
+    GraphDeterministicAutomaton<Integer, Action> automaton = new GraphDeterministicAutomaton<>();
+    Map<Set<State>, Integer> indexMap = new HashMap<>();
     Queue<Set<State>> unvisited = new ArrayDeque<>();
     Set<Set<State>> visited = new HashSet<>();
 
-    automaton.setInitialState(initialStates);
+    indexMap.put(initialStates, 0);
+    automaton.setInitialState(0);
     unvisited.add(initialStates);
 
     while (!unvisited.isEmpty()) {
@@ -34,13 +37,18 @@ public class DirectAutomataModelChecker<State, Action> extends AutomataModelChec
         continue;
       }
 
+      int sourceIndex = indexMap.get(states);
+
       if (goalStates.containsAll(states)) {
-        automaton.addFinalState(states);
+        automaton.addFinalState(sourceIndex);
       }
 
       for (Action action : lts.getActions()) {
         lts.targets(states, action, true).ifPresent(target -> {
-          automaton.addTransition(states, target, action);
+          if (!indexMap.containsKey(target)) {
+            indexMap.put(target, indexMap.size());
+          }
+          automaton.addTransition(sourceIndex, indexMap.get(target), action);
           if (!visited.contains(target)) {
             unvisited.add(target);
           }
@@ -48,6 +56,6 @@ public class DirectAutomataModelChecker<State, Action> extends AutomataModelChec
       }
     }
 
-    return AutomataOperations.toIntegerStates(automaton);
+    return automaton;
   }
 }

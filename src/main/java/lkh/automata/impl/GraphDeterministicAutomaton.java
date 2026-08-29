@@ -101,11 +101,12 @@ public class GraphDeterministicAutomaton<State, Symbol>
   @Override
   public boolean isEmpty() {
     Set<State> visited = new HashSet<>();
-    Queue<State> unvisited = new LinkedList<>();
+    Set<State> unvisited = new LinkedHashSet<>();
     unvisited.add(initialState);
 
     while(!unvisited.isEmpty()) {
-      State currentState = unvisited.remove();
+      State currentState = unvisited.iterator().next();
+      unvisited.remove(currentState);
       visited.add(currentState);
 
       if(isFinal(currentState))

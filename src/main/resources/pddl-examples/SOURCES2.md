@@ -31,9 +31,6 @@ Para el detalle completo de origen y de las normalizaciones locales, ver
 - `ipc-2002 depots / instance-1`
   - Fuente oficial `potassco/pddl-instances`.
 
-- `ipc-2002 satellite-strips-automatic / instance-1`
-  - Fuente oficial `potassco/pddl-instances`.
-
 ## Casos con ajuste por compatibilidad PDDL4J
 
 - `ipc-1998 gripper / instance-1`

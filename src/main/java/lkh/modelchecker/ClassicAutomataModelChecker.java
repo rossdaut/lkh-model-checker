@@ -7,7 +7,9 @@ import lkh.lts.LTS;
 import lombok.Getter;
 import lombok.NonNull;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -82,18 +84,25 @@ public class ClassicAutomataModelChecker<State, Action> extends AutomataModelChe
     Set<Set<State>> visited = new HashSet<>();
     Set<State> initialStateSet = new HashSet<>(Set.of(state));
 
-    GraphDeterministicAutomaton<Set<State>, Action> automaton = new GraphDeterministicAutomaton<>();
-    automaton.setInitialState(initialStateSet);
+    GraphDeterministicAutomaton<Integer, Action> automaton = new GraphDeterministicAutomaton<>();
+    Map<Set<State>, Integer> indexMap = new HashMap<>();
 
+    indexMap.put(initialStateSet, 0);
+    automaton.setInitialState(0);
     stack.push(initialStateSet);
 
     while (!stack.isEmpty()) {
       Set<State> x = stack.pop();
-      visited.add(x);
+      if (!visited.add(x)) continue;
+
+      int sourceIndex = indexMap.get(x);
 
       for (Action action : lts.getActions()) {
         lts.targets(x, action, true).ifPresent(target -> {
-          automaton.addTransition(x, target, action);
+          if (!indexMap.containsKey(target)) {
+            indexMap.put(target, indexMap.size());
+          }
+          automaton.addTransition(sourceIndex, indexMap.get(target), action);
 
           if (!visited.contains(target))
             stack.push(target);
@@ -103,7 +112,7 @@ public class ClassicAutomataModelChecker<State, Action> extends AutomataModelChe
 
     automaton.addFinalStates(automaton.getStates());
 
-    return AutomataOperations.toIntegerStates(automaton);
+    return automaton;
   }
 
   private GraphDeterministicAutomaton<Integer, Action> aComplement(State initState, State endState) {
